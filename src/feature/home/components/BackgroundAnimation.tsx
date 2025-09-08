@@ -1,4 +1,4 @@
-const koalaPixelImage = ""; // 이미지 asset 연동
+import koalaPixelImage from "../../../assets/default_koala.png";
 
 export default function BackgroundAnimation() {
   return (
