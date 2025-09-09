@@ -1,0 +1,82 @@
+name: Frontend → S3 → CloudFront
+
+on:
+  push:
+    branches: ["main"]   # main 브랜치에 push될 때 실행
+  workflow_dispatch:     # 수동 실행도 가능하게
+
+concurrency:
+  group: frontend-prod   # 같은 그룹 배포가 겹치면 이전 작업 취소
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write    # AWS OIDC 인증용 권한
+      contents: read     # repo 코드 읽기 권한
+
+    steps:
+      # 1. 레포 checkout
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # 2. Node.js 세팅
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20   # Node.js 20 버전 사용
+          cache: 'npm'       # npm 캐싱
+
+      # 3. .env.production 생성
+      - name: Write .env.production
+        run: |
+          cat > .env.production << 'EOF'
+          ${{ secrets.FRONT_ENV }}
+          EOF
+
+      # 4. 의존성 설치
+      - name: Install deps
+        run: npm ci
+
+      # 5. 빌드
+      - name: Build
+        run: npm run build
+
+      # 6. AWS 인증 (OIDC 방식 권장)
+      - name: Configure AWS (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}   # GitHub Actions용 IAM Role ARN
+          aws-region: ap-northeast-2
+
+      # 7. AWS CLI 설치
+      - name: Install AWS CLI v2
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y unzip
+          curl -sS "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip -q awscliv2.zip
+          sudo ./aws/install
+
+      # 8. 정적 리소스 업로드 (hash 붙은 js/css 등은 오래 캐시)
+      - name: Upload static assets (long cache)
+        run: |
+          aws s3 sync build s3://ringdongbucket2 \
+            --delete \
+            --cache-control "public,max-age=31536000,immutable" \
+            --exclude "index.html"
+
+      # 9. index.html 업로드 (짧은 캐시)
+      - name: Upload index.html (short cache)
+        run: |
+          aws s3 cp build/index.html s3://ringdongbucket2/index.html \
+            --cache-control "public,max-age=60,no-transform"
+
+      # 10. CloudFront 캐시 무효화 → 배포 즉시 반영
+      - name: CloudFront Invalidation
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
+
