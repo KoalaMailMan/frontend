@@ -1,12 +1,12 @@
-import MainSection from "../../../feature/home/components/MainSection";
-import ScrollAnimation from "../../../feature/home/components/ScrollAnimation";
-import StoryBoardComponents from "../../../feature/home/components/StoryBoardComponents";
-import { Button } from "../../../feature/ui/Button";
-import NoticeContainer from "../../../feature/ui/NoticeContainer";
+import MainSection from "../components/MainSection";
+import ScrollAnimation from "../components/ScrollAnimation";
+import StoryBoardComponents from "../components/StoryBoardComponents";
+import { Button } from "../../ui/Button";
+import NoticeContainer from "../../ui/NoticeContainer";
 import koalaPixelImage from "../../../assets/default_koala.png";
-import PixelAnimationComponent from "../../../feature/home/components/PixelAnimationComponent";
+import PixelAnimationComponent from "../components/PixelAnimationComponent";
 import BG_RED from "../../../assets/background_red.png";
-import BackgroundAnimation from "../../../feature/home/components/BackgroundAnimation";
+import BackgroundAnimation from "../components/BackgroundAnimation";
 
 export default function HomePage() {
   const scrollToTop = () => {
