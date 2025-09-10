@@ -26,7 +26,7 @@ export const handleLogin = () => {
 
 export const handleLogout = () => {
   try {
-    const res = logouAPI();
+    logouAPI();
     useAuthStore.getState().setWasLoggedIn(false);
     useAuthStore.getState().setAccessToken(null);
   } catch (error) {
