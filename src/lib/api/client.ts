@@ -1,3 +1,4 @@
+import { ENV } from "@/const";
 import type {
   ApiError,
   RequestConfig,
@@ -19,9 +20,11 @@ class ApiClient {
     return this.request(url, { ...config, method: "GET" });
   }
 
-  post(url: string, data: any, config?: RequestConfig) {
-    if (!data) throw new Error("POST 요청: 데이터를 찾을 수 없습니다.");
-    return this.request(url, { ...config, method: "POST", data });
+  post(url: string, data?: any, config?: RequestConfig) {
+    if (data) {
+      return this.request(url, { ...config, method: "POST", data });
+    }
+    return this.request(url, { ...config, method: "POST" });
   }
   put(url: string, data: any, config?: RequestConfig) {
     if (!data) throw new Error("PUT 요청: 데이터를 찾을 수 없습니다.");
@@ -38,15 +41,16 @@ class ApiClient {
   addRequestInterceptor(interceptors: RequestInterceptor) {
     this.requestInterceptors.push(interceptors);
   }
-  addRresponseInterceptor(interceptors: ResponseInterceptor) {
+  addResponseInterceptor(interceptors: ResponseInterceptor) {
     this.responseInterceptors.push(interceptors);
   }
 
   // 요청 처리 시작
   async request(url: string, options: RequestConfig = {}) {
+    const finalURL = url.startsWith("http") ? url : `${this.baseURL}${url}`;
     let config: RequestConfig = {
       ...options,
-      url: `${this.baseURL}${url}`,
+      url: finalURL,
       headers: {
         "Content-Type": "application/json",
         ...options.headers,
@@ -71,7 +75,11 @@ class ApiClient {
       config.data &&
       ["POST", "PATCH", "PUT"].includes(config.method?.toUpperCase() || "")
     ) {
-      config.body = JSON.stringify(config.data);
+      if (typeof config.data === "string") {
+        config.body = config.data;
+      } else {
+        config.body = JSON.stringify(config.data);
+      }
       delete config.data;
     }
 
@@ -113,7 +121,7 @@ class ApiClient {
         result = response;
         for (const interceptor of this.responseInterceptors) {
           if (interceptor.onSuccess) {
-            result = await interceptor.onSuccess(response);
+            result = await interceptor.onSuccess(result);
           }
         }
       } else {
@@ -124,7 +132,10 @@ class ApiClient {
     } catch (error) {
       const apiError: ApiError =
         error instanceof Error
-          ? { message: error.message, status: 0 }
+          ? {
+              message: error.message,
+              status: error.name === "AbortError" ? 408 : 0,
+            }
           : (error as ApiError);
 
       for (const interceptor of this.responseInterceptors) {
@@ -138,4 +149,4 @@ class ApiClient {
   }
 }
 
-export default ApiClient;
+export const apiClient = new ApiClient(ENV.BACKEND_URL);
