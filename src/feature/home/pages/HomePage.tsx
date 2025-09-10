@@ -1,14 +1,20 @@
-import MainSection from "../../../feature/home/components/MainSection";
-import ScrollAnimation from "../../../feature/home/components/ScrollAnimation";
-import StoryBoardComponents from "../../../feature/home/components/StoryBoardComponents";
-import { Button } from "../../../feature/ui/Button";
-import NoticeContainer from "../../../feature/ui/NoticeContainer";
+import MainSection from "../components/MainSection";
+import ScrollAnimation from "../components/ScrollAnimation";
+import StoryBoardComponents from "../components/StoryBoardComponents";
+import { Button } from "../../ui/Button";
+import NoticeContainer from "../../ui/NoticeContainer";
 import koalaPixelImage from "../../../assets/default_koala.png";
-import PixelAnimationComponent from "../../../feature/home/components/PixelAnimationComponent";
+import PixelAnimationComponent from "../components/PixelAnimationComponent";
 import BG_RED from "../../../assets/background_red.png";
-import BackgroundAnimation from "../../../feature/home/components/BackgroundAnimation";
+import BackgroundAnimation from "../components/BackgroundAnimation";
 
 export default function HomePage() {
+  const scrollToTop = () => {
+    if (window) {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
   return (
     <main
       className="min-h-screen relative overflow-hidden"
@@ -78,7 +84,7 @@ export default function HomePage() {
                   오늘부터 당신의 꿈을 현실로 만들어보세요! ✨
                 </p>
                 <Button
-                  // onClick={scrollToTop}
+                  onClick={scrollToTop}
                   className="w-full bg-primary hover:bg-primary/90 text-white h-12 pixel-button text-sm"
                 >
                   ↑ 위로 올라가서 로그인하기 📝

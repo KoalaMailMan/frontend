@@ -1,3 +1,8 @@
+import {
+  handleGoogleLogin,
+  handleLogout,
+  handleNaverLogin,
+} from "@/feature/auth/service";
 import { Button } from "@/feature/ui/Button";
 
 export default function MainSection() {
@@ -26,7 +31,10 @@ export default function MainSection() {
         </p>
       </div>
       <div className="space-y-4 max-w-sm mx-auto">
-        <Button className="w-full bg-green-500 hover:bg-green-600 text-white h-14 pixel-button text-lg shadow-2xl">
+        <Button
+          className="w-full bg-green-500 hover:bg-green-600 text-white h-14 pixel-button text-lg shadow-2xl"
+          onClick={() => handleNaverLogin()}
+        >
           <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24" fill="currentColor">
             <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z" />
           </svg>
@@ -35,6 +43,7 @@ export default function MainSection() {
         <Button
           variant="outline"
           className="w-full h-14 border-2 pixel-button border-white bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 text-lg shadow-2xl"
+          onClick={() => handleGoogleLogin()}
         >
           <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24">
             <path
@@ -56,6 +65,7 @@ export default function MainSection() {
           </svg>
           구글로 시작하기
         </Button>
+        <Button onClick={() => handleLogout()}>logout</Button>
       </div>
       <div className="mt-8">
         <p

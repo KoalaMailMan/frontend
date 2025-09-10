@@ -1,0 +1,152 @@
+import { ENV } from "@/const";
+import type {
+  ApiError,
+  RequestConfig,
+  RequestInterceptor,
+  ResponseInterceptor,
+} from "./type";
+
+class ApiClient {
+  private baseURL: string;
+  private timeout: number;
+  private requestInterceptors: RequestInterceptor[] = [];
+  private responseInterceptors: ResponseInterceptor[] = [];
+  constructor(baseURL: string = "", timeout: number = 10000) {
+    this.baseURL = baseURL;
+    this.timeout = timeout;
+  }
+
+  get(url: string, config?: RequestConfig) {
+    return this.request(url, { ...config, method: "GET" });
+  }
+
+  post(url: string, data?: any, config?: RequestConfig) {
+    if (data) {
+      return this.request(url, { ...config, method: "POST", data });
+    }
+    return this.request(url, { ...config, method: "POST" });
+  }
+  put(url: string, data: any, config?: RequestConfig) {
+    if (!data) throw new Error("PUT 요청: 데이터를 찾을 수 없습니다.");
+    return this.request(url, { ...config, method: "PUT", data });
+  }
+  patch(url: string, data: any, config?: RequestConfig) {
+    if (!data) throw new Error("PATCH 요청: 데이터를 찾을 수 없습니다.");
+    return this.request(url, { ...config, method: "PATCH", data });
+  }
+  delete(url: string, config?: RequestConfig) {
+    return this.request(url, { ...config, method: "DELETE" });
+  }
+
+  addRequestInterceptor(interceptors: RequestInterceptor) {
+    this.requestInterceptors.push(interceptors);
+  }
+  addResponseInterceptor(interceptors: ResponseInterceptor) {
+    this.responseInterceptors.push(interceptors);
+  }
+
+  // 요청 처리 시작
+  async request(url: string, options: RequestConfig = {}) {
+    const finalURL = url.startsWith("http") ? url : `${this.baseURL}${url}`;
+    let config: RequestConfig = {
+      ...options,
+      url: finalURL,
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+    };
+
+    // interceptor 순차 실행
+    for (const interceptor of this.requestInterceptors) {
+      const interceptorResult = await interceptor(config);
+      config = {
+        ...config,
+        ...interceptorResult,
+        headers: {
+          ...config.headers,
+          ...interceptorResult.headers,
+        },
+      };
+    }
+
+    // body data 직렬화
+    if (
+      config.data &&
+      ["POST", "PATCH", "PUT"].includes(config.method?.toUpperCase() || "")
+    ) {
+      if (typeof config.data === "string") {
+        config.body = config.data;
+      } else {
+        config.body = JSON.stringify(config.data);
+      }
+      delete config.data;
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+      if (!config.url) {
+        const error: ApiError = {
+          message: `데이터에 url이 존재하지 않습니다. [config]: ${config}`,
+          status: 0,
+        };
+        throw error;
+      }
+      const response = await fetch(config.url, {
+        ...config,
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        const error: ApiError = {
+          message: `HTTP Error: ${response.status}`,
+          status: response.status,
+        };
+        try {
+          const errorData = await response.json();
+          error.message = errorData.message || error.message;
+          error.code = errorData.code;
+        } catch (error) {
+          // 기본 메세지 사용 -> error 객체
+        }
+
+        throw error;
+      }
+
+      let result;
+      if (this.responseInterceptors.length > 0) {
+        result = response;
+        for (const interceptor of this.responseInterceptors) {
+          if (interceptor.onSuccess) {
+            result = await interceptor.onSuccess(result);
+          }
+        }
+      } else {
+        result = await response.json();
+      }
+
+      return result;
+    } catch (error) {
+      const apiError: ApiError =
+        error instanceof Error
+          ? {
+              message: error.message,
+              status: error.name === "AbortError" ? 408 : 0,
+            }
+          : (error as ApiError);
+
+      for (const interceptor of this.responseInterceptors) {
+        if (interceptor.onError) {
+          await interceptor.onError(apiError);
+        }
+      }
+
+      throw apiError;
+    }
+  }
+}
+
+export const apiClient = new ApiClient(ENV.BACKEND_URL);
