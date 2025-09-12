@@ -20,9 +20,16 @@ const noticeVariants = cva("mailbox-card mx-auto p-8 bg-white/95", {
 
 type Props = { children: React.ReactNode } & VariantProps<
   typeof noticeVariants
->;
-export default function NoticeContainer({ children, variant, shadow }: Props) {
+> & { className: string };
+export default function NoticeContainer({
+  children,
+  variant,
+  shadow,
+  className,
+}: Props) {
   return (
-    <div className={cn(noticeVariants({ variant, shadow }))}>{children}</div>
+    <div className={cn(noticeVariants({ variant, shadow, className }))}>
+      {children}
+    </div>
   );
 }
