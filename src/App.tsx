@@ -1,5 +1,4 @@
 import { useEffect, useRef } from "react";
-import Mandara from "./feature/mandala/pages/Mandara";
 import {
   handleLogin,
   reissueWithRefreshToken,
@@ -7,6 +6,7 @@ import {
 } from "./feature/auth/service";
 import { APIWithRetry } from "./feature/auth/\butils";
 import { useAuthStore } from "./lib/stores/authStore";
+import MandalaBoard from "./feature/mandala/pages/MadalaBoard";
 
 function App() {
   const isLoading = useRef(false);
@@ -42,8 +42,7 @@ function App() {
   // }, []);
   return (
     <>
-      <Mandara />
-      {/* {store.wasLoggedIn && <Mandara />} */}
+      <MandalaBoard />
       {/* {!store.wasLoggedIn && <HomePage />} */}
     </>
   );
