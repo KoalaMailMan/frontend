@@ -4,11 +4,13 @@ import { ChevronRight } from "lucide-react";
 import { forwardRef, useEffect, useRef, useState } from "react";
 import MandalaReadOnlyCell from "./MandalaReadOnlyCell";
 import MandalaEditableCell from "./MandalaEditableCell";
+import type { MainGoal, SubGoal } from "@/lib/stores/mandalaStore";
 
 type MandalaContainerCellProps = {
   isCenter: boolean;
-  item: any;
+  item: MainGoal | SubGoal;
   isEditing: boolean;
+  compact: boolean;
   onStartEdit: () => void;
   onContentChange: (value: string) => void;
   onCancelEdit: () => void;
@@ -19,6 +21,7 @@ export default function MandalaContainer({
   isCenter,
   item,
   isEditing,
+  compact,
   onStartEdit,
   onContentChange,
   onCancelEdit,
@@ -30,7 +33,7 @@ export default function MandalaContainer({
     if (isEditing && textareaRef.current) {
       textareaRef.current.focus();
       textareaRef.current.select();
-      // 높이 자동 조절
+
       const textarea = textareaRef.current;
       textarea.style.height = "auto";
       textarea.style.height = textarea.scrollHeight + "px";
@@ -39,7 +42,7 @@ export default function MandalaContainer({
 
   const handleContentChange = (value: string) => {
     onContentChange(value);
-    // 높이 자동 조절
+
     if (textareaRef.current) {
       const textarea = textareaRef.current;
       textarea.style.height = "auto";
@@ -61,7 +64,9 @@ export default function MandalaContainer({
 
   return (
     <MandalaReadOnlyCell
+      id={item.goalId}
       isCenter={isCenter}
+      compact={compact}
       content={item.content}
       onCellClick={onStartEdit}
       onDetailClick={onDetailClick}

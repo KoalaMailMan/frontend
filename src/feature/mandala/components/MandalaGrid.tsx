@@ -1,12 +1,19 @@
 import { Fragment } from "react/jsx-runtime";
-import { useMandalaStore } from "@/lib/stores/mandalaStore";
+import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
+import MandalaModal from "./MandalaModal";
 
 export default function MandalaGrid() {
   const store = useMandalaStore();
   const mandalaList = store.data.data.mains;
 
-  const handleContentChange = (goalId: string, value: string) => {
+  const handleContentChange = (
+    goalId: string,
+    value: string,
+    index?: number | undefined
+  ) => {
+    if (index !== undefined)
+      return store.handleCellChange(goalId, value, index);
     store.handleCellChange(goalId, value);
   };
 
@@ -17,8 +24,28 @@ export default function MandalaGrid() {
   const handleCancelEdit = () => {
     store.setEditingCell(null);
   };
+
   const handleDetailClick = (goalId: string) => {
-    // 세부 목표 모달 열기 로직
+    store.setModalCellId(goalId);
+    store.setModalVisible(true);
+  };
+
+  const handleModalClose = () => {
+    store.setModalCellId(null);
+    store.setEditingSubCell(null);
+    store.setModalVisible(false);
+  };
+
+  const handleSubContentChange = (value: string) => {
+    if (store.modalCellId && store.editingSubCellId) {
+      const mainIndex = findByIdWithGoalIndex(store.modalCellId);
+      store.handleCellChange(store.editingSubCellId, value, mainIndex);
+    }
+  };
+
+  const findByIdWithGoalIndex = (id: string) => {
+    const index = mandalaList.findIndex((item) => item.goalId === id);
+    return index === -1 ? 0 : index;
   };
 
   return (
@@ -32,6 +59,7 @@ export default function MandalaGrid() {
               isCenter={isCenter}
               item={item}
               isEditing={isEditing}
+              compact={true}
               onStartEdit={() => handleStartEdit(item.goalId)}
               onContentChange={(value) =>
                 handleContentChange(item.goalId, value)
@@ -42,6 +70,17 @@ export default function MandalaGrid() {
           </Fragment>
         );
       })}
+      {store.isModalOpen && store.modalCellId && (
+        <MandalaModal
+          isModalVisible={store.isModalOpen}
+          item={
+            store.getData(findByIdWithGoalIndex(store.modalCellId)) as SubGoal[]
+          }
+          compact={false}
+          onContentChange={handleSubContentChange}
+          onCancelEdit={handleModalClose}
+        />
+      )}
     </div>
   );
 }

@@ -12,14 +12,12 @@ import { useEffect, useState } from "react";
 import { X } from "lucide-react";
 
 import koalaImage from "@/assets/default_koala.png";
+import { createPortal } from "react-dom";
 
 type Props = {
   isModalVisible: boolean;
-  setModalVisible: (visible: boolean) => void;
   item: SubGoal[];
-  isCenter: boolean;
   compact: boolean;
-  onStartEdit: (goalId: string) => any;
   onContentChange: (value: string) => void;
   onCancelEdit: () => void;
   onBlur?: (e: React.FocusEvent) => void;
@@ -27,66 +25,87 @@ type Props = {
 
 export default function MandalaModal({
   isModalVisible,
-  setModalVisible,
   item,
-  isCenter,
   compact,
-  onStartEdit,
   onContentChange,
   onCancelEdit,
   onBlur,
 }: Props) {
   const store = useMandalaStore();
   const centerIndex = Math.floor(item.length / 2);
+
+  const handleSubStartEdit = (goalId: string) => {
+    store.setEditingSubCell(goalId);
+  };
+
+  const handleSubCancelEdit = () => {
+    store.setEditingSubCell(null);
+  };
+
+  const handleModalClose = () => {
+    store.setEditingSubCell(null);
+    onCancelEdit();
+  };
+
   useEffect(() => {
-    console.log(isModalVisible);
-    console.log(isModalVisible);
+    if (isModalVisible) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [isModalVisible]);
-  return (
+
+  if (!isModalVisible) return null;
+
+  const modalContent = (
     <div
       className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4"
-      onClick={onCancelEdit}
+      onClick={handleModalClose} // 배경 클릭 시 모달 닫기
     >
-      <div className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div
+        className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()} // 모달 내용 클릭 시 이벤트 버블링 방지
+      >
         <div className="flex items-center justify-between p-6 border-b">
           <div className="flex items-center gap-3">
             <img src={koalaImage} alt="코알라" className="w-8 h-8" />
             <h2 className="text-xl font-semibold">세부 목표 설정</h2>
           </div>
-          <Button variant="ghost" size="icon" onClick={onCancelEdit}>
+          <Button variant="ghost" size="icon" onClick={handleModalClose}>
             <X className="h-4 w-4" />
           </Button>
         </div>
         <div className="p-6 text-center border-b">
           <p className="text-sm text-gray-600">
             <span className="font-medium text-primary">
-              "{item[centerIndex].content}"
+              "{item[centerIndex]?.content}"
             </span>
             을(를) 달성하기 위한 구체적인 실행 계획을 세워보세요
           </p>
         </div>
         <div className="space-y-4">
-          {centerIndex && (
+          {centerIndex !== undefined && (
             <div className="space-y-2">
-              <p className="font-medium">
-                {`"${item[centerIndex].content}"을(를) 달성하기 위한 구체적인 실행 계획을 세워보세요`}
-              </p>
               <div className="p-6">
                 <div className="flex justify-center">
                   <div className="grid grid-cols-3 gap-2 w-96 aspect-square">
                     {item.map((sub, index) => {
                       const isCenter = centerIndex === index;
-                      const isEditing = store.editingCellId === sub.goalId;
+                      const isEditing = store.editingSubCellId === sub.goalId;
                       return (
-                        <Fragment key={index}>
+                        <Fragment key={`sub-${index}-${sub.goalId}`}>
                           <MandalaContainer
                             isCenter={isCenter}
                             item={sub}
                             isEditing={isEditing}
                             compact={compact}
-                            onStartEdit={() => onStartEdit(sub.goalId)}
+                            onStartEdit={() => handleSubStartEdit(sub.goalId)}
                             onContentChange={onContentChange}
-                            onCancelEdit={onCancelEdit}
+                            onCancelEdit={handleSubCancelEdit}
                             onBlur={onBlur}
                           />
                         </Fragment>
@@ -119,11 +138,12 @@ export default function MandalaModal({
           )}
         </div>
         <div className="flex justify-end p-6 border-t">
-          <Button variant="outline" onClick={onCancelEdit}>
+          <Button variant="outline" onClick={handleModalClose}>
             닫기
           </Button>
         </div>
       </div>
     </div>
   );
+  return createPortal(modalContent, document.body);
 }
