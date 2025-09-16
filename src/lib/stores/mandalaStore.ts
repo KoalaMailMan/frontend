@@ -23,9 +23,12 @@ type States = {
   modalCellId: string | null;
   changedCells: Set<string>;
   isModalOpen: boolean;
+  isReminderOpen: boolean;
 };
 
 type Actions = {
+  setData: (newData: MandalaType) => void;
+  getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
   handleCellChange: (
     cellId: string,
     value: string,
@@ -35,8 +38,7 @@ type Actions = {
   setEditingSubCell: (cellId: string | null) => void;
   setModalCellId: (cellId: string | null) => void;
   setModalVisible: (visible: boolean) => void;
-  setData: (newData: MandalaType) => void;
-  getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
+  setReminderVisible: (visible: boolean) => void;
 };
 
 export const useMandalaStore = create<States & Actions>((set, get) => ({
@@ -47,6 +49,7 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   modalCellId: null,
   changedCells: new Set([]),
   isModalOpen: false,
+  isReminderOpen: false,
 
   getData: (index) => {
     if (index) return get().data.data.mains[index].subs;
@@ -93,4 +96,5 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   setEditingSubCell: (cellId) => set(() => ({ editingSubCellId: cellId })),
   setModalCellId: (cellId) => set(() => ({ modalCellId: cellId })),
   setModalVisible: (visible) => set(() => ({ isModalOpen: visible })),
+  setReminderVisible: (visible) => set(() => ({ isReminderOpen: visible })),
 }));
