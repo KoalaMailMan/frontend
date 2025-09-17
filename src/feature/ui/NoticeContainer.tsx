@@ -20,7 +20,7 @@ const noticeVariants = cva("mailbox-card mx-auto p-8 bg-white/95", {
 
 type Props = { children: React.ReactNode } & VariantProps<
   typeof noticeVariants
-> & { className: string };
+> & { className?: string };
 export default function NoticeContainer({
   children,
   variant,
