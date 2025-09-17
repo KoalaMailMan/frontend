@@ -5,16 +5,28 @@ import MandalaModal from "./MandalaModal";
 
 export default function MandalaGrid() {
   const store = useMandalaStore();
-  const mandalaList = store.data.data.mains;
+  const mandalaList = useMandalaStore((state) => state.data.data.mains);
 
-  const handleContentChange = (
-    goalId: string,
-    value: string,
-    index?: number | undefined
-  ) => {
-    if (index !== undefined)
-      return store.handleCellChange(goalId, value, index);
-    store.handleCellChange(goalId, value);
+  const handleContentChange = (goalId: string, value: string) => {
+    const index = [0, 0];
+    mandalaList.forEach((item, i) => {
+      item.subs.forEach((sub, j) => {
+        if (sub.goalId === goalId) {
+          index[0] = i;
+          index[1] = j;
+          return;
+        }
+      });
+
+      if (item.goalId === goalId) {
+        index[0] = i;
+        return;
+      }
+    });
+    if (index[1] === 0) {
+      store.handleCellChange(goalId, value);
+    }
+    store.handleCellChange(goalId, value, index[0]);
   };
 
   const handleStartEdit = (goalId: string) => {
@@ -37,9 +49,13 @@ export default function MandalaGrid() {
   };
 
   const handleSubContentChange = (value: string) => {
-    if (store.modalCellId && store.editingSubCellId) {
+    if (store.modalCellId) {
       const mainIndex = findByIdWithGoalIndex(store.modalCellId);
-      store.handleCellChange(store.editingSubCellId, value, mainIndex);
+      store.handleCellChange(
+        store.editingSubCellId as string,
+        value,
+        mainIndex
+      );
     }
   };
 
@@ -53,13 +69,25 @@ export default function MandalaGrid() {
       {mandalaList.map((item, i) => {
         const isCenter = Math.floor(mandalaList.length / 2) === i;
         const isEditing = store.editingCellId === item.goalId;
+        const hasSubGoals = i !== 4 && item.subs[i].content !== "";
         return (
-          <Fragment key={item.goalId}>
+          <Fragment key={`main-${i}`}>
             <MandalaContainer
+              className={`
+              ${
+                isCenter
+                  ? " bg-primary/20 border-primary text-primary font-semibold"
+                  : ""
+              }
+              ${i !== 4 ? "bg-primary/5" : ""}
+              ${hasSubGoals ? "ring-2 ring-primary/50 bg-primary/5" : ""}
+            `}
               isCenter={isCenter}
               item={item}
               isEditing={isEditing}
-              compact={true}
+              compact={false}
+              disabled={false}
+              isEmpty={!item}
               onStartEdit={() => handleStartEdit(item.goalId)}
               onContentChange={(value) =>
                 handleContentChange(item.goalId, value)
