@@ -9,11 +9,20 @@ import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { Button } from "@/feature/ui/Button";
 import { Save } from "lucide-react";
 import ReminderSetting from "../components/ReminderSetting";
+import FullMandalaView from "../components/FullMandalaView";
+import { useEffect } from "react";
+import { handleMandalaData } from "../service";
 
 export default function MandalaBoard() {
   const { getCurrentBackground } = useTheme();
   const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
+
+  const isFullOpen = useMandalaStore((state) => state.isFullOpen);
+
+  // useEffect(() => {
+  //   handleMandalaData();
+  // }, []);
 
   return (
     <div
@@ -68,6 +77,7 @@ export default function MandalaBoard() {
         </NoticeContainer>
       </div>
       {isReminder && <ReminderSetting />}
+      {isFullOpen && <FullMandalaView />}
     </div>
   );
 }
