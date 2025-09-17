@@ -5,14 +5,18 @@ import { ChevronRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 type MandalaReadOnlyCellProps = {
+  id: string;
   isCenter: boolean;
   content: string;
+  compact: boolean;
   onCellClick: () => void;
-  onDetailClick?: () => void;
+  onDetailClick?: (id: string | number) => void;
 };
 export default function MandalaReadOnlyCell({
+  id,
   isCenter,
   content,
+  compact,
   onCellClick,
   onDetailClick,
 }: MandalaReadOnlyCellProps) {
@@ -23,7 +27,7 @@ export default function MandalaReadOnlyCell({
       className={cn(
         "pixel-input border-2 border-gray-300 flex items-center justify-center text-center cursor-pointer transition-all hover:bg-primary/10 hover:border-primary relative",
         isCenter &&
-          "bg-primary/20 border-primary text-primary-foreground font-semibold"
+          "bg-primary/20 border-primary text-primary-foreground font-semibold cursor-not-allowed"
       )}
       style={{ minHeight: "40px", aspectRatio: "1" }}
       onMouseEnter={() => setIsHovered(true)}
@@ -39,7 +43,7 @@ export default function MandalaReadOnlyCell({
         {content}
       </span>
 
-      {!isCenter && onDetailClick && (
+      {!isCenter && compact && (
         <Button
           variant="ghost"
           size="sm"
@@ -49,7 +53,7 @@ export default function MandalaReadOnlyCell({
           )}
           onClick={(e) => {
             e.stopPropagation();
-            onDetailClick();
+            if (onDetailClick) onDetailClick(id);
           }}
           title="세부목표 설정"
         >

@@ -1,4 +1,5 @@
 import { Button } from "@/feature/ui/Button";
+import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { forwardRef, useEffect, useRef, useState } from "react";
@@ -13,6 +14,7 @@ function MandalaEditableCell(
   { isCenter, content, onContentChange, onCancel }: MandalaEditableCellProps,
   ref: React.Ref<HTMLTextAreaElement>
 ) {
+  const isModalOpen = useMandalaStore((state) => state.isModalOpen);
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -24,6 +26,7 @@ function MandalaEditableCell(
 
   return (
     <div
+      data-mandala-cell={isModalOpen && "editing"}
       className={cn(
         "w-full h-full border-2 border-primary bg-white flex items-center justify-center relative p-2",
         isCenter && "bg-primary/10"
@@ -39,10 +42,13 @@ function MandalaEditableCell(
         onChange={(e) => onContentChange(e.target.value)}
         onBlur={onCancel}
         onKeyDown={handleKeyDown}
+        disabled={isCenter}
       />
-      <div className="absolute bottom-1 right-1 text-xs text-gray-400">
-        {content.length}/40
-      </div>
+      {!isCenter && (
+        <div className="absolute bottom-1 right-1 text-xs text-gray-400">
+          {content.length}/40
+        </div>
+      )}
     </div>
   );
 }

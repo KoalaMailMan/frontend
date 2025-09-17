@@ -1,4 +1,3 @@
-import { useReducer } from "react";
 import MandalaGrid from "../components/MandalaGrid";
 import Header from "@/shared/\bcomponents/header/Header";
 import { useTheme } from "@/shared/hooks/useTheme";
@@ -7,9 +6,14 @@ import koalaPixelImage from "@/assets/default_koala.png";
 import { cn } from "@/lib/utils";
 import NoticeContainer from "@/feature/ui/NoticeContainer";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
+import { Button } from "@/feature/ui/Button";
+import { Save } from "lucide-react";
+import ReminderSetting from "../components/ReminderSetting";
 
 export default function MandalaBoard() {
   const { getCurrentBackground } = useTheme();
+  const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
+  const isReminder = useMandalaStore((state) => state.isReminderOpen);
 
   return (
     <div
@@ -39,9 +43,9 @@ export default function MandalaBoard() {
               코알라 우체통 📮
             </CardTitle>
             <p className="text-sm text-gray-600 mt-2">
-              중앙에{" "}
+              중앙에
               <span className="font-semibold text-primary">핵심 목표</span>
-              를, 주변 8칸에{" "}
+              를, 주변 8칸에
               <span className="font-semibold text-primary/80">주요 목표</span>를
               입력하세요
             </p>
@@ -51,9 +55,19 @@ export default function MandalaBoard() {
           </CardHeader>
           <CardContent className="pb-6">
             <MandalaGrid />
+            <div className="text-center mt-6">
+              <Button
+                className="pixel-button bg-green-500/90 hover:bg-green-600/90 text-white px-8 py-3 text-base backdrop-blur-sm"
+                onClick={() => onReminderOpen(true)}
+              >
+                <Save className="h-5 w-5 mr-2" />
+                우체통에 저장하기 📮
+              </Button>
+            </div>
           </CardContent>
         </NoticeContainer>
       </div>
+      {isReminder && <ReminderSetting />}
     </div>
   );
 }

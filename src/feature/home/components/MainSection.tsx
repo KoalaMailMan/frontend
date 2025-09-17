@@ -65,7 +65,6 @@ export default function MainSection() {
           </svg>
           구글로 시작하기
         </Button>
-        <Button onClick={() => handleLogout()}>logout</Button>
       </div>
       <div className="mt-8">
         <p
