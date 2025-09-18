@@ -1,19 +1,25 @@
 import { create } from "zustand";
-import durmmyData from "@/data/durmmy";
+import durmmyData, { emptyDummyData } from "@/data/durmmy";
 
 type MandalaType = {
-  data: {
+  core: {
+    goalId: string;
+    content: string;
     mains: MainGoal[];
   };
 };
 
 export type MainGoal = {
   goalId: string;
-  position: any;
+  position: number;
   content: string;
   subs: SubGoal[];
 };
-export type SubGoal = { goalId: any; position: any; content: string };
+export type SubGoal = {
+  goalId: string;
+  position: number;
+  content: string;
+};
 
 type States = {
   data: MandalaType;
@@ -63,8 +69,8 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   currentCenter: { x: 0, y: 0 },
 
   getData: (index) => {
-    if (index) return get().data.data.mains[index].subs;
-    else return get().data.data.mains;
+    if (index) return get().data.core.mains[index].subs;
+    else return get().data.core.mains;
   },
   setData: (newData) => set(() => ({ data: newData })),
 
@@ -72,7 +78,7 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
     set((state) => {
       console.log("Store handleCellChange:", cellId, value, index);
 
-      const dataList = [...state.data.data.mains];
+      const dataList = [...state.data.core.mains];
       const ids = cellId.split("-");
 
       const isSubGoal = cellId.startsWith("sub");
@@ -143,14 +149,12 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
         }
       }
 
-      console.log("Updated dataList:", dataList);
-
       return {
         ...state,
         data: {
           ...state.data,
-          data: {
-            ...state.data.data,
+          core: {
+            ...state.data.core,
             mains: dataList,
           },
         },
