@@ -12,17 +12,13 @@ import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
 import { useEffect } from "react";
 import { handleMandalaData } from "../service";
+import { useAuthStore } from "@/lib/stores/authStore";
 
 export default function MandalaBoard() {
   const { getCurrentBackground } = useTheme();
-  const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
-
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
-
-  // useEffect(() => {
-  //   handleMandalaData();
-  // }, []);
+  const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
 
   return (
     <div

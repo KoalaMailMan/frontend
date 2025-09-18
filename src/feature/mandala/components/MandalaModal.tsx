@@ -20,7 +20,6 @@ type Props = {
   compact: boolean;
   onContentChange: (value: string) => void;
   onCancelEdit: () => void;
-  onBlur?: (e: React.FocusEvent) => void;
 };
 
 export default function MandalaModal({
@@ -29,22 +28,22 @@ export default function MandalaModal({
   compact,
   onContentChange,
   onCancelEdit,
-  onBlur,
 }: Props) {
-  const store = useMandalaStore();
+  const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
+  const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
   const centerIndex = Math.floor(item.length / 2);
 
   const handleSubStartEdit = (goalId: string, isCenter: boolean) => {
     if (isCenter) return;
-    store.setEditingSubCell(goalId);
+    setEditingSubCell(goalId);
   };
 
   const handleSubCancelEdit = () => {
-    store.setEditingSubCell(null);
+    setEditingSubCell(null);
   };
 
   const handleModalClose = () => {
-    store.setEditingSubCell(null);
+    setEditingSubCell(null);
     onCancelEdit();
   };
 
@@ -96,7 +95,7 @@ export default function MandalaModal({
                   <div className="grid grid-cols-3 gap-2 w-96 aspect-square">
                     {item.map((sub, index) => {
                       const isCenter = centerIndex === index;
-                      const isEditing = store.editingSubCellId === sub.goalId;
+                      const isEditing = editingSubCellId === sub.goalId;
                       return (
                         <Fragment key={`sub-${index}-${sub.goalId}`}>
                           <MandalaContainer

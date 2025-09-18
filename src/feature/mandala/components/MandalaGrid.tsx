@@ -4,8 +4,17 @@ import MandalaContainer from "./MandalaContainer";
 import MandalaModal from "./MandalaModal";
 
 export default function MandalaGrid() {
-  const store = useMandalaStore();
-  const mandalaList = useMandalaStore((state) => state.data.data.mains);
+  const mandalaList = useMandalaStore((state) => state.data.core.mains);
+  const modalCellId = useMandalaStore((state) => state.modalCellId);
+  const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
+  const editingCellId = useMandalaStore((state) => state.editingCellId);
+  const isModalOpen = useMandalaStore((state) => state.isModalOpen);
+  const getData = useMandalaStore((state) => state.getData);
+  const handleCellChange = useMandalaStore((state) => state.handleCellChange);
+  const setEditingCell = useMandalaStore((state) => state.setEditingCell);
+  const setModalCellId = useMandalaStore((state) => state.setModalCellId);
+  const setModalVisible = useMandalaStore((state) => state.setModalVisible);
+  const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
 
   const handleContentChange = (goalId: string, value: string) => {
     const index = [0, 0];
@@ -24,38 +33,34 @@ export default function MandalaGrid() {
       }
     });
     if (index[1] === 0) {
-      store.handleCellChange(goalId, value);
+      handleCellChange(goalId, value);
     }
-    store.handleCellChange(goalId, value, index[0]);
+    handleCellChange(goalId, value, index[0]);
   };
 
   const handleStartEdit = (goalId: string) => {
-    store.setEditingCell(goalId);
+    setEditingCell(goalId);
   };
 
   const handleCancelEdit = () => {
-    store.setEditingCell(null);
+    setEditingCell(null);
   };
 
   const handleDetailClick = (goalId: string) => {
-    store.setModalCellId(goalId);
-    store.setModalVisible(true);
+    setModalCellId(goalId);
+    setModalVisible(true);
   };
 
   const handleModalClose = () => {
-    store.setModalCellId(null);
-    store.setEditingSubCell(null);
-    store.setModalVisible(false);
+    setModalCellId(null);
+    setEditingSubCell(null);
+    setModalVisible(false);
   };
 
   const handleSubContentChange = (value: string) => {
-    if (store.modalCellId) {
-      const mainIndex = findByIdWithGoalIndex(store.modalCellId);
-      store.handleCellChange(
-        store.editingSubCellId as string,
-        value,
-        mainIndex
-      );
+    if (modalCellId) {
+      const mainIndex = findByIdWithGoalIndex(modalCellId);
+      handleCellChange(editingSubCellId as string, value, mainIndex);
     }
   };
 
@@ -68,8 +73,24 @@ export default function MandalaGrid() {
     <div className="grid grid-cols-3 gap-1 max-w-lg mx-auto aspect-square">
       {mandalaList.map((item, i) => {
         const isCenter = Math.floor(mandalaList.length / 2) === i;
-        const isEditing = store.editingCellId === item.goalId;
-        const hasSubGoals = i !== 4 && item.subs[i].content !== "";
+        const isEditing = editingCellId === item.goalId;
+        // const hasSubGoals = i !== 4 && item.subs[i].content !== "";
+        const hasSubGoals = false;
+
+        const getGridClasses = (idx: number) => {
+          if (idx === 0) return "col-start-2 row-start-2"; // 중앙
+          const positions = [
+            "col-start-1 row-start-1", // 좌상
+            "col-start-2 row-start-1", // 중상
+            "col-start-3 row-start-1", // 우상
+            "col-start-1 row-start-2", // 좌중
+            "col-start-3 row-start-2", // 우중
+            "col-start-1 row-start-3", // 좌하
+            "col-start-2 row-start-3", // 중하
+            "col-start-3 row-start-3", // 우하
+          ];
+          return positions[idx - 1] || "col-start-1 row-start-1";
+        };
         return (
           <Fragment key={`main-${i}`}>
             <MandalaContainer
@@ -79,8 +100,9 @@ export default function MandalaGrid() {
                   ? " bg-primary/20 border-primary text-primary font-semibold"
                   : ""
               }
-              ${i !== 4 ? "bg-primary/5" : ""}
+              ${i !== 0 ? "bg-primary/5" : ""} 
               ${hasSubGoals ? "ring-2 ring-primary/50 bg-primary/5" : ""}
+              ${getGridClasses(i)}
             `}
               isCenter={isCenter}
               item={item}
@@ -98,12 +120,10 @@ export default function MandalaGrid() {
           </Fragment>
         );
       })}
-      {store.isModalOpen && store.modalCellId && (
+      {isModalOpen && modalCellId && (
         <MandalaModal
-          isModalVisible={store.isModalOpen}
-          item={
-            store.getData(findByIdWithGoalIndex(store.modalCellId)) as SubGoal[]
-          }
+          isModalVisible={isModalOpen}
+          item={getData(findByIdWithGoalIndex(modalCellId)) as SubGoal[]}
           compact={false}
           onContentChange={handleSubContentChange}
           onCancelEdit={handleModalClose}

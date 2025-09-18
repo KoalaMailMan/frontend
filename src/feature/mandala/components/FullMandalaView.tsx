@@ -5,6 +5,7 @@ import { ImageIcon, X } from "lucide-react";
 import { Fragment, useEffect, useMemo, useRef } from "react";
 import MandalaContainer from "./MandalaContainer";
 import { cn } from "@/lib/utils";
+import { captureAndDownload } from "../utills/image";
 
 type Type = "center" | "main" | "main-center" | "sub";
 const findbyCSS = (type: Type) => {
@@ -18,10 +19,15 @@ const findbyCSS = (type: Type) => {
   return typeObj["sub"];
 };
 export default function FullMandalaView() {
-  const store = useMandalaStore();
-  const mandalaList = useMandalaStore((state) => state.data.data.mains);
+  const mandalaList = useMandalaStore((state) => state.data.core.mains);
+  const isFullOpen = useMandalaStore((state) => state.isFullOpen);
+  const editingFullCellId = useMandalaStore((state) => state.editingFullCellId);
+  const handleCellChange = useMandalaStore((state) => state.handleCellChange);
+  const setEditingFullCell = useMandalaStore(
+    (state) => state.setEditingFullCell
+  );
   const onClose = useMandalaStore((state) => state.setFullVisible);
-  const containerRef = useRef(null);
+  const mandaraGridRef = useRef<HTMLDivElement | null>(null);
 
   const addPositionProperty = useMemo(() => {
     return mandalaList.map((item, idx) => {
@@ -64,17 +70,13 @@ export default function FullMandalaView() {
         continue;
       }
 
-      // 다른 경우도 복사해서 push
       result.push([...main.subs]);
     }
     return result;
   }, [addPositionProperty]);
 
-  useEffect(() => {
-    console.log(grid);
-  }, [grid]);
   const handleSubStartEdit = (goalId: string) => {
-    store.setEditingFullCell(goalId);
+    setEditingFullCell(goalId);
   };
   const findByIdWithGoalIndex = (id: string) => {
     const index = [0, 0];
@@ -98,16 +100,16 @@ export default function FullMandalaView() {
     return index;
   };
   const handleContentChange = (id: string, value: string) => {
-    if (store.isFullOpen && store.editingFullCellId) {
+    if (isFullOpen && editingFullCellId) {
       const index = findByIdWithGoalIndex(id);
       console.log("Editing:", id, "at index:", index, "value:", value);
 
-      store.handleCellChange(id, value, index[0]);
+      handleCellChange(id, value, index[0]);
     }
   };
 
   const handleModalClose = () => {
-    store.setEditingFullCell(null);
+    setEditingFullCell(null);
   };
 
   return (
@@ -138,7 +140,7 @@ export default function FullMandalaView() {
           <div className="flex items-center gap-2">
             {/* 이미지 저장 버튼 */}
             <Button
-              //   onClick={saveAsImage}
+              onClick={() => captureAndDownload(mandaraGridRef)}
               className="pixel-button bg-green-500 hover:bg-green-600 text-white px-3 sm:px-4 py-2"
               title="만다라트를 이미지로 저장"
             >
@@ -160,7 +162,7 @@ export default function FullMandalaView() {
           {/* 모바일에서는 스크롤 가능한 뷰 */}
           <div className="w-full overflow-auto sm:overflow-visible">
             <div
-              // ref={mandaraGridRef}
+              ref={mandaraGridRef}
               className="grid grid-cols-3 gap-0.5 sm:gap-1 mx-auto"
               style={{
                 minWidth: "360px", // 모바일 최소 너비
@@ -178,7 +180,7 @@ export default function FullMandalaView() {
                   >
                     {subBlock.map((sub, subIdx: number) => {
                       const isCenter = subIdx === 4;
-                      const isEditing = sub.goalId === store.editingFullCellId;
+                      const isEditing = sub.goalId === editingFullCellId;
                       return (
                         <Fragment key={`main-${blockIdx}-${sub.goalId}`}>
                           <MandalaContainer
