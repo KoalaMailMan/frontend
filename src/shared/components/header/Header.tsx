@@ -47,12 +47,11 @@ export default function Header({
           </div>
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          <div className="z-30">
-            <ThemeSelector
-              currentTheme={currentTheme}
-              onThemeChange={onThemeChange}
-            />
-          </div>
+          <ThemeSelector
+            className="h-9"
+            currentTheme={currentTheme}
+            onThemeChange={onThemeChange}
+          />
           <Button
             variant="outline"
             className="flex items-center gap-1 sm:gap-2 pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"

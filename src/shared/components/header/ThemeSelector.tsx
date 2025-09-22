@@ -8,17 +8,20 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/feature/ui/Dialog";
+import { cn } from "@/lib/utils";
 import { Check, Palette } from "lucide-react";
 import { useState } from "react";
 
 type ThemeSelectorProps = {
   currentTheme: ThemeColor;
   onThemeChange: (theme: ThemeColor) => void;
+  className?: string;
 };
 
 export default function ThemeSelector({
   currentTheme,
   onThemeChange,
+  className,
 }: ThemeSelectorProps) {
   const [visible, setVisible] = useState(false);
 
@@ -26,7 +29,11 @@ export default function ThemeSelector({
   return (
     <Dialog open={visible} onOpenChange={setVisible}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="pixel-button gap-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className={cn("pixel-button gap-2", className)}
+        >
           <div
             className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
             style={{ backgroundColor: currentThemeData?.color }}
