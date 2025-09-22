@@ -2,8 +2,11 @@ import { Button } from "@/feature/ui/Button";
 import koalaPixelImage from "@/assets/default_koala.png";
 import { HelpCircle, LogOut, Maximize2 } from "lucide-react";
 import { handleLogout } from "@/feature/auth/service";
+import { useMandalaStore } from "@/lib/stores/mandalaStore";
 
 export default function Header() {
+  const onFullOpen = useMandalaStore((state) => state.setFullVisible);
+
   return (
     <div className="max-w-4xl mx-auto mb-4 sm:mb-6 lg:mb-8 px-4 p-4 ">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -34,6 +37,7 @@ export default function Header() {
           <Button
             variant="outline"
             className="flex items-center gap-1 sm:gap-2 pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
+            onClick={() => onFullOpen(true)}
           >
             <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden lg:inline">9x9 전체보기</span>

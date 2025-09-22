@@ -1,10 +1,3 @@
-import { Button } from "@/feature/ui/Button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/feature/ui/Dialog";
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
 import { Fragment } from "react/jsx-runtime";
@@ -13,14 +6,28 @@ import { X } from "lucide-react";
 
 import koalaImage from "@/assets/default_koala.png";
 import { createPortal } from "react-dom";
-
+import { Button } from "@/feature/ui/Button";
+import { cn } from "@/lib/utils";
+const getGridClasses = (idx: number) => {
+  if (idx === 0) return "col-start-2 row-start-2"; // 중앙
+  const positions = [
+    "col-start-1 row-start-1", // 좌상
+    "col-start-2 row-start-1", // 중상
+    "col-start-3 row-start-1", // 우상
+    "col-start-1 row-start-2", // 좌중
+    "col-start-3 row-start-2", // 우중
+    "col-start-1 row-start-3", // 좌하
+    "col-start-2 row-start-3", // 중하
+    "col-start-3 row-start-3", // 우하
+  ];
+  return positions[idx - 1] || "col-start-1 row-start-1";
+};
 type Props = {
   isModalVisible: boolean;
   item: SubGoal[];
   compact: boolean;
   onContentChange: (value: string) => void;
   onCancelEdit: () => void;
-  onBlur?: (e: React.FocusEvent) => void;
 };
 
 export default function MandalaModal({
@@ -29,21 +36,22 @@ export default function MandalaModal({
   compact,
   onContentChange,
   onCancelEdit,
-  onBlur,
 }: Props) {
-  const store = useMandalaStore();
-  const centerIndex = Math.floor(item.length / 2);
+  const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
+  const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
+  const centerIndex = 0;
 
-  const handleSubStartEdit = (goalId: string) => {
-    store.setEditingSubCell(goalId);
+  const handleSubStartEdit = (goalId: string, isCenter: boolean) => {
+    if (isCenter) return;
+    setEditingSubCell(goalId);
   };
 
   const handleSubCancelEdit = () => {
-    store.setEditingSubCell(null);
+    setEditingSubCell(null);
   };
 
   const handleModalClose = () => {
-    store.setEditingSubCell(null);
+    setEditingSubCell(null);
     onCancelEdit();
   };
 
@@ -95,7 +103,7 @@ export default function MandalaModal({
                   <div className="grid grid-cols-3 gap-2 w-96 aspect-square">
                     {item.map((sub, index) => {
                       const isCenter = centerIndex === index;
-                      const isEditing = store.editingSubCellId === sub.goalId;
+                      const isEditing = editingSubCellId === sub.goalId;
                       return (
                         <Fragment key={`sub-${index}-${sub.goalId}`}>
                           <MandalaContainer
@@ -103,10 +111,19 @@ export default function MandalaModal({
                             item={sub}
                             isEditing={isEditing}
                             compact={compact}
-                            onStartEdit={() => handleSubStartEdit(sub.goalId)}
+                            disabled={isCenter ? true : false}
+                            isEmpty={!sub}
+                            onStartEdit={() => {
+                              handleSubStartEdit(sub.goalId, isCenter);
+                            }}
                             onContentChange={onContentChange}
                             onCancelEdit={handleSubCancelEdit}
-                            onBlur={onBlur}
+                            className={cn(
+                              getGridClasses(index),
+                              isCenter
+                                ? "opacity-50 bg-primary/20 border-primary font-medium text-primary"
+                                : ""
+                            )}
                           />
                         </Fragment>
                       );

@@ -14,7 +14,6 @@ import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { Select } from "@radix-ui/react-select";
 import { Mail } from "lucide-react";
 import { useState } from "react";
-import { createPortal } from "react-dom";
 
 export default function ReminderSetting() {
   const [isEnabled, setIsEnabled] = useState(true);

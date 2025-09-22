@@ -7,10 +7,14 @@ import MandalaEditableCell from "./MandalaEditableCell";
 import type { MainGoal, SubGoal } from "@/lib/stores/mandalaStore";
 
 type MandalaContainerCellProps = {
+  type?: string;
   isCenter: boolean;
   item: MainGoal | SubGoal;
   isEditing: boolean;
   compact: boolean;
+  disabled: boolean;
+  isEmpty: boolean;
+  className?: string;
   onStartEdit: () => void;
   onContentChange: (value: string) => void;
   onCancelEdit: () => void;
@@ -18,10 +22,14 @@ type MandalaContainerCellProps = {
 };
 
 export default function MandalaContainer({
+  type,
   isCenter,
   item,
   isEditing,
   compact,
+  disabled,
+  isEmpty,
+  className,
   onStartEdit,
   onContentChange,
   onCancelEdit,
@@ -55,7 +63,9 @@ export default function MandalaContainer({
       <MandalaEditableCell
         ref={textareaRef}
         isCenter={isCenter}
+        compact={compact}
         content={item.content}
+        disabled={disabled}
         onContentChange={handleContentChange}
         onCancel={onCancelEdit}
       />
@@ -64,10 +74,14 @@ export default function MandalaContainer({
 
   return (
     <MandalaReadOnlyCell
+      className={className}
+      type={type}
       id={item.goalId}
       isCenter={isCenter}
       compact={compact}
       content={item.content}
+      disabled={disabled}
+      isEmpty={isEmpty}
       onCellClick={onStartEdit}
       onDetailClick={onDetailClick}
     />
