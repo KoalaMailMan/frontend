@@ -19,6 +19,7 @@ export default function MandalaGrid() {
   const handleContentChange = (goalId: string, value: string) => {
     const index = [0, 0];
     mandalaList.forEach((item, i) => {
+      if (!item.subs) return;
       item.subs.forEach((sub, j) => {
         if (sub.goalId === goalId) {
           index[0] = i;
@@ -72,11 +73,9 @@ export default function MandalaGrid() {
   return (
     <div className="grid grid-cols-3 gap-1 max-w-lg mx-auto aspect-square">
       {mandalaList.map((item, i) => {
-        const isCenter = Math.floor(mandalaList.length / 2) === i;
+        const isCenter = 0 === i;
         const isEditing = editingCellId === item.goalId;
-        // const hasSubGoals = i !== 4 && item.subs[i].content !== "";
-        const hasSubGoals = false;
-
+        const hasSubGoals = i !== 0 && item.subs && item.subs[i].content !== "";
         const getGridClasses = (idx: number) => {
           if (idx === 0) return "col-start-2 row-start-2"; // 중앙
           const positions = [

@@ -2,7 +2,7 @@ import { Button } from "@/feature/ui/Button";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 type MandalaReadOnlyCellProps = {
   className?: string;
@@ -30,7 +30,9 @@ export default function MandalaReadOnlyCell({
 }: MandalaReadOnlyCellProps) {
   const [isHovered, setIsHovered] = useState(false);
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
-  const display = isModalOpen
+  const display = compact
+    ? ""
+    : isModalOpen
     ? isCenter
       ? ""
       : "주요 목표를 입력하세요"

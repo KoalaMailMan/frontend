@@ -1,10 +1,3 @@
-import { Button } from "@/feature/ui/Button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/feature/ui/Dialog";
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
 import { Fragment } from "react/jsx-runtime";
@@ -13,7 +6,22 @@ import { X } from "lucide-react";
 
 import koalaImage from "@/assets/default_koala.png";
 import { createPortal } from "react-dom";
-
+import { Button } from "@/feature/ui/Button";
+import { cn } from "@/lib/utils";
+const getGridClasses = (idx: number) => {
+  if (idx === 0) return "col-start-2 row-start-2"; // 중앙
+  const positions = [
+    "col-start-1 row-start-1", // 좌상
+    "col-start-2 row-start-1", // 중상
+    "col-start-3 row-start-1", // 우상
+    "col-start-1 row-start-2", // 좌중
+    "col-start-3 row-start-2", // 우중
+    "col-start-1 row-start-3", // 좌하
+    "col-start-2 row-start-3", // 중하
+    "col-start-3 row-start-3", // 우하
+  ];
+  return positions[idx - 1] || "col-start-1 row-start-1";
+};
 type Props = {
   isModalVisible: boolean;
   item: SubGoal[];
@@ -31,7 +39,7 @@ export default function MandalaModal({
 }: Props) {
   const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
-  const centerIndex = Math.floor(item.length / 2);
+  const centerIndex = 0;
 
   const handleSubStartEdit = (goalId: string, isCenter: boolean) => {
     if (isCenter) return;
@@ -110,11 +118,12 @@ export default function MandalaModal({
                             }}
                             onContentChange={onContentChange}
                             onCancelEdit={handleSubCancelEdit}
-                            className={
+                            className={cn(
+                              getGridClasses(index),
                               isCenter
                                 ? "opacity-50 bg-primary/20 border-primary font-medium text-primary"
                                 : ""
-                            }
+                            )}
                           />
                         </Fragment>
                       );
