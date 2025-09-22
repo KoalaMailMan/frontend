@@ -5,10 +5,21 @@ import { Button } from "../../ui/Button";
 import NoticeContainer from "../../ui/NoticeContainer";
 import koalaPixelImage from "../../../assets/default_koala.png";
 import PixelAnimationComponent from "../components/PixelAnimationComponent";
-import BG_RED from "../../../assets/background_red.png";
 import BackgroundAnimation from "../components/BackgroundAnimation";
+import Header from "@/shared/\bcomponents/header/Header";
+import type { ThemeColor } from "@/data/themes";
 
-export default function HomePage() {
+type MandaraChartProps = {
+  currentTheme: ThemeColor;
+  onThemeChange: (theme: ThemeColor) => void;
+  getCurrentBackground: () => void;
+};
+
+export default function HomePage({
+  currentTheme,
+  onThemeChange,
+  getCurrentBackground,
+}: MandaraChartProps) {
   const scrollToTop = () => {
     if (window) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -19,12 +30,14 @@ export default function HomePage() {
     <main
       className="min-h-screen relative overflow-hidden"
       style={{
-        backgroundImage: `url(${BG_RED})`,
+        backgroundImage: `url(${getCurrentBackground()})`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
       }}
     >
+      <Header currentTheme={currentTheme} onThemeChange={onThemeChange} />
+
       <section className="min-h-screen flex flex-col items-center justify-center px-4 relative">
         <BackgroundAnimation />
         <MainSection />

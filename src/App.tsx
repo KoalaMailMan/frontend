@@ -1,20 +1,16 @@
 import { useEffect, useRef } from "react";
-import {
-  handleLogin,
-  reissueWithRefreshToken,
-  shouldAttemptRefresh,
-} from "./feature/auth/service";
-import { APIWithRetry } from "./feature/auth/\butils";
+import { handleLogin } from "./feature/auth/service";
 import { useAuthStore } from "./lib/stores/authStore";
-import MandalaBoard from "./feature/mandala/pages/MadalaBoard";
+import MandalaBoard from "./feature/mandala/pages/MandalaBoard";
 import HomePage from "./feature/home/pages/HomePage";
-import { handleMandalaData } from "./feature/mandala/service";
+import useTheme from "./shared/hooks/useTheme";
 
 function App() {
   const isLoading = useRef(false);
-  const accessToken = useAuthStore((state) => state.accessToken);
+  const { currentTheme, updateCurrentTheme, getCurrentBackground } = useTheme();
+  // const accessToken = useAuthStore((state) => state.accessToken);
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
-  const setWasLoggedIn = useAuthStore((state) => state.setWasLoggedIn);
+  // const setWasLoggedIn = useAuthStore((state) => state.setWasLoggedIn);
   // useEffect(() => {
   //   let cancelled = false;
 
@@ -59,12 +55,24 @@ function App() {
   //   };
   // }, [accessToken]);
 
-  if (true) {
-    return <MandalaBoard />;
+  if (wasLoggedIn) {
+    return (
+      <MandalaBoard
+        currentTheme={currentTheme}
+        onThemeChange={updateCurrentTheme}
+        getCurrentBackground={getCurrentBackground}
+      />
+    );
   }
 
   if (!wasLoggedIn) {
-    return <HomePage />;
+    return (
+      <HomePage
+        currentTheme={currentTheme}
+        onThemeChange={updateCurrentTheme}
+        getCurrentBackground={getCurrentBackground}
+      />
+    );
   }
 }
 

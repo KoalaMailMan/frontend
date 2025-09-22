@@ -3,9 +3,30 @@ import koalaPixelImage from "@/assets/default_koala.png";
 import { HelpCircle, LogOut, Maximize2 } from "lucide-react";
 import { handleLogout } from "@/feature/auth/service";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
+import ThemeSelector from "./ThemeSelector";
+import { useAuthStore } from "@/lib/stores/authStore";
+import type { ThemeColor } from "@/data/themes";
+type MandaraChartProps = {
+  currentTheme: ThemeColor;
+  onThemeChange: (theme: ThemeColor) => void;
+};
 
-export default function Header() {
+export default function Header({
+  currentTheme,
+  onThemeChange,
+}: MandaraChartProps) {
   const onFullOpen = useMandalaStore((state) => state.setFullVisible);
+  const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
+
+  if (!wasLoggedIn)
+    return (
+      <div className="absolute top-4 right-4 z-30">
+        <ThemeSelector
+          currentTheme={currentTheme}
+          onThemeChange={onThemeChange}
+        />
+      </div>
+    );
 
   return (
     <div className="max-w-4xl mx-auto mb-4 sm:mb-6 lg:mb-8 px-4 p-4 ">
@@ -26,6 +47,12 @@ export default function Header() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
+          <div className="z-30">
+            <ThemeSelector
+              currentTheme={currentTheme}
+              onThemeChange={onThemeChange}
+            />
+          </div>
           <Button
             variant="outline"
             className="flex items-center gap-1 sm:gap-2 pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"

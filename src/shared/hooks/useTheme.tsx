@@ -45,7 +45,6 @@ export default function useTheme() {
 
   useEffect(() => {
     updateCurrentTheme(currentTheme);
-    console.log(currentTheme);
   }, [currentTheme]);
 
   const updateCSSVar = (theme: ThemeColor) => {

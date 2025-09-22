@@ -1,6 +1,5 @@
 import MandalaGrid from "../components/MandalaGrid";
 import Header from "@/shared/\bcomponents/header/Header";
-import { useTheme } from "@/shared/hooks/useTheme";
 import { CardContent, CardHeader, CardTitle } from "@/feature/ui/Card";
 import koalaPixelImage from "@/assets/default_koala.png";
 import { cn } from "@/lib/utils";
@@ -11,18 +10,27 @@ import { Save } from "lucide-react";
 import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
 import { useEffect } from "react";
-import { handleMandalaData } from "../service";
-import { useAuthStore } from "@/lib/stores/authStore";
+import type { ThemeColor } from "@/data/themes";
+import ThemeSelector from "@/shared/\bcomponents/header/ThemeSelector";
 
-export default function MandalaBoard() {
-  const { getCurrentBackground } = useTheme();
+type MandaraChartProps = {
+  currentTheme: ThemeColor;
+  onThemeChange: (theme: ThemeColor) => void;
+  getCurrentBackground: () => void;
+};
+
+export default function MandalaBoard({
+  currentTheme,
+  onThemeChange,
+  getCurrentBackground,
+}: MandaraChartProps) {
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
   const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
 
   return (
     <div
-      className="min-h-screen p-4"
+      className="min-h-screen p-4 transition-all"
       style={{
         backgroundImage: `url(${getCurrentBackground()})`,
         backgroundSize: "cover",
@@ -30,7 +38,7 @@ export default function MandalaBoard() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <Header />
+      <Header currentTheme={currentTheme} onThemeChange={onThemeChange} />
       <div className="max-w-2xl mx-auto">
         <NoticeContainer
           variant={"max"}
