@@ -2,11 +2,25 @@ import koalaPixelImage from "@/assets/default_koala.png";
 import { Button } from "@/feature/ui/Button";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { ImageIcon, X } from "lucide-react";
-import { Fragment, useEffect, useMemo, useRef } from "react";
+import { Fragment, useEffect, useMemo, useRef, useState } from "react";
 import MandalaContainer from "./MandalaContainer";
 import { cn } from "@/lib/utils";
 import { captureAndDownload } from "../utills/image";
 
+const getGridClasses = (idx: number) => {
+  if (idx === 0) return "col-start-2 row-start-2"; // 중앙
+  const positions = [
+    "col-start-1 row-start-1", // 좌상
+    "col-start-2 row-start-1", // 중상
+    "col-start-3 row-start-1", // 우상
+    "col-start-1 row-start-2", // 좌중
+    "col-start-3 row-start-2", // 우중
+    "col-start-1 row-start-3", // 좌하
+    "col-start-2 row-start-3", // 중하
+    "col-start-3 row-start-3", // 우하
+  ];
+  return positions[idx - 1] || "col-start-1 row-start-1";
+};
 type Type = "center" | "main" | "main-center" | "sub";
 const findbyCSS = (type: Type) => {
   const typeObj = {
@@ -31,17 +45,21 @@ export default function FullMandalaView() {
 
   const addPositionProperty = useMemo(() => {
     return mandalaList.map((item, idx) => {
-      const isCenter = Math.floor(mandalaList.length / 2) === idx;
+      const isCenter = 0 === idx;
       const type = isCenter ? "center" : "main";
       const content = item.content;
       const goalId = item.goalId;
       const position = item.position;
 
       const newSubs = item.subs.map((sub, subIdx) => {
-        const isSubCenter = Math.floor(item.subs.length / 2) === subIdx;
+        const isSubCenter = 0 === subIdx;
         const typeSub = isSubCenter ? "main-center" : "sub";
         const contentSub = sub.content;
-        const goalIdSub = sub.goalId;
+        const newId = sub.goalId.split("-");
+        const goalIdSub =
+          isSubCenter && !sub.goalId.startsWith("core")
+            ? newId[0] + "-center-" + newId[1]
+            : sub.goalId;
         const positionSub = sub.position;
 
         return {
@@ -60,11 +78,11 @@ export default function FullMandalaView() {
     for (let i = 0; i < addPositionProperty.length; i++) {
       const main = addPositionProperty[i];
 
-      if (i === 4) {
+      if (i === 0) {
         // center
         const newSubs = main.subs.map((sub, j) => ({
           ...sub,
-          type: j === 4 ? "center" : "main",
+          type: j === 0 ? "center" : "main",
         }));
         result.push(newSubs);
         continue;
@@ -73,11 +91,11 @@ export default function FullMandalaView() {
       result.push([...main.subs]);
     }
     return result;
-  }, [addPositionProperty]);
-
+  }, [addPositionProperty, editingFullCellId]);
   const handleSubStartEdit = (goalId: string) => {
     setEditingFullCell(goalId);
   };
+
   const findByIdWithGoalIndex = (id: string) => {
     const index = [0, 0];
 
@@ -99,6 +117,7 @@ export default function FullMandalaView() {
 
     return index;
   };
+
   const handleContentChange = (id: string, value: string) => {
     if (isFullOpen && editingFullCellId) {
       const index = findByIdWithGoalIndex(id);
@@ -111,7 +130,6 @@ export default function FullMandalaView() {
   const handleModalClose = () => {
     setEditingFullCell(null);
   };
-
   return (
     <div
       className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4"
@@ -173,16 +191,17 @@ export default function FullMandalaView() {
               {grid.map((subBlock, blockIdx) => {
                 return (
                   <div
-                    key={blockIdx}
+                    key={`main-${blockIdx}`}
                     className={cn(
-                      "grid grid-cols-3 gap-1 aspect-square text-xs"
+                      "grid grid-cols-3 gap-1 aspect-square text-xs",
+                      getGridClasses(blockIdx)
                     )}
                   >
-                    {subBlock.map((sub, subIdx: number) => {
-                      const isCenter = subIdx === 4;
+                    {subBlock.map((sub, subIdx) => {
+                      const isCenter = blockIdx === 0 && subIdx === 0;
                       const isEditing = sub.goalId === editingFullCellId;
                       return (
-                        <Fragment key={`main-${blockIdx}-${sub.goalId}`}>
+                        <Fragment key={`main-${blockIdx}-${subIdx}`}>
                           <MandalaContainer
                             type={sub.type}
                             item={sub}
@@ -191,7 +210,10 @@ export default function FullMandalaView() {
                             compact={true}
                             disabled={false}
                             isEmpty={!sub}
-                            className={findbyCSS((sub.type as Type) || "sub")}
+                            className={cn(
+                              findbyCSS((sub.type as Type) || "sub"),
+                              getGridClasses(subIdx)
+                            )}
                             onStartEdit={() => handleSubStartEdit(sub.goalId)}
                             onContentChange={(value) =>
                               handleContentChange(sub.goalId, value)
