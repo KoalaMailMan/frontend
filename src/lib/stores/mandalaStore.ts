@@ -1,7 +1,8 @@
 import { create } from "zustand";
-import durmmyData, { emptyDummyData } from "@/data/durmmy";
+import durmmyData from "@/data/durmmy";
+import { emptyDummyData, serverToUI } from "@/feature/mandala/service";
 
-type MandalaType = {
+export type MandalaType = {
   core: {
     goalId: string;
     content: string;
@@ -32,9 +33,6 @@ type States = {
   isModalOpen: boolean;
   isReminderOpen: boolean;
   isFullOpen: boolean;
-
-  //네비게이션
-  currentCenter: { x: number; y: number };
 };
 
 type Actions = {
@@ -48,13 +46,10 @@ type Actions = {
   setModalVisible: (visible: boolean) => void;
   setReminderVisible: (visible: boolean) => void;
   setFullVisible: (visible: boolean) => void;
-
-  // 네비게이션
-  move: (dx: number, dy: number) => void;
 };
 
 export const useMandalaStore = create<States & Actions>((set, get) => ({
-  data: durmmyData,
+  data: serverToUI(emptyDummyData),
   isDirty: false,
   editingCellId: null,
   editingSubCellId: null,
@@ -65,29 +60,28 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   isReminderOpen: false,
   isFullOpen: false,
 
-  //네비게이션
-  currentCenter: { x: 0, y: 0 },
-
   getData: (index) => {
-    if (index) return get().data.core.mains[index].subs;
-    else return get().data.core.mains;
+    if (index != null) {
+      return get().data?.core?.mains?.[index]?.subs ?? [];
+    } else return get().data.core.mains;
   },
   setData: (newData) => set(() => ({ data: newData })),
 
   handleCellChange: (cellId, value, index) =>
     set((state) => {
       console.log("Store handleCellChange:", cellId, value, index);
-
+      if (!state.data.core.mains) return state;
       const dataList = [...state.data.core.mains];
       const ids = cellId.split("-");
 
       const isSubGoal = cellId.startsWith("sub");
       const isMainGoal = cellId.startsWith("main");
+      const isCoreGoal = cellId.startsWith("core");
 
       if (isSubGoal) {
         const mainIndex = parseInt(ids[1]); // sub-{mainIndex}-{subIndex}
         const subIndex = parseInt(ids[2]);
-
+        if (!dataList[mainIndex].subs) return state;
         if (mainIndex < 0 || mainIndex >= dataList.length) return state;
         if (subIndex < 0 || subIndex >= dataList[mainIndex].subs.length)
           return state;
@@ -98,55 +92,36 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
             i === subIndex ? { ...sub, content: value } : sub
           ),
         };
-
-        if (mainIndex === 4 && subIndex !== 4) {
-          if (subIndex < dataList.length) {
-            dataList[subIndex] = {
-              ...dataList[subIndex],
-              content: value,
-              subs: dataList[subIndex].subs.map((sub, i) =>
-                i === 4 ? { ...sub, content: value } : sub
-              ),
-            };
-          }
-        }
-
-        if (subIndex === 4) {
-          dataList[mainIndex] = {
-            ...dataList[mainIndex],
-            content: value,
-          };
-
-          if (mainIndex !== 4 && dataList[4]) {
-            dataList[4] = {
-              ...dataList[4],
-              subs: dataList[4].subs.map((sub, i) =>
-                i === mainIndex ? { ...sub, content: value } : sub
-              ),
-            };
-          }
-        }
       } else if (isMainGoal) {
-        const mainIndex = parseInt(ids[1]); // main-{mainIndex}
-
+        const mainIndex =
+          ids[1] === "center" ? parseInt(ids[2]) : parseInt(ids[1]); // main-{mainIndex} | main-center-{mainIndex}
         if (mainIndex < 0 || mainIndex >= dataList.length) return state;
+        if (!dataList || !dataList[mainIndex].subs || !dataList[0].subs)
+          return state;
 
         dataList[mainIndex] = {
           ...dataList[mainIndex],
           content: value,
           subs: dataList[mainIndex].subs.map((sub, i) =>
-            i === 4 ? { ...sub, content: value } : sub
+            i === 0 ? { ...sub, content: value } : sub
           ),
         };
 
-        if (mainIndex !== 4 && dataList[4]) {
-          dataList[4] = {
-            ...dataList[4],
-            subs: dataList[4].subs.map((sub, i) =>
-              i === mainIndex ? { ...sub, content: value } : sub
-            ),
-          };
-        }
+        dataList[0] = {
+          ...dataList[0],
+          subs: dataList[0].subs.map((sub, i) =>
+            i === mainIndex ? { ...sub, content: value } : sub
+          ),
+        };
+      } else if (isCoreGoal) {
+        if (!dataList[0].subs) return state;
+        dataList[0] = {
+          ...dataList[0],
+          content: value,
+          subs: dataList[0].subs.map((sub, i) =>
+            i === 0 ? { ...sub, content: value } : sub
+          ),
+        };
       }
 
       return {
@@ -171,7 +146,4 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   setModalVisible: (visible) => set(() => ({ isModalOpen: visible })),
   setReminderVisible: (visible) => set(() => ({ isReminderOpen: visible })),
   setFullVisible: (visible) => set(() => ({ isFullOpen: visible })),
-
-  //네비게이션
-  move: (dx, dy) => set(() => ({})),
 }));
