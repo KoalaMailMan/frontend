@@ -1,8 +1,6 @@
-import { Button } from "@/feature/ui/Button";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { forwardRef } from "react";
 
 type MandalaEditableCellProps = {
   isCenter: boolean;
