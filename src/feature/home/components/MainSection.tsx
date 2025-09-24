@@ -1,8 +1,4 @@
-import {
-  handleGoogleLogin,
-  handleLogout,
-  handleNaverLogin,
-} from "@/feature/auth/service";
+import { handleGoogleLogin, handleNaverLogin } from "@/feature/auth/service";
 import { Button } from "@/feature/ui/Button";
 
 export default function MainSection() {
