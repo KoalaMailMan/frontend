@@ -5,6 +5,10 @@ type SocialProvider = "google" | "naver" | null;
 
 type States = {
   accessToken: string | null;
+  user: {
+    nickname: string;
+    email: string;
+  };
 } & AuthPersistedState;
 
 type Actions = {
@@ -13,6 +17,7 @@ type Actions = {
   setWasLoggedIn: (state: boolean) => void;
   setLastProvider: (state: SocialProvider) => void;
   setLastLoginTime: (state: string) => void;
+  setUserInfo: (state: States["user"]) => void;
 };
 
 type AuthPersistedState = {
@@ -30,6 +35,10 @@ export const useAuthStore = create<States & Actions>()(
       wasLoggedIn: false,
       lastProvider: null,
       lastLoginTime: "",
+      user: {
+        nickname: "",
+        email: "",
+      },
       getAccessToken: () => get().accessToken,
       setAccessToken: (token: string | null) =>
         set(() => ({ accessToken: token })),
@@ -38,6 +47,7 @@ export const useAuthStore = create<States & Actions>()(
         set(() => ({ lastProvider: state })),
       setLastLoginTime: (state: string) =>
         set(() => ({ lastLoginTime: state })),
+      setUserInfo: (state) => set(() => ({ user: state })),
     }),
     {
       name: AUTH_INFO,
