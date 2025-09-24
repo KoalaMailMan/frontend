@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import NoticeContainer from "@/feature/ui/NoticeContainer";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { Button } from "@/feature/ui/Button";
-import { Save } from "lucide-react";
+import { BellRing, Maximize2, Save } from "lucide-react";
 import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
 import { useRef } from "react";
@@ -28,8 +28,12 @@ export default function MandalaBoard({
   const reminderSettingComplete = useMandalaStore(
     (state) => state.reminderSettingComplete
   );
-  const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
+  const reminderEnabled = useMandalaStore(
+    (state) => state.reminderOption.reminderEnabled
+  );
   const typeRef = useRef<"save" | "reminder">("save");
+  const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
+  const setFullVisible = useMandalaStore((state) => state.setFullVisible);
 
   const handleSave = async () => {
     if (!reminderSettingComplete) {
@@ -86,6 +90,30 @@ export default function MandalaBoard({
                 <Save className="h-5 w-5 mr-2" />
                 우체통에 저장하기 📮
               </Button>
+              {/* 리마인드 설정 & 전체보기 버튼들 */}
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
+                <Button
+                  variant="outline"
+                  onClick={() => onReminderOpen(true)}
+                  className={`flex items-center gap-2 pixel-button text-sm px-4 py-2 ${
+                    reminderEnabled
+                      ? "bg-green-50/90 border-green-300 text-green-700"
+                      : "bg-white/90"
+                  } backdrop-blur-sm`}
+                >
+                  <BellRing className="h-4 w-4" />
+                  {reminderEnabled ? "리마인드 ON" : "리마인드 설정"}
+                </Button>
+
+                <Button
+                  variant="outline"
+                  onClick={() => setFullVisible(true)}
+                  className="flex items-center gap-2 pixel-button bg-white/90 backdrop-blur-sm text-sm px-4 py-2"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                  9x9 전체보기
+                </Button>
+              </div>
             </div>
           </CardContent>
         </NoticeContainer>
