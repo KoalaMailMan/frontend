@@ -1,29 +1,36 @@
 import { create } from "zustand";
-import durmmyData from "@/data/durmmy";
 import { emptyDummyData, serverToUI } from "@/feature/mandala/service";
 
-export type MandalaType = {
+export type MandalaType<T = string> = {
   core: {
-    goalId: string;
+    goalId: T;
     content: string;
-    mains: MainGoal[];
+    mains: MainGoal<T>[];
   };
 };
 
-export type MainGoal = {
-  goalId: string;
-  position: number;
-  content: string;
-  subs: SubGoal[];
+export type DataOption = {
+  reminderEnabled: boolean;
+  remindScheduledAt: string | null;
 };
-export type SubGoal = {
-  goalId: string;
+export type MainGoal<T = string> = {
+  goalId: T;
+  originalId?: number; // 서버 원본 ID
   position: number;
   content: string;
+  subs: SubGoal<T>[];
 };
 
+export type SubGoal<T = string> = {
+  goalId: T;
+  originalId?: number; // 서버 원본 ID
+  position: number;
+  content: string;
+};
 type States = {
   data: MandalaType;
+  mandalartId: number | null;
+  reminderOption: DataOption;
   isDirty: boolean;
   editingCellId: string | null;
   editingSubCellId: string | null;
@@ -32,12 +39,16 @@ type States = {
   changedCells: Set<string>;
   isModalOpen: boolean;
   isReminderOpen: boolean;
+  reminderSettingComplete: boolean;
   isFullOpen: boolean;
+  isEmpty: boolean;
 };
 
 type Actions = {
   setData: (newData: any) => void;
   getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
+  setMandalartId: (state: number) => void;
+  setReminderOption: (options: DataOption) => void;
   handleCellChange: (cellId: string, value: string, index?: any) => void;
   setEditingCell: (cellId: string | null) => void;
   setEditingSubCell: (cellId: string | null) => void;
@@ -45,11 +56,18 @@ type Actions = {
   setModalCellId: (cellId: string | null) => void;
   setModalVisible: (visible: boolean) => void;
   setReminderVisible: (visible: boolean) => void;
+  setReminderSetting: (state: boolean) => void;
   setFullVisible: (visible: boolean) => void;
+  setEmptyState: (state: boolean) => void;
 };
 
 export const useMandalaStore = create<States & Actions>((set, get) => ({
-  data: serverToUI(emptyDummyData),
+  data: serverToUI(emptyDummyData.data),
+  reminderOption: {
+    reminderEnabled: false,
+    remindScheduledAt: null,
+  },
+  mandalartId: null,
   isDirty: false,
   editingCellId: null,
   editingSubCellId: null,
@@ -58,14 +76,18 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   changedCells: new Set([]),
   isModalOpen: false,
   isReminderOpen: false,
+  reminderSettingComplete: false,
   isFullOpen: false,
+  isEmpty: true,
 
   getData: (index) => {
     if (index != null) {
       return get().data?.core?.mains?.[index]?.subs ?? [];
     } else return get().data.core.mains;
   },
-  setData: (newData) => set(() => ({ data: newData })),
+  setData: (newData) => set(() => ({ data: serverToUI(newData) })),
+  setMandalartId: () => set(() => ({})),
+  setReminderOption: () => set(() => ({})),
 
   handleCellChange: (cellId, value, index) =>
     set((state) => {
@@ -77,26 +99,67 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
       const isSubGoal = cellId.startsWith("sub");
       const isMainGoal = cellId.startsWith("main");
       const isCoreGoal = cellId.startsWith("core");
-
       if (isSubGoal) {
-        const mainIndex = parseInt(ids[1]); // sub-{mainIndex}-{subIndex}
-        const subIndex = parseInt(ids[2]);
+        // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} |  sub-center-{mainIndex}
+
+        const mainId =
+          ids[1] === "center" ? `main-${ids[2]}` : `main-${ids[1]}`;
+        let mainIndex = dataList.findIndex((item) => item.goalId === mainId);
+        let subIndex;
+        if (mainIndex === -1) {
+          const mainId = `core-${ids[1]}`;
+          const subId = `sub-${ids[1]}-${ids[2]}`;
+          mainIndex = dataList.findIndex((item) => item.goalId === mainId);
+          subIndex = dataList[mainIndex].subs.findIndex(
+            (item) => item.goalId === subId
+          );
+        } else {
+          const subId =
+            ids[1] === "center"
+              ? `sub-${ids[2]}-${ids[2]}`
+              : `sub-${ids[1]}-${ids[2]}`;
+          subIndex = dataList[mainIndex].subs.findIndex(
+            (item) => item.goalId === subId
+          );
+        }
+
         if (!dataList[mainIndex].subs) return state;
         if (mainIndex < 0 || mainIndex >= dataList.length) return state;
         if (subIndex < 0 || subIndex >= dataList[mainIndex].subs.length)
           return state;
-
         dataList[mainIndex] = {
           ...dataList[mainIndex],
           subs: dataList[mainIndex].subs.map((sub, i) =>
             i === subIndex ? { ...sub, content: value } : sub
           ),
         };
+        if (ids[1] === "center") {
+          dataList[mainIndex].content = value;
+          dataList[0] = {
+            ...dataList[0],
+            subs: dataList[0].subs.map((sub, i) =>
+              i === mainIndex ? { ...sub, content: value } : sub
+            ),
+          };
+        } else if (mainIndex === 0) {
+          dataList[subIndex] = {
+            ...dataList[subIndex],
+            content: value,
+            subs: dataList[subIndex].subs.map((sub, i) =>
+              i === mainIndex ? { ...sub, content: value } : sub
+            ),
+          };
+        }
       } else if (isMainGoal) {
-        const mainIndex =
-          ids[1] === "center" ? parseInt(ids[2]) : parseInt(ids[1]); // main-{mainIndex} | main-center-{mainIndex}
+        const mainId = cellId; // main-{mainIndex} | main-center-{mainIndex}
+        const mainIndex = dataList.findIndex((item) => item.goalId === mainId);
+
         if (mainIndex < 0 || mainIndex >= dataList.length) return state;
-        if (!dataList || !dataList[mainIndex].subs || !dataList[0].subs)
+        if (
+          !dataList ||
+          dataList[mainIndex].subs.length <= 0 ||
+          dataList[0].subs.length <= 0
+        )
           return state;
 
         dataList[mainIndex] = {
@@ -145,5 +208,8 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   setModalCellId: (cellId) => set(() => ({ modalCellId: cellId })),
   setModalVisible: (visible) => set(() => ({ isModalOpen: visible })),
   setReminderVisible: (visible) => set(() => ({ isReminderOpen: visible })),
+  setReminderSetting: (state) =>
+    set(() => ({ reminderSettingComplete: state })),
   setFullVisible: (visible) => set(() => ({ isFullOpen: visible })),
+  setEmptyState: (state) => set(() => ({ isEmpty: state })),
 }));
