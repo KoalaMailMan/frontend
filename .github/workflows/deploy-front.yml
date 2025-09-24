@@ -2,19 +2,19 @@ name: Frontend → S3 → CloudFront
 
 on:
   push:
-    branches: ["ci"]   # main 브랜치에 push될 때 실행
-  workflow_dispatch:     # 수동 실행도 가능하게
+    branches: ["main"] # main 브랜치에 push될 때 실행
+  workflow_dispatch: # 수동 실행도 가능하게
 
 concurrency:
-  group: frontend-prod   # 같은 그룹 배포가 겹치면 이전 작업 취소
+  group: frontend-prod # 같은 그룹 배포가 겹치면 이전 작업 취소
   cancel-in-progress: true
 
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
     permissions:
-      id-token: write    # AWS OIDC 인증용 권한
-      contents: read     # repo 코드 읽기 권한
+      id-token: write # AWS OIDC 인증용 권한
+      contents: read # repo 코드 읽기 권한
 
     steps:
       # 1. 레포 checkout
@@ -25,8 +25,8 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20   # Node.js 20 버전 사용
-          cache: 'npm'       # npm 캐싱
+          node-version: 20 # Node.js 20 버전 사용
+          cache: "npm" # npm 캐싱
 
       # 3. .env.production 생성
       - name: Write .env.production
@@ -47,7 +47,7 @@ jobs:
       - name: Configure AWS (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }}   # GitHub Actions용 IAM Role ARN
+          role-to-assume: ${{ secrets.AWS_OIDC_ROLE_ARN }} # GitHub Actions용 IAM Role ARN
           aws-region: ap-northeast-2
 
       # 7. AWS CLI 설치
@@ -74,4 +74,3 @@ jobs:
           aws cloudfront create-invalidation \
             --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
             --paths "/*"
-
