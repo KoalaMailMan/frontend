@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/api/client";
 
-export const updateMandala = async (accessToken: string, data: any) => {
+export const createMandalaAPI = async (accessToken: string, data: any) => {
   const MANDALA_URL = "/api/mandalart";
   try {
     const res = await apiClient.put(MANDALA_URL, data, {
