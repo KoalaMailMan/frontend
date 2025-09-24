@@ -1,6 +1,5 @@
 import MandalaGrid from "../components/MandalaGrid";
 import Header from "@/shared/\bcomponents/header/Header";
-import { useTheme } from "@/shared/hooks/useTheme";
 import { CardContent, CardHeader, CardTitle } from "@/feature/ui/Card";
 import koalaPixelImage from "@/assets/default_koala.png";
 import { cn } from "@/lib/utils";
@@ -10,19 +9,38 @@ import { Button } from "@/feature/ui/Button";
 import { Save } from "lucide-react";
 import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
-import { useEffect } from "react";
-import { handleMandalaData } from "../service";
-import { useAuthStore } from "@/lib/stores/authStore";
+import { useRef } from "react";
+import type { ThemeColor } from "@/data/themes";
 
-export default function MandalaBoard() {
-  const { getCurrentBackground } = useTheme();
+type MandaraChartProps = {
+  currentTheme: ThemeColor;
+  onThemeChange: (theme: ThemeColor) => void;
+  getCurrentBackground: () => void;
+};
+
+export default function MandalaBoard({
+  currentTheme,
+  onThemeChange,
+  getCurrentBackground,
+}: MandaraChartProps) {
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
+  const reminderSettingComplete = useMandalaStore(
+    (state) => state.reminderSettingComplete
+  );
   const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
+  const typeRef = useRef<"save" | "reminder">("save");
+
+  const handleSave = async () => {
+    if (!reminderSettingComplete) {
+      onReminderOpen(true);
+      typeRef.current = "save";
+    }
+  };
 
   return (
     <div
-      className="min-h-screen p-4"
+      className="min-h-screen p-4 transition-all"
       style={{
         backgroundImage: `url(${getCurrentBackground()})`,
         backgroundSize: "cover",
@@ -30,7 +48,7 @@ export default function MandalaBoard() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <Header />
+      <Header currentTheme={currentTheme} onThemeChange={onThemeChange} />
       <div className="max-w-2xl mx-auto">
         <NoticeContainer
           variant={"max"}
@@ -63,7 +81,7 @@ export default function MandalaBoard() {
             <div className="text-center mt-6">
               <Button
                 className="pixel-button bg-green-500/90 hover:bg-green-600/90 text-white px-8 py-3 text-base backdrop-blur-sm"
-                onClick={() => onReminderOpen(true)}
+                onClick={handleSave}
               >
                 <Save className="h-5 w-5 mr-2" />
                 우체통에 저장하기 📮
@@ -72,7 +90,7 @@ export default function MandalaBoard() {
           </CardContent>
         </NoticeContainer>
       </div>
-      {isReminder && <ReminderSetting />}
+      {isReminder && <ReminderSetting openTree={typeRef.current} />}
       {isFullOpen && <FullMandalaView />}
     </div>
   );

@@ -2,6 +2,7 @@ import { Fragment } from "react/jsx-runtime";
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
 import MandalaModal from "./MandalaModal";
+import { getGridClasses } from "../utills/css";
 
 export default function MandalaGrid() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
@@ -75,21 +76,11 @@ export default function MandalaGrid() {
       {mandalaList.map((item, i) => {
         const isCenter = 0 === i;
         const isEditing = editingCellId === item.goalId;
-        const hasSubGoals = i !== 0 && item.subs && item.subs[i].content !== "";
-        const getGridClasses = (idx: number) => {
-          if (idx === 0) return "col-start-2 row-start-2"; // 중앙
-          const positions = [
-            "col-start-1 row-start-1", // 좌상
-            "col-start-2 row-start-1", // 중상
-            "col-start-3 row-start-1", // 우상
-            "col-start-1 row-start-2", // 좌중
-            "col-start-3 row-start-2", // 우중
-            "col-start-1 row-start-3", // 좌하
-            "col-start-2 row-start-3", // 중하
-            "col-start-3 row-start-3", // 우하
-          ];
-          return positions[idx - 1] || "col-start-1 row-start-1";
-        };
+        const hasSubGoals =
+          i !== 0 &&
+          item.subs
+            .slice(1)
+            .some((sub) => sub.content && sub.content.trim() !== "");
         return (
           <Fragment key={`main-${i}`}>
             <MandalaContainer
@@ -108,7 +99,7 @@ export default function MandalaGrid() {
               isEditing={isEditing}
               compact={false}
               disabled={false}
-              isEmpty={!item}
+              isEmpty={!item.content || item.content.trim() === ""}
               onStartEdit={() => handleStartEdit(item.goalId)}
               onContentChange={(value) =>
                 handleContentChange(item.goalId, value)

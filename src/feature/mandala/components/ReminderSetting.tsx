@@ -14,15 +14,90 @@ import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { Select } from "@radix-ui/react-select";
 import { Mail } from "lucide-react";
 import { useState } from "react";
+import { handleUpdateMandala, type ServerMandalaType } from "../service";
+import { useAuthStore } from "@/lib/stores/authStore";
+import { patchReminderAPI } from "../api/reminder/patchReminder";
 
-export default function ReminderSetting() {
+type PropsType = {
+  openTree: "reminder" | "save";
+};
+export default function ReminderSetting({ openTree = "save" }: PropsType) {
   const [isEnabled, setIsEnabled] = useState(true);
   const [frequency, setFrequency] = useState("1week");
-  const [email] = useState("test@email.com");
+  const email = useAuthStore((state) => state.user.email);
+
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const data = useMandalaStore((state) => state.data);
+  const mandalartId = useMandalaStore((state) => state.mandalartId);
+  const reminderOption = useMandalaStore((state) => state.reminderOption);
+  const reminderSettingComplete = useMandalaStore(
+    (state) => state.reminderSettingComplete
+  );
+  const changedCells = useMandalaStore((state) => state.changedCells);
   const isOpen = useMandalaStore((state) => state.isReminderOpen);
+  const setReminderSetting = useMandalaStore(
+    (state) => state.setReminderSetting
+  );
+  const setData = useMandalaStore((state) => state.setData);
   const onClose = useMandalaStore((state) => state.setReminderVisible);
 
   if (!isOpen) return null;
+
+  const handleReminder = async () => {
+    if (accessToken) {
+      try {
+        if (mandalartId) {
+          setReminderSetting(true);
+          const reminderOption = {
+            data: {
+              mandalartId: mandalartId,
+              reminderEnabled: isEnabled,
+              reminderInterval: frequency,
+            },
+          };
+          const reminderRes = await patchReminderAPI(
+            accessToken,
+            reminderOption
+          );
+          console.log("reminderRes, ", reminderRes);
+        }
+      } catch (error) {
+        setReminderSetting(false);
+      }
+    }
+  };
+
+  const handleSave = async () => {
+    if (openTree === "reminder") {
+      // 리마인더 설정
+      handleReminder();
+      onClose(false);
+      return;
+    }
+    if (openTree === "save") {
+      // 초기 만다라트 셍성
+      // 1회 리마인드 설정 오픈
+      if (changedCells.size <= 0) {
+        alert("변경된 목표가 없습니다!");
+        onClose(false);
+        return;
+      }
+
+      const mandalartRes: ServerMandalaType | undefined =
+        await handleUpdateMandala(data, changedCells, () => onClose(false));
+      handleReminder();
+      if (mandalartRes !== undefined) {
+        setData(mandalartRes.data);
+      }
+      if (reminderOption.reminderEnabled) {
+        alert(
+          "리마인드 설정이 완료되었습니다! 🎉\n만다라트도 함께 저장되었습니다."
+        );
+      } else {
+        alert("만다라트가 저장되었습니다! 🎉");
+      }
+    }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4">
@@ -70,7 +145,7 @@ export default function ReminderSetting() {
                 <Label>수신 이메일</Label>
                 <Input
                   type="email"
-                  value={email}
+                  value={email || "이메일을 찾을 수 없습니다."}
                   readOnly
                   className="bg-gray-100 cursor-not-allowed"
                   placeholder="로그인된 계정의 이메일이 사용됩니다"
@@ -113,7 +188,9 @@ export default function ReminderSetting() {
             >
               취소
             </Button>
-            <Button className="flex-1">저장하기</Button>
+            <Button className="flex-1" onClick={handleSave}>
+              저장하기
+            </Button>
           </div>
         </CardContent>
       </Card>

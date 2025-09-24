@@ -2,36 +2,12 @@ import koalaPixelImage from "@/assets/default_koala.png";
 import { Button } from "@/feature/ui/Button";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { ImageIcon, X } from "lucide-react";
-import { Fragment, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useMemo, useRef } from "react";
 import MandalaContainer from "./MandalaContainer";
 import { cn } from "@/lib/utils";
 import { captureAndDownload } from "../utills/image";
+import { findbyCSS, getGridClasses, type Type } from "../utills/css";
 
-const getGridClasses = (idx: number) => {
-  if (idx === 0) return "col-start-2 row-start-2"; // 중앙
-  const positions = [
-    "col-start-1 row-start-1", // 좌상
-    "col-start-2 row-start-1", // 중상
-    "col-start-3 row-start-1", // 우상
-    "col-start-1 row-start-2", // 좌중
-    "col-start-3 row-start-2", // 우중
-    "col-start-1 row-start-3", // 좌하
-    "col-start-2 row-start-3", // 중하
-    "col-start-3 row-start-3", // 우하
-  ];
-  return positions[idx - 1] || "col-start-1 row-start-1";
-};
-type Type = "center" | "main" | "main-center" | "sub";
-const findbyCSS = (type: Type) => {
-  const typeObj = {
-    center: " bg-primary/20 border-primary text-primary font-semibold",
-    "main-center": " bg-primary/5 border-primary/30",
-    main: " bg-primary/10 border-primary/50 font-medium",
-    sub: " bg-gray-50 border-gray-200",
-  };
-  if (typeObj[type]) return typeObj[type];
-  return typeObj["sub"];
-};
 export default function FullMandalaView() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
@@ -209,7 +185,7 @@ export default function FullMandalaView() {
                             isEditing={isEditing}
                             compact={true}
                             disabled={false}
-                            isEmpty={!sub}
+                            isEmpty={!sub.content && sub.content.trim() !== ""}
                             className={cn(
                               findbyCSS((sub.type as Type) || "sub"),
                               getGridClasses(subIdx)

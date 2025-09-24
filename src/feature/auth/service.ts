@@ -1,7 +1,8 @@
 import { useAuthStore } from "@/lib/stores/authStore";
-import { logouAPI, refreshTokenAPI } from "./api";
+import { getUserProfileAPI, logouAPI, refreshTokenAPI } from "./api";
 import { getURLQuery } from "./\butils";
 import { ENV } from "@/const";
+import { apiClient } from "@/lib/api/client";
 
 export const handleGoogleLogin = () => {
   window.location.href = ENV.BACKEND_URL + "/api/auth/login/google";
@@ -20,18 +21,32 @@ export const handleLogin = () => {
     useAuthStore.getState().setAccessToken(token);
     useAuthStore.getState().setWasLoggedIn(true);
     useAuthStore.getState().setLastLoginTime(currentTime);
+    handleUserLookup();
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 };
 
 export const handleLogout = () => {
   try {
+    logoutMiddleWare();
     logouAPI();
     useAuthStore.getState().setWasLoggedIn(false);
     useAuthStore.getState().setAccessToken(null);
   } catch (error) {
     console.error("Logout failed:", error);
   }
+};
+
+export const logoutMiddleWare = () => {
+  apiClient.addResponseInterceptor({
+    onSuccess: async (res: Response) => {
+      if (res.status === 204) {
+        console.log("로그아웃 성공");
+        return;
+      }
+      return await res.json();
+    },
+  });
 };
 
 export const reissueWithRefreshToken = async () => {
@@ -55,4 +70,14 @@ export const shouldAttemptRefresh = () => {
   const accessToken = useAuthStore.getState().accessToken;
   const wasLoggedIn = useAuthStore.getState().wasLoggedIn;
   return !accessToken && wasLoggedIn;
+};
+
+export const handleUserLookup = async () => {
+  const accessToken = useAuthStore.getState().accessToken;
+  if (!accessToken) return;
+  const res = await getUserProfileAPI(accessToken);
+  const user = res?.data;
+  if (user) {
+    useAuthStore.getState().setUserInfo(user);
+  }
 };

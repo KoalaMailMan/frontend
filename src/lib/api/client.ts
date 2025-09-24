@@ -1,11 +1,16 @@
 import { ENV } from "@/const";
-import type {
-  ApiError,
-  RequestConfig,
-  RequestInterceptor,
-  ResponseInterceptor,
-} from "./type";
+import type { ApiError, RequestConfig } from "./type";
+type ResponseInterceptor = {
+  id?: string; // ID 필드 추가
+  onSuccess?: (response: Response) => Promise<any>;
+  onError?: (error: any) => Promise<any>;
+};
 
+type RequestInterceptor = {
+  id?: string; // ID 필드 추가
+  onRequest?: (config: any) => any;
+  onError?: (error: any) => any;
+};
 class ApiClient {
   private baseURL: string;
   private timeout: number;
@@ -42,7 +47,18 @@ class ApiClient {
     this.requestInterceptors.push(interceptors);
   }
   addResponseInterceptor(interceptors: ResponseInterceptor) {
-    this.responseInterceptors.push(interceptors);
+    const id = `interceptor_${Date.now()}_${Math.random()}`;
+    this.responseInterceptors.push({ ...interceptors, id });
+    return id;
+  }
+
+  removeResponseInterceptor(id: string) {
+    const index = this.responseInterceptors.findIndex((item) => item.id === id);
+    if (index !== -1) {
+      this.responseInterceptors.splice(index, 1);
+      return true;
+    }
+    return false;
   }
 
   // 요청 처리 시작
@@ -59,15 +75,24 @@ class ApiClient {
 
     // interceptor 순차 실행
     for (const interceptor of this.requestInterceptors) {
-      const interceptorResult = await interceptor(config);
-      config = {
-        ...config,
-        ...interceptorResult,
-        headers: {
-          ...config.headers,
-          ...interceptorResult.headers,
-        },
-      };
+      try {
+        if (interceptor.onRequest) {
+          const interceptorResult = await interceptor.onRequest(config);
+
+          if (interceptorResult && typeof interceptorResult === "object") {
+            config = {
+              ...config,
+              ...interceptorResult,
+              headers: {
+                ...config.headers,
+                ...(interceptorResult.headers || {}),
+              },
+            };
+          }
+        }
+      } catch (error) {
+        console.error("Request interceptor failed:", error);
+      }
     }
 
     // body data 직렬화

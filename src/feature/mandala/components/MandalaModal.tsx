@@ -1,27 +1,15 @@
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
 import { Fragment } from "react/jsx-runtime";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { X } from "lucide-react";
 
 import koalaImage from "@/assets/default_koala.png";
 import { createPortal } from "react-dom";
 import { Button } from "@/feature/ui/Button";
 import { cn } from "@/lib/utils";
-const getGridClasses = (idx: number) => {
-  if (idx === 0) return "col-start-2 row-start-2"; // 중앙
-  const positions = [
-    "col-start-1 row-start-1", // 좌상
-    "col-start-2 row-start-1", // 중상
-    "col-start-3 row-start-1", // 우상
-    "col-start-1 row-start-2", // 좌중
-    "col-start-3 row-start-2", // 우중
-    "col-start-1 row-start-3", // 좌하
-    "col-start-2 row-start-3", // 중하
-    "col-start-3 row-start-3", // 우하
-  ];
-  return positions[idx - 1] || "col-start-1 row-start-1";
-};
+import { getGridClasses } from "../utills/css";
+
 type Props = {
   isModalVisible: boolean;
   item: SubGoal[];
@@ -112,7 +100,7 @@ export default function MandalaModal({
                             isEditing={isEditing}
                             compact={compact}
                             disabled={isCenter ? true : false}
-                            isEmpty={!sub}
+                            isEmpty={!sub.content && sub.content.trim() !== ""}
                             onStartEdit={() => {
                               handleSubStartEdit(sub.goalId, isCenter);
                             }}

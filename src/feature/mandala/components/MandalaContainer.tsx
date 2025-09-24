@@ -1,7 +1,4 @@
-import { Button } from "@/feature/ui/Button";
-import { cn } from "@/lib/utils";
-import { ChevronRight } from "lucide-react";
-import { forwardRef, useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import MandalaReadOnlyCell from "./MandalaReadOnlyCell";
 import MandalaEditableCell from "./MandalaEditableCell";
 import type { MainGoal, SubGoal } from "@/lib/stores/mandalaStore";

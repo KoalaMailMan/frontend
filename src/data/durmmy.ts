@@ -1,129 +1,44 @@
-const dummyData = {
-  core: {
-    goalId: "core-1",
-    content: "자기계발과 성장",
-    mains: [
-      {
-        goalId: "main-1",
-        position: 0,
-        content: "독서 습관 기르기",
-        subs: [
-          { goalId: "sub-1-1", position: 1, content: "매일 30분 읽기" },
-          { goalId: "sub-1-2", position: 2, content: "독서 일지 작성" },
-          { goalId: "sub-1-3", position: 3, content: "다양한 장르 선택" },
-          { goalId: "sub-1-4", position: 4, content: "독서 클럽 참여" },
-          { goalId: "sub-1-5", position: 5, content: "책 추천 받기" },
-          { goalId: "sub-1-6", position: 6, content: "독서 공간 만들기" },
-          { goalId: "sub-1-7", position: 7, content: "월 3권 목표" },
-          { goalId: "sub-1-8", position: 8, content: "독후감 블로그 작성" },
-        ],
-      },
-      {
-        goalId: "main-2",
-        position: 1,
-        content: "운동으로 건강 관리",
-        subs: [
-          { goalId: "sub-2-1", position: 1, content: "주 3회 헬스장" },
-          { goalId: "sub-2-2", position: 2, content: "아침 스트레칭" },
-          { goalId: "sub-2-3", position: 3, content: "계단 이용하기" },
-          { goalId: "sub-2-4", position: 4, content: "운동 일지 작성" },
-          { goalId: "sub-2-5", position: 5, content: "개인 트레이너 수업" },
-          { goalId: "sub-2-6", position: 6, content: "운동 친구 만들기" },
-          { goalId: "sub-2-7", position: 7, content: "체중 5kg 감량" },
-          { goalId: "sub-2-8", position: 8, content: "마라톤 완주하기" },
-        ],
-      },
-      {
-        goalId: "main-3",
-        position: 2,
-        content: "새로운 언어 배우기",
-        subs: [
-          { goalId: "sub-3-1", position: 1, content: "매일 단어 10개" },
-          { goalId: "sub-3-2", position: 2, content: "회화 스터디 참여" },
-          { goalId: "sub-3-3", position: 3, content: "언어 교환 앱 사용" },
-          { goalId: "sub-3-4", position: 4, content: "드라마로 공부하기" },
-          { goalId: "sub-3-5", position: 5, content: "원어민 대화 수업" },
-          { goalId: "sub-3-6", position: 6, content: "자격증 취득하기" },
-          { goalId: "sub-3-7", position: 7, content: "해외 여행 계획" },
-          { goalId: "sub-3-8", position: 8, content: "언어 일기 쓰기" },
-        ],
-      },
-      {
-        goalId: "main-4",
-        position: 3,
-        content: "요리 실력 향상",
-        subs: [
-          { goalId: "sub-4-1", position: 1, content: "주 2회 새 요리" },
-          { goalId: "sub-4-2", position: 2, content: "요리 클래스 수강" },
-          { goalId: "sub-4-3", position: 3, content: "레시피 노트 작성" },
-          { goalId: "sub-4-4", position: 4, content: "제철 재료 활용" },
-          { goalId: "sub-4-5", position: 5, content: "베이킹 배우기" },
-          { goalId: "sub-4-6", position: 6, content: "친구들에게 대접" },
-          { goalId: "sub-4-7", position: 7, content: "요리 사진 기록" },
-          { goalId: "sub-4-8", position: 8, content: "집들이 파티 열기" },
-        ],
-      },
-      {
-        goalId: "main-5",
-        position: 5,
-        content: "인간관계 개선",
-        subs: [
-          { goalId: "sub-5-1", position: 1, content: "가족과 시간 보내기" },
-          { goalId: "sub-5-2", position: 2, content: "친구들과 정기 모임" },
-          { goalId: "sub-5-3", position: 3, content: "새로운 사람들 만나기" },
-          { goalId: "sub-5-4", position: 4, content: "고마움 표현하기" },
-          { goalId: "sub-5-5", position: 5, content: "경청 실력 기르기" },
-          { goalId: "sub-5-6", position: 6, content: "갈등 해결하기" },
-          { goalId: "sub-5-7", position: 7, content: "네트워킹 이벤트 참석" },
-          { goalId: "sub-5-8", position: 8, content: "소통 스킬 배우기" },
-        ],
-      },
-      {
-        goalId: "main-6",
-        position: 6,
-        content: "창작 활동 시작",
-        subs: [
-          { goalId: "sub-6-1", position: 1, content: "매주 글쓰기" },
-          { goalId: "sub-6-2", position: 2, content: "그림 그리기" },
-          { goalId: "sub-6-3", position: 3, content: "사진 촬영하기" },
-          { goalId: "sub-6-4", position: 4, content: "창작 도구 익히기" },
-          { goalId: "sub-6-5", position: 5, content: "작품 전시하기" },
-          { goalId: "sub-6-6", position: 6, content: "창작 모임 참여" },
-          { goalId: "sub-6-7", position: 7, content: "영감 수집하기" },
-          { goalId: "sub-6-8", position: 8, content: "피드백 받기" },
-        ],
-      },
-      {
-        goalId: "main-7",
-        position: 7,
-        content: "재정 관리 능력",
-        subs: [
-          { goalId: "sub-7-1", position: 1, content: "가계부 작성하기" },
-          { goalId: "sub-7-2", position: 2, content: "투자 공부하기" },
-          { goalId: "sub-7-3", position: 3, content: "비상금 모으기" },
-          { goalId: "sub-7-4", position: 4, content: "부업 시작하기" },
-          { goalId: "sub-7-5", position: 5, content: "용돈 기입장 쓰기" },
-          { goalId: "sub-7-6", position: 6, content: "재테크 세미나 참석" },
-          { goalId: "sub-7-7", position: 7, content: "불필요한 지출 줄이기" },
-          { goalId: "sub-7-8", position: 8, content: "목표 금액 저축" },
-        ],
-      },
-      {
-        goalId: "main-8",
-        position: 8,
-        content: "여행과 휴식",
-        subs: [
-          { goalId: "sub-8-1", position: 1, content: "국내 여행 계획" },
-          { goalId: "sub-8-2", position: 2, content: "해외 여행 준비" },
-          { goalId: "sub-8-3", position: 3, content: "여행 일지 작성" },
-          { goalId: "sub-8-4", position: 4, content: "현지 문화 체험" },
-          { goalId: "sub-8-5", position: 5, content: "맛집 탐방하기" },
-          { goalId: "sub-8-6", position: 6, content: "사진으로 기록" },
-          { goalId: "sub-8-7", position: 7, content: "휴식 시간 확보" },
-          { goalId: "sub-8-8", position: 8, content: "여행 버킷리스트" },
-        ],
-      },
-    ],
+export const dummyData = {
+  data: {
+    mandalartId: 7,
+    reminderOption: {
+      reminderEnabled: true,
+      remindInterval: "weekly", // 매주 알림
+      remindScheduledAt: "2025-10-01T09:00:00Z",
+    },
+    core: {
+      goalId: 100,
+      content: "개인 성장",
+      mains: [
+        {
+          goalId: 101,
+          position: 0,
+          content: "운동",
+          subs: [
+            { goalId: 102, position: 0, content: "주 3회 조깅" },
+            { goalId: 103, position: 1, content: "근력 운동 2회" },
+          ],
+        },
+        {
+          goalId: 104,
+          position: 1,
+          content: "독서",
+          subs: [
+            { goalId: 105, position: 0, content: "비즈니스 서적 읽기" },
+            { goalId: 106, position: 1, content: "추리소설 읽기" },
+          ],
+        },
+        {
+          goalId: 107,
+          position: 2,
+          content: "개발 공부",
+          subs: [
+            { goalId: 108, position: 0, content: "React 프로젝트 만들기" },
+            { goalId: 109, position: 1, content: "TypeScript 패턴 학습" },
+          ],
+        },
+      ],
+    },
   },
 };
 

@@ -34,7 +34,7 @@ const themeBackgrounds = {
   pink: PINK_BG,
 };
 
-export function useTheme() {
+export default function useTheme() {
   const [currentTheme, setCurrentTheme] = useState(() => {
     if (!window) return "red";
     const saveColor = window.localStorage.getItem(
@@ -58,19 +58,19 @@ export function useTheme() {
 
     root.style.setProperty(
       "--current-theme-lighter",
-      `color-mix(in srgb, var(${color}) 5%, white);`
+      `color-mix(in srgb, ${color} 5%, white);`
     );
     root.style.setProperty(
       "--current-theme-light",
-      `color-mix(in srgb, var(${color}) 10%, white);`
+      `color-mix(in srgb, ${color} 10%, white);`
     );
     root.style.setProperty(
       "--current-theme-dark",
-      `color-mix(in srgb, var(${color}) 80%, black);`
+      `color-mix(in srgb, ${color} 80%, black);`
     );
     root.style.setProperty(
       "--current-theme-darker",
-      `color-mix(in srgb, var(${color}) 60%, black);`
+      `color-mix(in srgb, ${color} 60%, black);`
     );
   };
   const updateCurrentTheme = (theme: ThemeColor) => {
