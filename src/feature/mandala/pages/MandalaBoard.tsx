@@ -9,9 +9,8 @@ import { Button } from "@/feature/ui/Button";
 import { Save } from "lucide-react";
 import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
-import { useEffect } from "react";
+import { useRef } from "react";
 import type { ThemeColor } from "@/data/themes";
-import ThemeSelector from "@/shared/\bcomponents/header/ThemeSelector";
 
 type MandaraChartProps = {
   currentTheme: ThemeColor;
@@ -26,7 +25,18 @@ export default function MandalaBoard({
 }: MandaraChartProps) {
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
+  const reminderSettingComplete = useMandalaStore(
+    (state) => state.reminderSettingComplete
+  );
   const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
+  const typeRef = useRef<"save" | "reminder">("save");
+
+  const handleSave = async () => {
+    if (!reminderSettingComplete) {
+      onReminderOpen(true);
+      typeRef.current = "save";
+    }
+  };
 
   return (
     <div
@@ -71,7 +81,7 @@ export default function MandalaBoard({
             <div className="text-center mt-6">
               <Button
                 className="pixel-button bg-green-500/90 hover:bg-green-600/90 text-white px-8 py-3 text-base backdrop-blur-sm"
-                onClick={() => onReminderOpen(true)}
+                onClick={handleSave}
               >
                 <Save className="h-5 w-5 mr-2" />
                 우체통에 저장하기 📮
@@ -80,7 +90,7 @@ export default function MandalaBoard({
           </CardContent>
         </NoticeContainer>
       </div>
-      {isReminder && <ReminderSetting />}
+      {isReminder && <ReminderSetting openTree={typeRef.current} />}
       {isFullOpen && <FullMandalaView />}
     </div>
   );
