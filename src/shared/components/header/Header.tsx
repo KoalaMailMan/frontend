@@ -1,8 +1,9 @@
-import { Button } from "@/feature/ui/Button";
 import koalaPixelImage from "@/assets/default_koala.png";
-import { HelpCircle, LogOut, Maximize2 } from "lucide-react";
+import koalaTextLogoImage from "@/assets/koala_mailman_text_logo.png";
+
+import { Button } from "@/feature/ui/Button";
+import { HelpCircle, LogOut } from "lucide-react";
 import { handleLogout } from "@/feature/auth/service";
-import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import ThemeSelector from "./ThemeSelector";
 import { useAuthStore } from "@/lib/stores/authStore";
 import type { ThemeColor } from "@/data/themes";
@@ -15,7 +16,6 @@ export default function Header({
   currentTheme,
   onThemeChange,
 }: MandaraChartProps) {
-  const onFullOpen = useMandalaStore((state) => state.setFullVisible);
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
 
   if (!wasLoggedIn)
@@ -29,18 +29,21 @@ export default function Header({
     );
 
   return (
-    <div className="max-w-4xl mx-auto mb-4 sm:mb-6 lg:mb-8 px-4 p-4 ">
+    <div className="max-w-4xl mx-auto mb-4 sm:mb-6 lg:mb-8 px-4 p-4">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div className="flex items-center gap-3 sm:gap-4">
           <img
             src={koalaPixelImage}
-            alt="코알라"
-            className="w-10 h-10 sm:w-12 sm:h-12"
+            alt="코알라 우체부"
+            className="w-10 h-10 sm:w-12 sm:h-12 pixelated"
           />
           <div>
-            <h1 className="pixel-title text-white text-sm sm:text-base lg:text-lg">
-              코알라 우체부
-            </h1>
+            <img
+              src={koalaTextLogoImage}
+              alt="코알라 우체부"
+              className="pixelated h-6 sm:h-8 lg:h-10"
+              style={{ filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.5))" }}
+            />
             <p className="text-white/80 mt-1 text-xs sm:text-sm">
               체계적인 목표 설정으로 꿈을 현실로
             </p>
@@ -48,7 +51,6 @@ export default function Header({
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <ThemeSelector
-            className="h-9"
             currentTheme={currentTheme}
             onThemeChange={onThemeChange}
           />
@@ -60,20 +62,11 @@ export default function Header({
             <span className="hidden sm:inline">사용법</span>
             <span className="sm:hidden">?</span>
           </Button>
-          <Button
-            variant="outline"
-            className="flex items-center gap-1 sm:gap-2 pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
-            onClick={() => onFullOpen(true)}
-          >
-            <Maximize2 className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden lg:inline">9x9 전체보기</span>
-            <span className="lg:hidden">전체</span>
-          </Button>
 
           <Button
             variant="outline"
-            className="pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
             onClick={handleLogout}
+            className="pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
           >
             <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
             <span className="hidden sm:inline">로그아웃</span>
