@@ -30,9 +30,6 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
   const data = useMandalaStore((state) => state.data);
   const mandalartId = useMandalaStore((state) => state.mandalartId);
   const reminderOption = useMandalaStore((state) => state.reminderOption);
-  const reminderSettingComplete = useMandalaStore(
-    (state) => state.reminderSettingComplete
-  );
   const changedCells = useMandalaStore((state) => state.changedCells);
   const isOpen = useMandalaStore((state) => state.isReminderOpen);
   const setReminderSetting = useMandalaStore(
