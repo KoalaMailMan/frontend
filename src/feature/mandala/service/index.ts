@@ -7,6 +7,7 @@ import {
   type MandalaType,
 } from "@/lib/stores/mandalaStore";
 import { apiClient } from "@/lib/api/client";
+import { createMandalaAPI } from "../api/mandalart/createMandala";
 import { updateMandalaAPI } from "../api/mandalart/updateMandala";
 
 export const handleMandalaData = async () => {
@@ -22,10 +23,7 @@ export const handleMandalaData = async () => {
     ) {
       useMandalaStore.getState().setMandalartId(mandalart.data.mandalartId);
       const reminderOptions = mandalart.data.reminderOption;
-      if (
-        reminderOptions.reminderEnabled &&
-        reminderOptions.remindScheduledAt
-      ) {
+      if (reminderOptions.reminderEnabled) {
         useMandalaStore
           .getState()
           .setReminderOption(mandalart.data.reminderOption);
@@ -45,26 +43,37 @@ export const handleUpdateMandala = async (
   callback?: () => void
 ) => {
   const accessToken = useAuthStore.getState().accessToken;
+  const reminderEnabled =
+    useMandalaStore.getState().reminderOption.reminderEnabled;
   const mandalartId = useMandalaStore.getState().mandalartId;
   if (!accessToken && !mandalartId) return;
   if (accessToken) {
     // 인증 성공
     try {
       const mandalaData = uiToServer(data, changedCells);
-      const newData = {
-        data: {
-          mandalartId,
-          ...mandalaData.data,
-        },
-      };
-      const mandalartRes = await updateMandalaAPI(accessToken, newData);
       if (callback !== undefined) {
         callback();
       }
-      if (mandalartRes?.message) alert(mandalartRes.message);
-      else alert("만다라트 생성 성공.");
 
-      return mandalartRes;
+      if (mandalartId != null && reminderEnabled) {
+        const mandalartRes: ServerMandalaType = await updateMandalaAPI(
+          accessToken,
+          String(mandalartId),
+          mandalaData
+        );
+
+        return mandalartRes;
+      } else {
+        const newData = {
+          data: {
+            mandalartId,
+            ...mandalaData.data,
+          },
+        };
+        await createMandalaAPI(accessToken, newData);
+
+        // 반환값 없음;
+      }
     } catch (error: any) {
       console.error(error);
 
@@ -77,19 +86,11 @@ export const handleUpdateMandala = async (
   }
 };
 
-// 조회 후 데이터가 없을 시 임시 데이터 생성
-// 조회 후, 데이터 변환 필요
-// 저장 전, 데이터 변환 필요
-
 export const withNoContentInterceptor = async () => {
   const interceptorId = apiClient.addResponseInterceptor({
     onSuccess: async (res: Response) => {
       if (res.status === 204) {
         useMandalaStore.getState().setEmptyState(true);
-        const emptyData = {
-          mandalartId: 0,
-          ...emptyDummyData.data,
-        };
         return emptyDummyData;
       }
       const contentLength = res.headers.get("content-length");
@@ -166,6 +167,7 @@ export const serverToUI = (
   serverData: ServerMandalaType["data"]
 ): MandalaType => {
   const uiMains: MainGoal[] = [];
+
   // 1단계: 0번 main (core) 생성
   const coreAsMain: MainGoal = {
     goalId: `core-${serverData.core?.goalId}`,
@@ -175,78 +177,124 @@ export const serverToUI = (
     subs: [],
   };
 
-  // core의 subs 생성
-  for (let j = 0; j < 9; j++) {
-    if (j === 0) {
-      coreAsMain.subs.push({
-        goalId: `sub-${serverData.core.goalId}-${serverData.core.goalId}`,
-        originalId: serverData.core.goalId,
-        position: 0,
-        content: serverData.core.content || "",
-      });
-    } else {
-      const mainIndex = j - 1;
-      const serverMain = serverData.core.mains?.[mainIndex];
+  // subs 배열 생성 - position 기준으로 배치
+  const coreSubsArray = new Array(9).fill(null);
+  coreSubsArray[0] = {
+    goalId: `sub-${serverData.core.goalId}-${serverData.core.goalId}`,
+    originalId: serverData.core.goalId,
+    position: 0,
+    content: serverData.core.content || "",
+  };
 
-      coreAsMain.subs.push({
-        goalId: serverMain
-          ? `sub-${serverData.core.goalId}-${serverMain.goalId}`
-          : `sub-${serverData.core.goalId}-${j}`,
-        originalId: serverMain?.goalId,
-        position: j,
-        content: serverMain?.content || "",
-      });
+  serverData.core.mains?.forEach((main) => {
+    const targetPosition = main.position;
+    if (targetPosition >= 1 && targetPosition <= 8) {
+      coreSubsArray[targetPosition] = {
+        goalId: `sub-${serverData.core.goalId}-${main.goalId}`,
+        originalId: main.goalId,
+        position: main.position,
+        content: main.content || "",
+      };
+    }
+  });
+
+  // core의 subs 생성 - 빈 자리는 기본값으로 채우기
+  for (let i = 1; i <= 8; i++) {
+    if (!coreSubsArray[i]) {
+      coreSubsArray[i] = {
+        goalId: `sub-${serverData.core.goalId}-${i}`,
+        originalId: undefined,
+        position: i,
+        content: "",
+      };
     }
   }
-
+  coreAsMain.subs = coreSubsArray;
   uiMains[0] = coreAsMain;
 
-  // 2단계: 1~8번 main들 생성
-  for (let i = 0; i < 8; i++) {
-    const serverMain = serverData.core.mains[i];
+  // 2단계: 1~8번 main들 생성 - position 기준 배치
 
-    const uiMain: MainGoal = {
-      goalId: serverMain ? `main-${serverMain.goalId}` : `main-${i + 1}`,
-      originalId: serverMain?.goalId,
-      position: i + 1,
-      content: serverMain?.content || "",
-      subs: [],
-    };
-    const mainId = uiMain.goalId.split("-")[1];
-    for (let j = 0; j < 9; j++) {
-      if (j === 0) {
-        uiMain.subs.push({
-          goalId: serverMain
-            ? `sub-${serverMain.goalId}-${serverMain.goalId}`
-            : `sub-${mainId}-${i + 1}`,
-          originalId: serverMain?.goalId,
-          position: 0,
-          content: serverMain?.content || "",
-        });
-      } else {
-        const matchingSub = serverMain?.subs?.find(
-          (sub) => sub.position === j - 1
-        );
+  const uiMainsArray = new Array(9).fill(null);
+  uiMainsArray[0] = coreAsMain; // 0번 설정
 
-        uiMain.subs.push({
-          goalId: matchingSub
-            ? `sub-${serverMain.goalId}-${matchingSub.goalId}`
-            : `sub-${mainId}-${j}`,
-          originalId: matchingSub?.goalId,
-          position: j,
-          content: matchingSub?.content || "",
-        });
+  serverData.core.mains?.forEach((main) => {
+    const targetPosition = main.position;
+
+    if (targetPosition >= 1 && targetPosition <= 8) {
+      const uiMain: MainGoal = {
+        goalId: `main-${main.goalId}`,
+        originalId: main.goalId,
+        position: targetPosition,
+        content: main.content || "",
+        subs: [],
+      };
+      // 해당 main의 subs 생성
+      const subsArray = new Array(9).fill(null);
+
+      subsArray[0] = {
+        goalId: `sub-${main.goalId}-${main.goalId}`,
+        originalId: main.goalId,
+        position: 0,
+        content: main.content || "",
+      };
+
+      // subs를 position 기준 배치
+      main.subs?.forEach((sub) => {
+        const subTargetPosition = sub.position;
+        if (subTargetPosition >= 1 && subTargetPosition <= 8) {
+          subsArray[subTargetPosition] = {
+            goalId: `sub-${main.goalId}-${sub.goalId}`,
+            originalId: sub.goalId,
+            position: subTargetPosition,
+            content: sub.content || "",
+          };
+        }
+      });
+      // subs 빈 자리는 기본 값으로 채우기
+      for (let j = 1; j <= 8; j++) {
+        if (!subsArray[j]) {
+          subsArray[j] = {
+            goalId: `sub-${main.goalId}-${j}`,
+            originalId: undefined,
+            position: j,
+            content: "",
+          };
+        }
       }
+
+      uiMain.subs = subsArray;
+      uiMainsArray[targetPosition] = uiMain;
     }
+  });
 
-    uiMains[i + 1] = uiMain;
+  // 빈 main 자리를 빈 값으로 채우기
+  for (let k = 1; k <= 8; k++) {
+    if (!uiMainsArray[k]) {
+      const uiMain: MainGoal = {
+        goalId: `main-${k}`,
+        originalId: undefined,
+        position: k,
+        content: "",
+        subs: [],
+      };
+
+      // 빈 subs 배열 생성
+      const subsArray = new Array(9).fill(null).map((_, idx) => ({
+        goalId: `sub-${k}-${idx}`,
+        originalId: undefined,
+        position: idx,
+        content: "",
+      }));
+
+      uiMain.subs = subsArray;
+      uiMainsArray[k] = uiMain;
+    }
   }
-
   return {
     core: {
       goalId: coreAsMain.goalId,
       content: coreAsMain.content,
-      mains: uiMains,
+      mains: uiMainsArray,
     },
   };
 };
@@ -341,6 +389,9 @@ export const uiToServer = (
         }
         if (mainData.position !== undefined) {
           mainObj.position = mainData.position;
+        }
+        if (mainData.content !== "" || mainData.content !== undefined) {
+          mainObj.content = mainData.content;
         }
       }
 
