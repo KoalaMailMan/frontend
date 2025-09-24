@@ -25,6 +25,7 @@ export const captureAndDownload = async (
       await new Promise((resolve) => setTimeout(resolve, 100));
 
       const canvas = await html2canvas(gridElement, {
+        // @ts-expect-error
         backgroundColor: "#ffffff",
         scale: 2, // 고해상도
         logging: false,
@@ -40,7 +41,6 @@ export const captureAndDownload = async (
           // 모든 요소의 oklch 스타일을 제거
           const allElements = clonedDoc.querySelectorAll("*");
           allElements.forEach((el) => {
-            const computedStyle = window.getComputedStyle(el as Element);
             const element = el as HTMLElement;
 
             // oklch를 사용하는 스타일을 기본값으로 변경
