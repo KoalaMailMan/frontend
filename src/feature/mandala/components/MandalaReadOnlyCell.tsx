@@ -13,6 +13,8 @@ type MandalaReadOnlyCellProps = {
   compact: boolean;
   disabled: boolean;
   isEmpty: boolean;
+  "data-tutorial"?: string;
+  tutorialArrowButton?: boolean; // 튜토리얼용 화살표 버튼 식별자
   onCellClick: () => void;
   onDetailClick?: (id: string | number) => void;
 };
@@ -25,6 +27,8 @@ export default function MandalaReadOnlyCell({
   compact,
   disabled,
   isEmpty,
+  "data-tutorial": dataTutorial,
+  tutorialArrowButton = false,
   onCellClick,
   onDetailClick,
 }: MandalaReadOnlyCellProps) {
@@ -59,6 +63,7 @@ export default function MandalaReadOnlyCell({
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={onCellClick}
+      data-tutorial={dataTutorial}
     >
       <span
         className={cn(
@@ -85,6 +90,9 @@ export default function MandalaReadOnlyCell({
             if (onDetailClick) onDetailClick(id);
           }}
           title="세부목표 설정"
+          data-tutorial={
+            tutorialArrowButton ? "tutorial-arrow-button" : undefined
+          }
         >
           <ChevronRight className="h-3 w-3" />
         </Button>
