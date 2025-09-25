@@ -2,7 +2,7 @@ import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
 import { Fragment } from "react/jsx-runtime";
 import { useEffect } from "react";
-import { X } from "lucide-react";
+import { Lightbulb, X } from "lucide-react";
 
 import koalaImage from "@/assets/default_koala.png";
 import { createPortal } from "react-dom";
@@ -118,26 +118,7 @@ export default function MandalaModal({
                     })}
                   </div>
                 </div>
-                <div className="flex justify-center mt-6">
-                  <div className="bg-primary/10 p-4 rounded-lg max-w-md">
-                    <div className="flex items-start gap-3">
-                      <img
-                        src={koalaImage}
-                        alt="코알라"
-                        className="w-6 h-6 mt-1"
-                      />
-                      <div className="text-sm">
-                        <p className="font-medium text-primary mb-1">
-                          코알라 팁!
-                        </p>
-                        <p className="text-primary/80">
-                          각 세부 목표는 측정 가능하고 구체적으로 작성하세요.
-                          예: "운동하기" → "주 3회 30분 이상 조깅하기"
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                <DetailedGoalRecommendationBox mainItem={item} />
               </div>
             </div>
           )}
@@ -151,4 +132,52 @@ export default function MandalaModal({
     </div>
   );
   return createPortal(modalContent, document.body);
+}
+
+function DetailedGoalRecommendationBox({ mainItem }: { mainItem: SubGoal[] }) {
+  const handleSuggestGoals = () => {
+    if (!mainItem[0].content.trim()) {
+      alert("먼저 주요 목표를 입력해주세요!");
+      return;
+    }
+    mainItem.forEach((main) => {
+      if (!main.content.trim()) {
+        // 주요 목표로 목표 추천 받기.
+      }
+    });
+  };
+
+  return (
+    <div className="flex justify-center mt-6">
+      <div className="bg-primary/10 p-4 rounded-lg max-w-md">
+        <div className="flex items-start gap-3 mb-4">
+          <img src={koalaImage} alt="코알라" className="w-6 h-6 mt-1" />
+          <div className="text-sm">
+            <p className="font-medium text-primary mb-1">코알라 팁!</p>
+            <p className="text-primary/80">
+              각 세부 목표는 측정 가능하고 구체적으로 작성하세요. 예: "운동하기"
+              → "주 3회 30분 이상 조깅하기"
+            </p>
+          </div>
+        </div>
+
+        {/* 목표 추천받기 버튼 */}
+        <div className="text-center">
+          <Button
+            onClick={handleSuggestGoals}
+            className="pixel-button bg-primary/90 hover:bg-primary text-white px-4 py-2 text-sm w-full"
+            disabled={!mainItem[0].content.trim()}
+          >
+            <Lightbulb className="h-4 w-4 mr-2" />
+            목표 추천받기
+          </Button>
+          {!mainItem[0].content.trim() && (
+            <p className="text-xs text-gray-500 mt-2">
+              주요 목표를 먼저 입력해주세요
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
