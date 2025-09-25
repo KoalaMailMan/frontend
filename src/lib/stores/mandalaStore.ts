@@ -11,6 +11,7 @@ export type MandalaType<T = string> = {
 
 export type DataOption = {
   reminderEnabled: boolean;
+  reminderInterval: string;
   remindScheduledAt: string | null;
 };
 export type MainGoal<T = string> = {
@@ -47,8 +48,10 @@ type States = {
 type Actions = {
   setData: (newData: any) => void;
   getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
-  setMandalartId: (state: number) => void;
+  setMandalartId: (id: number) => void;
   setReminderOption: (options: DataOption) => void;
+  setReminderEnabled: (enabled: boolean) => void;
+  setReminderInterval: (interval: string) => void;
   handleCellChange: (cellId: string, value: string, index?: any) => void;
   setEditingCell: (cellId: string | null) => void;
   setEditingSubCell: (cellId: string | null) => void;
@@ -65,6 +68,7 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   data: serverToUI(emptyDummyData.data),
   reminderOption: {
     reminderEnabled: false,
+    reminderInterval: "1week",
     remindScheduledAt: null,
   },
   mandalartId: null,
@@ -86,8 +90,17 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
     } else return get().data.core.mains;
   },
   setData: (newData) => set(() => ({ data: serverToUI(newData) })),
-  setMandalartId: () => set(() => ({})),
-  setReminderOption: () => set(() => ({})),
+  setMandalartId: (id) => set(() => ({ mandalartId: id })),
+  setReminderOption: (options) =>
+    set(() => ({ reminderOption: { ...options } })),
+  setReminderEnabled: (enabled) =>
+    set((state) => ({
+      reminderOption: { ...state.reminderOption, reminderEnabled: enabled },
+    })),
+  setReminderInterval: (interval) =>
+    set((state) => ({
+      reminderOption: { ...state.reminderOption, reminderInterval: interval },
+    })),
 
   handleCellChange: (cellId, value, index) =>
     set((state) => {

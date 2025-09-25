@@ -22,14 +22,23 @@ type PropsType = {
   openTree: "reminder" | "save";
 };
 export default function ReminderSetting({ openTree = "save" }: PropsType) {
-  const [isEnabled, setIsEnabled] = useState(true);
-  const [frequency, setFrequency] = useState("1week");
+  const reminderEnabled = useMandalaStore(
+    (state) => state.reminderOption.reminderEnabled
+  );
+  const reminderInterval = useMandalaStore(
+    (state) => state.reminderOption.reminderInterval
+  );
+  const setReminderEnabled = useMandalaStore(
+    (state) => state.setReminderEnabled
+  );
+  const setReminderInterval = useMandalaStore(
+    (state) => state.setReminderInterval
+  );
   const email = useAuthStore((state) => state.user.email);
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const data = useMandalaStore((state) => state.data);
   const mandalartId = useMandalaStore((state) => state.mandalartId);
-  const reminderOption = useMandalaStore((state) => state.reminderOption);
   const changedCells = useMandalaStore((state) => state.changedCells);
   const isOpen = useMandalaStore((state) => state.isReminderOpen);
   const setReminderSetting = useMandalaStore(
@@ -45,16 +54,16 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
       try {
         if (mandalartId) {
           setReminderSetting(true);
-          const reminderOption = {
+          const reminderOptionObj = {
             data: {
               mandalartId: mandalartId,
-              reminderEnabled: isEnabled,
-              reminderInterval: frequency,
+              reminderEnabled: reminderEnabled,
+              reminderInterval: reminderInterval,
             },
           };
           const reminderRes = await patchReminderAPI(
             accessToken,
-            reminderOption
+            reminderOptionObj
           );
           console.log("reminderRes, ", reminderRes);
         }
@@ -86,7 +95,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
       if (mandalartRes !== undefined) {
         setData(mandalartRes.data);
       }
-      if (reminderOption.reminderEnabled) {
+      if (reminderEnabled) {
         alert(
           "리마인드 설정이 완료되었습니다! 🎉\n만다라트도 함께 저장되었습니다."
         );
@@ -116,14 +125,20 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
                 코알라가 주기적으로 목표를 상기시켜드려요
               </p>
             </div>
-            <Switch checked={isEnabled} onCheckedChange={setIsEnabled} />
+            <Switch
+              checked={reminderEnabled}
+              onCheckedChange={setReminderEnabled}
+            />
           </div>
 
-          {isEnabled && (
+          {reminderEnabled && (
             <>
               <div className="space-y-2">
                 <Label>리마인드 주기</Label>
-                <Select value={frequency} onValueChange={setFrequency}>
+                <Select
+                  value={reminderInterval}
+                  onValueChange={setReminderInterval}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue />
                   </SelectTrigger>
@@ -158,17 +173,17 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
                   <div className="text-sm">
                     <p className="font-medium text-red-900 mb-1">코알라 팁!</p>
                     <p className="text-red-800">
-                      {frequency === "1week" &&
+                      {reminderInterval === "1week" &&
                         "일주일에 한 번씩 목표를 점검하면 꾸준히 실행할 수 있어요!"}
-                      {frequency === "2week" &&
+                      {reminderInterval === "2week" &&
                         "2주 간격으로 리마인드를 받으면 적당한 긴장감을 유지할 수 있어요!"}
-                      {frequency === "1month" &&
+                      {reminderInterval === "1month" &&
                         "월 단위로 목표를 되돌아보면 큰 그림을 놓치지 않을 수 있어요!"}
-                      {frequency === "2month" &&
+                      {reminderInterval === "2month" &&
                         "2개월마다 목표를 점검하면 장기적인 관점을 유지할 수 있어요!"}
-                      {frequency === "3month" &&
+                      {reminderInterval === "3month" &&
                         "분기별 목표 점검으로 체계적인 성장을 이룰 수 있어요!"}
-                      {frequency === "6month" &&
+                      {reminderInterval === "6month" &&
                         "반년마다 큰 목표를 되돌아보며 인생의 방향을 확인해보세요!"}
                     </p>
                   </div>
