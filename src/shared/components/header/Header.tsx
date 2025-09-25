@@ -7,6 +7,7 @@ import { handleLogout } from "@/feature/auth/service";
 import ThemeSelector from "./ThemeSelector";
 import { useAuthStore } from "@/lib/stores/authStore";
 import type { ThemeColor } from "@/data/themes";
+import { useTutorialStore } from "@/lib/stores/tutorialStore";
 type MandaraChartProps = {
   currentTheme: ThemeColor;
   onThemeChange: (theme: ThemeColor) => void;
@@ -17,6 +18,9 @@ export default function Header({
   onThemeChange,
 }: MandaraChartProps) {
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
+  const setOnboardingVisible = useTutorialStore(
+    (state) => state.setOnboardingVisible
+  );
 
   if (!wasLoggedIn)
     return (
@@ -56,6 +60,7 @@ export default function Header({
           />
           <Button
             variant="outline"
+            onClick={() => setOnboardingVisible(true)}
             className="flex items-center gap-1 sm:gap-2 pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
           >
             <HelpCircle className="h-3 w-3 sm:h-4 sm:w-4" />

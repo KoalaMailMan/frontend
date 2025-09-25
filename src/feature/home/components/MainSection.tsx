@@ -1,5 +1,6 @@
 import { handleGoogleLogin, handleNaverLogin } from "@/feature/auth/service";
 import { Button } from "@/feature/ui/Button";
+import koalaTextLogoImage from "@/assets/koala_mailman_text_logo.png";
 
 export default function MainSection() {
   return (
@@ -9,37 +10,39 @@ export default function MainSection() {
         transform: `translateY(${Math.min(scrollY * 0.1, 20)}px)`,
       }}
     >
-      <div className="mb-12">
-        <h1
-          className="pixel-title text-white mb-4"
-          style={{
-            fontSize: "32px",
-            textShadow: "4px 4px 8px rgba(0,0,0,0.5)",
-          }}
-        >
-          KOALART
-        </h1>
-        <p
-          className="text-white/90 text-lg leading-relaxed"
-          style={{ textShadow: "2px 2px 4px rgba(0,0,0,0.5)" }}
-        >
-          코알라와 함께하는 만다라트 목표 달성 ✨
-        </p>
+      <div className="mb-4">
+        <img
+          src={koalaTextLogoImage}
+          alt="코알라 우체부"
+          className="pixelated drop-shadow-2xl max-w-xl mx-auto"
+          style={{ filter: "drop-shadow(4px 4px 8px rgba(0,0,0,0.5))" }}
+        />
       </div>
       <div className="space-y-4 max-w-sm mx-auto">
         <Button
-          className="w-full bg-green-500 hover:bg-green-600 text-white h-14 pixel-button text-lg shadow-2xl"
-          onClick={() => handleNaverLogin()}
+          onClick={handleNaverLogin}
+          className="w-full bg-green-500 hover:bg-green-600 text-white h-14 pixel-login-button text-lg shadow-2xl border-4 border-green-700"
+          style={{
+            boxShadow:
+              "0 0 0 2px #065f46, 4px 4px 0 #064e3b, 0 8px 16px rgba(0,0,0,0.3)",
+            background: "linear-gradient(145deg, #10b981 0%, #059669 100%)",
+          }}
         >
           <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24" fill="currentColor">
             <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z" />
           </svg>
           네이버로 시작하기
         </Button>
+
         <Button
+          onClick={handleGoogleLogin}
           variant="outline"
-          className="w-full h-14 border-2 pixel-button border-white bg-white/90 backdrop-blur-sm hover:bg-white text-gray-800 text-lg shadow-2xl"
-          onClick={() => handleGoogleLogin()}
+          className="w-full h-14 border-4 pixel-login-button border-gray-400 bg-white/95 backdrop-blur-sm hover:bg-white text-gray-800 text-lg shadow-2xl"
+          style={{
+            boxShadow:
+              "0 0 0 2px #6b7280, 4px 4px 0 #4b5563, 0 8px 16px rgba(0,0,0,0.3)",
+            background: "linear-gradient(145deg, #ffffff 0%, #f9fafb 100%)",
+          }}
         >
           <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24">
             <path

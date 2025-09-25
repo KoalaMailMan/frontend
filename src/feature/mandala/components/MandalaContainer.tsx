@@ -12,6 +12,8 @@ type MandalaContainerCellProps = {
   disabled: boolean;
   isEmpty: boolean;
   className?: string;
+  "data-tutorial"?: string;
+  tutorialArrowButton?: boolean;
   onStartEdit: () => void;
   onContentChange: (value: string) => void;
   onCancelEdit: () => void;
@@ -27,6 +29,8 @@ export default function MandalaContainer({
   disabled,
   isEmpty,
   className,
+  "data-tutorial": dataTutorial,
+  tutorialArrowButton = false,
   onStartEdit,
   onContentChange,
   onCancelEdit,
@@ -79,6 +83,8 @@ export default function MandalaContainer({
       content={item.content}
       disabled={disabled}
       isEmpty={isEmpty}
+      data-tutorial={dataTutorial}
+      tutorialArrowButton={tutorialArrowButton}
       onCellClick={onStartEdit}
       onDetailClick={onDetailClick}
     />

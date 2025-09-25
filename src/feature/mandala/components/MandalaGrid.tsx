@@ -72,17 +72,20 @@ export default function MandalaGrid() {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-1 max-w-lg mx-auto aspect-square">
-      {mandalaList.map((item, i) => {
-        const isCenter = 0 === i;
+    <div
+      className="grid grid-cols-3 gap-1 max-w-lg mx-auto aspect-square"
+      data-tutorial="main-cells"
+    >
+      {mandalaList.map((item, index) => {
+        const isCenter = 0 === index;
         const isEditing = editingCellId === item.goalId;
         const hasSubGoals =
-          i !== 0 &&
+          index !== 0 &&
           item.subs
             .slice(1)
             .some((sub) => sub.content && sub.content.trim() !== "");
         return (
-          <Fragment key={`main-${i}`}>
+          <Fragment key={`main-${index}`}>
             <MandalaContainer
               className={`
               ${
@@ -90,9 +93,9 @@ export default function MandalaGrid() {
                   ? " bg-primary/20 border-primary text-primary font-semibold"
                   : ""
               }
-              ${i !== 0 ? "bg-primary/5" : ""} 
+              ${index !== 0 ? "bg-primary/5" : ""} 
               ${hasSubGoals ? "ring-2 ring-primary/50 bg-primary/5" : ""}
-              ${getGridClasses(i)}
+              ${getGridClasses(index)}
             `}
               isCenter={isCenter}
               item={item}
@@ -106,6 +109,11 @@ export default function MandalaGrid() {
               }
               onCancelEdit={handleCancelEdit}
               onDetailClick={() => handleDetailClick(item.goalId)}
+              data-tutorial={
+                // 0번째 중앙의 핵심 목표
+                index === 0 ? "center-cell" : index === 4 ? "sub-goal-cell" : ""
+              }
+              tutorialArrowButton={index === 1} // 첫번째 셀의 화살표에만 true
             />
           </Fragment>
         );

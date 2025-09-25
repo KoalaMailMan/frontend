@@ -9,8 +9,10 @@ import { Button } from "@/feature/ui/Button";
 import { BellRing, Maximize2, Save } from "lucide-react";
 import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { ThemeColor } from "@/data/themes";
+import OnboardingTutorial from "@/feature/tutorial/OnboardingTutorial";
+import { useTutorialStore } from "@/lib/stores/tutorialStore";
 
 type MandaraChartProps = {
   currentTheme: ThemeColor;
@@ -25,6 +27,8 @@ export default function MandalaBoard({
 }: MandaraChartProps) {
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
+  const showAgain = useTutorialStore((state) => state.showAgain);
+  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
   const reminderSettingComplete = useMandalaStore(
     (state) => state.reminderSettingComplete
   );
@@ -34,6 +38,9 @@ export default function MandalaBoard({
   const typeRef = useRef<"save" | "reminder">("save");
   const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
   const setFullVisible = useMandalaStore((state) => state.setFullVisible);
+  const setOnboardingVisible = useTutorialStore(
+    (state) => state.setOnboardingVisible
+  );
 
   const handleSave = async () => {
     if (!reminderSettingComplete) {
@@ -41,6 +48,10 @@ export default function MandalaBoard({
       typeRef.current = "save";
     }
   };
+
+  useEffect(() => {
+    showAgain ? setOnboardingVisible(false) : setOnboardingVisible(true);
+  }, []);
 
   return (
     <div
@@ -94,7 +105,10 @@ export default function MandalaBoard({
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <Button
                   variant="outline"
-                  onClick={() => onReminderOpen(true)}
+                  onClick={() => {
+                    typeRef.current = "reminder";
+                    onReminderOpen(true);
+                  }}
                   className={`flex items-center gap-2 pixel-button text-sm px-4 py-2 ${
                     reminderEnabled
                       ? "bg-green-50/90 border-green-300 text-green-700"
@@ -120,6 +134,7 @@ export default function MandalaBoard({
       </div>
       {isReminder && <ReminderSetting openTree={typeRef.current} />}
       {isFullOpen && <FullMandalaView />}
+      {isOnboardingOpen && <OnboardingTutorial />}
     </div>
   );
 }
