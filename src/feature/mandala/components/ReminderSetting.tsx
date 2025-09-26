@@ -13,7 +13,6 @@ import { Switch } from "@/feature/ui/Switch";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { Select } from "@radix-ui/react-select";
 import { Mail } from "lucide-react";
-import { useState } from "react";
 import { handleUpdateMandala, type ServerMandalaType } from "../service";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { patchReminderAPI } from "../api/reminder/patchReminder";

@@ -18,7 +18,7 @@ const TOTURIAL = "koala-postman-tutorial";
 
 export const useTutorialStore = create<States & Actions>()(
   persist(
-    (set, get) => ({
+    (set, _) => ({
       isOnboardingOpen: false,
       showAgain: false,
 

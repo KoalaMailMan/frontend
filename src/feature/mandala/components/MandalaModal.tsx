@@ -29,8 +29,7 @@ export default function MandalaModal({
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
   const centerIndex = 0;
 
-  const handleSubStartEdit = (goalId: string, isCenter: boolean) => {
-    // if (isCenter) return;
+  const handleSubStartEdit = (goalId: string) => {
     setEditingSubCell(goalId);
   };
 
@@ -101,9 +100,7 @@ export default function MandalaModal({
                             compact={compact}
                             disabled={false}
                             isEmpty={!sub.content && sub.content.trim() !== ""}
-                            onStartEdit={() => {
-                              handleSubStartEdit(sub.goalId, isCenter);
-                            }}
+                            onStartEdit={() => handleSubStartEdit(sub.goalId)}
                             onContentChange={onContentChange}
                             onCancelEdit={handleSubCancelEdit}
                             className={cn(
