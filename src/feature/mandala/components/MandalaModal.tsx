@@ -30,7 +30,7 @@ export default function MandalaModal({
   const centerIndex = 0;
 
   const handleSubStartEdit = (goalId: string, isCenter: boolean) => {
-    if (isCenter) return;
+    // if (isCenter) return;
     setEditingSubCell(goalId);
   };
 
@@ -99,7 +99,7 @@ export default function MandalaModal({
                             item={sub}
                             isEditing={isEditing}
                             compact={compact}
-                            disabled={isCenter ? true : false}
+                            disabled={false}
                             isEmpty={!sub.content && sub.content.trim() !== ""}
                             onStartEdit={() => {
                               handleSubStartEdit(sub.goalId, isCenter);
