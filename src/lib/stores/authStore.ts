@@ -18,12 +18,14 @@ type Actions = {
   setLastProvider: (state: SocialProvider) => void;
   setLastLoginTime: (state: string) => void;
   setUserInfo: (state: States["user"]) => void;
+  setSeenReminder: (state: boolean) => void;
 };
 
 type AuthPersistedState = {
   wasLoggedIn: boolean;
   lastProvider: SocialProvider;
   lastLoginTime?: string | null;
+  hasSeenReminderSetup: boolean;
 };
 
 const AUTH_INFO = "AUTH_INFO";
@@ -39,6 +41,7 @@ export const useAuthStore = create<States & Actions>()(
         nickname: "",
         email: "",
       },
+      hasSeenReminderSetup: false,
       getAccessToken: () => get().accessToken,
       setAccessToken: (token: string | null) =>
         set(() => ({ accessToken: token })),
@@ -48,6 +51,7 @@ export const useAuthStore = create<States & Actions>()(
       setLastLoginTime: (state: string) =>
         set(() => ({ lastLoginTime: state })),
       setUserInfo: (state) => set(() => ({ user: state })),
+      setSeenReminder: (state) => set(() => ({ hasSeenReminderSetup: state })),
     }),
     {
       name: AUTH_INFO,
@@ -55,6 +59,7 @@ export const useAuthStore = create<States & Actions>()(
         wasLoggedIn: state.wasLoggedIn,
         lastProvider: state.lastProvider,
         lastLoginTime: state.lastLoginTime,
+        hasSeenReminderSetup: state.hasSeenReminderSetup,
       }),
       version: 1,
 

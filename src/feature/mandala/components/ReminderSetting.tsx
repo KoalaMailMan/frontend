@@ -22,6 +22,9 @@ type PropsType = {
   openTree: "reminder" | "save";
 };
 export default function ReminderSetting({ openTree = "save" }: PropsType) {
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const setSeenReminder = useAuthStore((state) => state.setSeenReminder);
+
   const reminderEnabled = useMandalaStore(
     (state) => state.reminderOption.reminderEnabled
   );
@@ -36,7 +39,6 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
   );
   const email = useAuthStore((state) => state.user.email);
 
-  const accessToken = useAuthStore((state) => state.accessToken);
   const data = useMandalaStore((state) => state.data);
   const mandalartId = useMandalaStore((state) => state.mandalartId);
   const changedCells = useMandalaStore((state) => state.changedCells);
@@ -53,6 +55,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
     if (accessToken) {
       try {
         if (mandalartId) {
+          setSeenReminder(true);
           setReminderSetting(true);
           const reminderOptionObj = {
             data: {
@@ -78,6 +81,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
       // 리마인더 설정
       handleReminder();
       onClose(false);
+      alert("리마인드 설정이 완료되었습니다! 🎉");
       return;
     }
     if (openTree === "save") {
@@ -88,19 +92,11 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
         onClose(false);
         return;
       }
-
       const mandalartRes: ServerMandalaType | undefined =
         await handleUpdateMandala(data, changedCells, () => onClose(false));
       handleReminder();
       if (mandalartRes !== undefined) {
         setData(mandalartRes.data);
-      }
-      if (reminderEnabled) {
-        alert(
-          "리마인드 설정이 완료되었습니다! 🎉\n만다라트도 함께 저장되었습니다."
-        );
-      } else {
-        alert("만다라트가 저장되었습니다! 🎉");
       }
     }
   };
