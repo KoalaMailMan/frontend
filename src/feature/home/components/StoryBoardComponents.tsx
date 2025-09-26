@@ -3,51 +3,47 @@ import { ImageWithFallback } from "@/feature/ui/ImageWithFallback";
 
 export default function StoryBoardComponents() {
   return (
-    <div className="space-y-12">
-      {SERVICE_GUIDE_STEPS.map((item, index) => (
-        <div key={index} className="flex items-center justify-center">
-          <div className="mailbox-card overflow-hidden shadow-2xl bg-white/95 max-w-5xl w-full">
-            <div
-              className={`flex flex-col ${
-                index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
-              }`}
-            >
-              {/* 픽셀아트 스타일 이미지 섹션 */}
-              <StepImageComponent
-                step={item.step}
-                emoji={item.emoji}
-                title={item.title}
-                img={item.koalaImage}
-              />
-              {/* 텍스트 섹션 */}
-              <div className="lg:w-1/2 p-8 lg:p-12 flex flex-col justify-center relative">
-                {/* 픽셀 장식 */}
-                <div className="absolute top-4 right-4 w-6 h-6 bg-primary/20 rotate-45"></div>
-                <div className="absolute bottom-4 left-4 w-4 h-4 bg-yellow-300 rotate-12"></div>
-
-                <h3
-                  className="pixel-subtitle mb-4 text-primary"
-                  style={{ fontSize: "14px" }}
-                >
-                  {item.title}
-                </h3>
-                <h4
-                  className="mb-6 text-gray-800 font-semibold"
-                  style={{ fontSize: "18px" }}
-                >
-                  {item.subtitle}
-                </h4>
-                <p className="text-gray-600 leading-relaxed">
-                  {item.description}
-                </p>
-
-                {/* 픽셀 스타일 진행 바 */}
-                <StepProgressBarComponents step={item.step} />
+    <div className="space-y-8">
+      {SERVICE_GUIDE_STEPS.map((step, index) => (
+        <div
+          key={index}
+          className="bg-white/95 backdrop-blur-sm rounded-lg overflow-hidden shadow-lg border border-white/20"
+        >
+          <div
+            className={`flex flex-col ${
+              index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"
+            }`}
+          >
+            {/* 이미지 섹션 */}
+            <div className="md:w-2/5">
+              <div className="h-48 md:h-full relative">
+                <ImageWithFallback
+                  src={step.image}
+                  alt={step.title}
+                  className="w-full h-full object-cover"
+                />
+                {/* 이모지 오버레이 */}
+                <div className="absolute top-4 right-4 w-12 h-12 bg-white/90 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-lg">
+                  <span className="text-xl">{step.emoji}</span>
+                </div>
               </div>
             </div>
 
-            {/* 픽셀 스타일 연결 화살표 */}
-            {index < SERVICE_GUIDE_STEPS.length - 1 && <StepScrollArrow />}
+            {/* 텍스트 섹션 */}
+            <div className="md:w-3/5 p-6 flex flex-col justify-center">
+              <h3
+                className="pixel-subtitle text-primary mb-2"
+                style={{ fontSize: "14px" }}
+              >
+                {step.title}
+              </h3>
+              <h4 className="mb-3 text-gray-800 font-semibold">
+                {step.subtitle}
+              </h4>
+              <p className="text-gray-600 leading-relaxed">
+                {step.description}
+              </p>
+            </div>
           </div>
         </div>
       ))}
@@ -55,6 +51,7 @@ export default function StoryBoardComponents() {
   );
 }
 
+// 레거시 디자인
 function StepImageComponent({
   step,
   emoji,
