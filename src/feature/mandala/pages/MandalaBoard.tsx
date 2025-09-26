@@ -13,6 +13,8 @@ import { useEffect, useRef } from "react";
 import type { ThemeColor } from "@/data/themes";
 import OnboardingTutorial from "@/feature/tutorial/OnboardingTutorial";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
+import { useAuthStore } from "@/lib/stores/authStore";
+import { handleUpdateMandala, type ServerMandalaType } from "../service";
 
 type MandaraChartProps = {
   currentTheme: ThemeColor;
@@ -25,13 +27,17 @@ export default function MandalaBoard({
   onThemeChange,
   getCurrentBackground,
 }: MandaraChartProps) {
+  const hasSeenReminderSetup = useAuthStore(
+    (state) => state.hasSeenReminderSetup
+  );
+  const setData = useMandalaStore((state) => state.setData);
+  const changedCells = useMandalaStore((state) => state.changedCells);
+  const data = useMandalaStore((state) => state.data);
+
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
   const showAgain = useTutorialStore((state) => state.showAgain);
   const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
-  const reminderSettingComplete = useMandalaStore(
-    (state) => state.reminderSettingComplete
-  );
   const reminderEnabled = useMandalaStore(
     (state) => state.reminderOption.reminderEnabled
   );
@@ -43,9 +49,15 @@ export default function MandalaBoard({
   );
 
   const handleSave = async () => {
-    if (!reminderSettingComplete) {
+    if (!hasSeenReminderSetup) {
       onReminderOpen(true);
       typeRef.current = "save";
+    } else {
+      const mandalartRes: ServerMandalaType | undefined =
+        await handleUpdateMandala(data, changedCells);
+      if (mandalartRes !== undefined) {
+        setData(mandalartRes.data);
+      }
     }
   };
 
@@ -72,7 +84,7 @@ export default function MandalaBoard({
         >
           <div className="mailbox-slot"></div>
           <div className="mailbox-flag"></div>
-          <CardHeader className="text-center pt-8">
+          <CardHeader className="text-center pt-8 mb-4">
             <CardTitle
               className="flex items-center justify-center gap-2 pixel-subtitle"
               style={{ fontSize: "14px" }}
@@ -95,7 +107,7 @@ export default function MandalaBoard({
             <MandalaGrid />
             <div className="text-center mt-6">
               <Button
-                className="pixel-button bg-green-500/90 hover:bg-green-600/90 text-white px-8 py-3 text-base backdrop-blur-sm"
+                className="pixel-button bg-green-500/90 hover:bg-green-600/90 text-white px-8 py-3 text-base backdrop-blur-sm mb-4"
                 onClick={handleSave}
               >
                 <Save className="h-5 w-5 mr-2" />

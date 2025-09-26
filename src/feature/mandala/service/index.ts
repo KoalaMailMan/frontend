@@ -180,7 +180,7 @@ export const serverToUI = (
   // subs 배열 생성 - position 기준으로 배치
   const coreSubsArray = new Array(9).fill(null);
   coreSubsArray[0] = {
-    goalId: `sub-${serverData.core.goalId}-${serverData.core.goalId}`,
+    goalId: `sub-${serverData.core.goalId}-${0}`,
     originalId: serverData.core.goalId,
     position: 0,
     content: serverData.core.content || "",
@@ -232,7 +232,7 @@ export const serverToUI = (
       const subsArray = new Array(9).fill(null);
 
       subsArray[0] = {
-        goalId: `sub-${main.goalId}-${main.goalId}`,
+        goalId: `sub-${main.goalId}-${0}`,
         originalId: main.goalId,
         position: 0,
         content: main.content || "",

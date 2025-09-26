@@ -67,7 +67,7 @@ type Actions = {
 export const useMandalaStore = create<States & Actions>((set, get) => ({
   data: serverToUI(emptyDummyData.data),
   reminderOption: {
-    reminderEnabled: false,
+    reminderEnabled: true,
     reminderInterval: "1week",
     remindScheduledAt: null,
   },
@@ -87,7 +87,8 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   getData: (index) => {
     if (index != null) {
       return get().data?.core?.mains?.[index]?.subs ?? [];
-    } else return get().data.core.mains;
+    }
+    return (get().data && get().data?.core.mains) || [];
   },
   setData: (newData) => set(() => ({ data: serverToUI(newData) })),
   setMandalartId: (id) => set(() => ({ mandalartId: id })),
@@ -105,6 +106,7 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   handleCellChange: (cellId, value, index) =>
     set((state) => {
       console.log("Store handleCellChange:", cellId, value, index);
+      if (!state.data) return state;
       if (!state.data.core.mains) return state;
       const dataList = [...state.data.core.mains];
       const ids = cellId.split("-");
@@ -112,68 +114,82 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
       const isSubGoal = cellId.startsWith("sub");
       const isMainGoal = cellId.startsWith("main");
       const isCoreGoal = cellId.startsWith("core");
-      if (isSubGoal) {
-        // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} |  sub-center-{mainIndex}
 
-        const mainId =
-          ids[1] === "center" ? `main-${ids[2]}` : `main-${ids[1]}`;
-        let mainIndex = dataList.findIndex((item) => item.goalId === mainId);
-        let subIndex;
-        if (mainIndex === -1) {
-          const mainId = `core-${ids[1]}`;
-          const subId = `sub-${ids[1]}-${ids[2]}`;
-          mainIndex = dataList.findIndex((item) => item.goalId === mainId);
-          subIndex = dataList[mainIndex].subs.findIndex(
-            (item) => item.goalId === subId
-          );
+      if (isSubGoal) {
+        // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} |  sub-center-{0}
+
+        let mainId;
+        if (ids[1] === "center") {
+          if (ids[2] === "0") {
+            mainId = `core-0`;
+          } else {
+            mainId = `main-${ids[2]}`;
+          }
+        } else if (ids[1] === "0") {
+          mainId = `main-${ids[2]}`;
         } else {
-          const subId =
-            ids[1] === "center"
-              ? `sub-${ids[2]}-${ids[2]}`
-              : `sub-${ids[1]}-${ids[2]}`;
-          subIndex = dataList[mainIndex].subs.findIndex(
-            (item) => item.goalId === subId
-          );
+          mainId = `main-${ids[1]}`;
         }
 
+        let mainIndex = dataList.findIndex((item) => item.goalId === mainId);
+        let subIndex = dataList[mainIndex].subs.findIndex(
+          (sub) => sub.goalId === cellId
+        );
         if (!dataList[mainIndex].subs) return state;
-        if (mainIndex < 0 || mainIndex >= dataList.length) return state;
-        if (subIndex < 0 || subIndex >= dataList[mainIndex].subs.length)
-          return state;
-        dataList[mainIndex] = {
-          ...dataList[mainIndex],
-          subs: dataList[mainIndex].subs.map((sub, i) =>
-            i === subIndex ? { ...sub, content: value } : sub
-          ),
-        };
-        if (ids[1] === "center") {
-          dataList[mainIndex].content = value;
+
+        if (ids[1] === "center" || ids[1] === "0") {
+          if (ids[2] === "0") {
+            // 핵심 목표: 정중앙
+            dataList[0] = {
+              ...dataList[0],
+              content: value,
+              subs: dataList[0].subs.map((sub, i) =>
+                i === 0 ? { ...sub, content: value } : sub
+              ),
+            };
+          } else {
+            // 주요 목표: mains
+            dataList[0] = {
+              ...dataList[0],
+              subs: dataList[0].subs.map((sub, i) =>
+                i === mainIndex ? { ...sub, content: value } : sub
+              ),
+            };
+            dataList[mainIndex] = {
+              ...dataList[mainIndex],
+              content: value,
+              subs: dataList[mainIndex].subs.map((sub, i) =>
+                i === 0 ? { ...sub, content: value } : sub
+              ),
+            };
+          }
+        } else if (ids[2] === "0") {
           dataList[0] = {
             ...dataList[0],
             subs: dataList[0].subs.map((sub, i) =>
               i === mainIndex ? { ...sub, content: value } : sub
             ),
           };
-        } else if (mainIndex === 0) {
-          dataList[subIndex] = {
-            ...dataList[subIndex],
+          dataList[mainIndex] = {
+            ...dataList[mainIndex],
             content: value,
-            subs: dataList[subIndex].subs.map((sub, i) =>
-              i === mainIndex ? { ...sub, content: value } : sub
+            subs: dataList[mainIndex].subs.map((sub, i) =>
+              i === 0 ? { ...sub, content: value } : sub
             ),
           };
         }
+        // 세부 목표: subs
+        dataList[mainIndex] = {
+          ...dataList[mainIndex],
+          subs: dataList[mainIndex].subs.map((sub, i) =>
+            i === subIndex ? { ...sub, content: value } : sub
+          ),
+        };
       } else if (isMainGoal) {
         const mainId = cellId; // main-{mainIndex} | main-center-{mainIndex}
         const mainIndex = dataList.findIndex((item) => item.goalId === mainId);
 
-        if (mainIndex < 0 || mainIndex >= dataList.length) return state;
-        if (
-          !dataList ||
-          dataList[mainIndex].subs.length <= 0 ||
-          dataList[0].subs.length <= 0
-        )
-          return state;
+        if (mainIndex < 0) return state;
 
         dataList[mainIndex] = {
           ...dataList[mainIndex],
@@ -190,7 +206,6 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
           ),
         };
       } else if (isCoreGoal) {
-        if (!dataList[0].subs) return state;
         dataList[0] = {
           ...dataList[0],
           content: value,

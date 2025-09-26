@@ -1,10 +1,6 @@
 import MainSection from "../components/MainSection";
-import ScrollAnimation from "../components/ScrollAnimation";
 import StoryBoardComponents from "../components/StoryBoardComponents";
 import { Button } from "../../ui/Button";
-import NoticeContainer from "../../ui/NoticeContainer";
-import koalaPixelImage from "../../../assets/default_koala.png";
-import PixelAnimationComponent from "../components/PixelAnimationComponent";
 import BackgroundAnimation from "../components/BackgroundAnimation";
 import Header from "@/shared/\bcomponents/header/Header";
 import type { ThemeColor } from "@/data/themes";
@@ -27,34 +23,67 @@ export default function HomePage({
   };
 
   return (
-    <main
-      className="min-h-screen relative overflow-hidden"
-      style={{
-        backgroundImage: `url(${getCurrentBackground()})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <div className="min-h-screen relative overflow-hidden">
+      {/* 테마 선택기 - 우상단 */}
       <Header currentTheme={currentTheme} onThemeChange={onThemeChange} />
 
-      <section className="min-h-screen flex flex-col items-center justify-center px-4 relative">
+      {/* 메인 로그인 섹션 */}
+      <div
+        className="min-h-screen flex flex-col items-center justify-center px-4 relative"
+        style={{
+          backgroundImage: `url(${getCurrentBackground()})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        {/* 날아가는 코알라 애니메이션 */}
         <BackgroundAnimation />
+
+        {/* 메인 로그인 컨테이너 */}
         <MainSection />
 
-        <ScrollAnimation />
-      </section>
+        {/* 스크롤 안내 */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center animate-bounce z-30">
+          <div
+            className="pixel-subtitle text-white/80 mb-2"
+            style={{
+              fontSize: "10px",
+              textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
+            }}
+          >
+            아래로 스크롤해서 서비스 소개 보기
+          </div>
+          <div
+            className="text-3xl text-white"
+            style={{
+              textShadow: "2px 2px 4px rgba(0,0,0,0.5)",
+            }}
+          >
+            ↓
+          </div>
+        </div>
+      </div>
 
-      <div className="bg-black/10 backdrop-blur-sm py-20 px-4">
-        <div className="max-w-6xl mx-auto">
-          <section>
+      {/* 서비스 소개 섹션 */}
+      <div
+        className="py-20 px-4 relative"
+        style={{
+          backgroundImage: `url(${getCurrentBackground()})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          backgroundAttachment: "fixed",
+        }}
+      >
+        {/* 불투명 오버레이 */}
+        <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
+        <div className="relative z-10">
+          <div className="max-w-4xl mx-auto">
+            {/* 소개 제목 */}
             <div className="text-center mb-16">
-              <NoticeContainer variant="max">
-                <img
-                  src={koalaPixelImage}
-                  alt="코알라"
-                  className="w-12 h-12 mx-auto mb-4 pixelated"
-                />
+              <div className="bg-white/95 backdrop-blur-sm rounded-lg p-8 shadow-lg border border-white/20">
                 <h2
                   className="pixel-subtitle text-primary mb-4"
                   style={{ fontSize: "16px" }}
@@ -66,25 +95,15 @@ export default function HomePage({
                   <br />
                   당신의 꿈을 현실로 만들어보세요! 🐨✨
                 </p>
-              </NoticeContainer>
+              </div>
             </div>
-          </section>
-          <section>
+
+            {/* 스토리보드 */}
             <StoryBoardComponents />
-          </section>
-          <section>
-            <div className="text-center py-16">
-              <NoticeContainer variant="default" shadow="xl">
-                {/* 픽셀 장식 */}
-                <div className="absolute -top-4 -left-4 w-8 h-8 bg-primary rotate-45"></div>
-                <div className="absolute -top-4 -right-4 w-8 h-8 bg-yellow-300 rotate-45"></div>
-                <div className="absolute -bottom-4 -left-4 w-6 h-6 bg-orange-300 rotate-45"></div>
-                <div className="absolute -bottom-4 -right-4 w-6 h-6 bg-primary/50 rotate-45"></div>
-                <img
-                  src={koalaPixelImage}
-                  alt="코알라"
-                  className="w-16 h-16 mx-auto mb-6 pixelated"
-                />
+
+            {/* 최종 CTA 섹션 */}
+            <div className="text-center pt-16">
+              <div className="bg-white/95 backdrop-blur-sm rounded-lg p-8 shadow-lg border border-white/20">
                 <h3
                   className="pixel-subtitle text-primary mb-4"
                   style={{ fontSize: "16px" }}
@@ -98,18 +117,15 @@ export default function HomePage({
                 </p>
                 <Button
                   onClick={scrollToTop}
-                  className="w-full bg-primary hover:bg-primary/90 text-white h-12 pixel-button text-sm"
+                  className="bg-primary hover:bg-primary/90 text-white h-12 pixel-button px-8"
                 >
                   ↑ 위로 올라가서 로그인하기 📝
                 </Button>
-
-                {/* 픽셀 장식 */}
-                <PixelAnimationComponent />
-              </NoticeContainer>
+              </div>
             </div>
-          </section>
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
