@@ -1,5 +1,6 @@
 import { ENV } from "@/const";
 import type { ApiError, RequestConfig } from "./type";
+import { ApiErrorHandler } from "./errorHandler";
 type ResponseInterceptor = {
   id?: string; // ID 필드 추가
   onSuccess?: (response: Response) => Promise<any>;
@@ -142,6 +143,7 @@ class ApiClient {
       }
 
       let result;
+      console.log("response , , ,", response);
       if (this.responseInterceptors.length > 0) {
         result = response;
         for (const interceptor of this.responseInterceptors) {
@@ -150,7 +152,19 @@ class ApiClient {
           }
         }
       } else {
-        result = await response.json();
+        if (
+          response.status === 204 ||
+          response.headers.get("content-length") === "0"
+        ) {
+          result = null;
+        } else {
+          try {
+            result = await response.json();
+          } catch (jsonError) {
+            console.warn("JSON parsing failed, treating as empty response");
+            result = null;
+          }
+        }
       }
 
       return result;
@@ -162,6 +176,8 @@ class ApiClient {
               status: error.name === "AbortError" ? 408 : 0,
             }
           : (error as ApiError);
+
+      await ApiErrorHandler.handleError(apiError);
 
       for (const interceptor of this.responseInterceptors) {
         if (interceptor.onError) {
