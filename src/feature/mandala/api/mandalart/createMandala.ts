@@ -11,6 +11,6 @@ export const createMandalaAPI = async (accessToken: string, data: any) => {
     });
     return res;
   } catch (error) {
-    console.error("updateMandala failed:", error);
+    console.error("createMandalaAPI failed:", error);
   }
 };
