@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { emptyDummyData, serverToUI } from "@/feature/mandala/service";
-import dummyData from "@/data/durmmy";
 import { findKeyByValue } from "@/feature/mandala/utills/\bindex";
 
 export type MandalaType<T = string> = {
@@ -254,7 +253,7 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
       const newSubs = [...state.data.core.mains[mainIndex].subs];
       let dataIndex = 0;
 
-      const updateSubs = newSubs.map((item, i) => {
+      const updateSubs = newSubs.map((item) => {
         if (item.position === 0 || item.content) {
           return item;
         }
