@@ -1,13 +1,13 @@
-export const getURLQuery = () => {
+export const getURLQuery = (query: string) => {
   const params = new URLSearchParams(window.location.search);
-  const token = params.get("access_token");
+  const token = params.get(query);
 
   return token;
 };
 
 export const APIWithRetry = async <T>(
   fn: () => Promise<T>,
-  max: number = 3
+  max: number = 2
 ) => {
   let retryCount = 0;
 

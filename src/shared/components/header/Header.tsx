@@ -1,4 +1,4 @@
-import koalaPixelImage from "@/assets/default_koala.png";
+import koalaPixelImage from "@/assets/header_koala_logo.webp";
 import koalaTextLogoImage from "@/assets/koala_mailman_text_logo.png";
 
 import { Button } from "@/feature/ui/Button";

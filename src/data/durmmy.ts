@@ -15,8 +15,8 @@ export const dummyData = {
           position: 0,
           content: "운동",
           subs: [
-            { goalId: 102, position: 0, content: "주 3회 조깅" },
-            { goalId: 103, position: 1, content: "근력 운동 2회" },
+            { goalId: 102, position: 1, content: "주 3회 조깅" },
+            { goalId: 103, position: 2, content: "근력 운동 2회" },
           ],
         },
         {
@@ -24,8 +24,8 @@ export const dummyData = {
           position: 1,
           content: "독서",
           subs: [
-            { goalId: 105, position: 0, content: "비즈니스 서적 읽기" },
-            { goalId: 106, position: 1, content: "추리소설 읽기" },
+            { goalId: 105, position: 1, content: "비즈니스 서적 읽기" },
+            { goalId: 106, position: 2, content: "추리소설 읽기" },
           ],
         },
         {
@@ -33,8 +33,17 @@ export const dummyData = {
           position: 2,
           content: "개발 공부",
           subs: [
-            { goalId: 108, position: 0, content: "React 프로젝트 만들기" },
-            { goalId: 109, position: 1, content: "TypeScript 패턴 학습" },
+            { goalId: 108, position: 1, content: "React 프로젝트 만들기" },
+            { goalId: 109, position: 2, content: "TypeScript 패턴 학습" },
+          ],
+        },
+        {
+          goalId: 6,
+          position: 5,
+          content: "개발 공부",
+          subs: [
+            { goalId: 32, position: 1, content: "React 프로젝트 만들기" },
+            { goalId: 129, position: 2, content: "TypeScript 패턴 학습" },
           ],
         },
       ],

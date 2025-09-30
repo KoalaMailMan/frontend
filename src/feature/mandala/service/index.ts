@@ -8,32 +8,34 @@ import {
 } from "@/lib/stores/mandalaStore";
 import { apiClient } from "@/lib/api/client";
 import { createMandalaAPI } from "../api/mandalart/createMandala";
-import { updateMandalaAPI } from "../api/mandalart/updateMandala";
 
 export const handleMandalaData = async () => {
   const accessToken = useAuthStore.getState().accessToken;
   if (!accessToken) return;
-  const interceptorId = await withNoContentInterceptor();
   try {
     const mandalart: ServerMandalaType = await getMandalaAPI(accessToken);
-    useMandalaStore.getState().setData(mandalart.data);
-    if (
-      mandalart.data.mandalartId !== undefined &&
-      mandalart.data.reminderOption !== undefined
-    ) {
-      useMandalaStore.getState().setMandalartId(mandalart.data.mandalartId);
-      const reminderOptions = mandalart.data.reminderOption;
-      if (reminderOptions.reminderEnabled) {
-        useMandalaStore
-          .getState()
-          .setReminderOption(mandalart.data.reminderOption);
-        useMandalaStore.getState().setReminderSetting(true);
-      } else {
-        useMandalaStore.getState().setReminderSetting(false);
+    if (mandalart) {
+      if (
+        mandalart.data &&
+        mandalart.data.mandalartId !== undefined &&
+        mandalart.data.reminderOption !== undefined
+      ) {
+        useMandalaStore.getState().setData(mandalart.data);
+        useMandalaStore.getState().setMandalartId(mandalart.data.mandalartId);
+        const reminderOptions = mandalart.data.reminderOption;
+        if (reminderOptions.reminderEnabled) {
+          useMandalaStore
+            .getState()
+            .setReminderOption(mandalart.data.reminderOption);
+          useMandalaStore.getState().setReminderSetting(true);
+        } else {
+          useMandalaStore.getState().setReminderSetting(false);
+        }
       }
+    } else {
+      useMandalaStore.getState().setEmptyState(true);
     }
   } finally {
-    apiClient.removeResponseInterceptor(interceptorId);
   }
 };
 
@@ -43,44 +45,32 @@ export const handleUpdateMandala = async (
   callback?: () => void
 ) => {
   const accessToken = useAuthStore.getState().accessToken;
-  const reminderEnabled =
-    useMandalaStore.getState().reminderOption.reminderEnabled;
   const mandalartId = useMandalaStore.getState().mandalartId;
-  if (!accessToken && !mandalartId) return;
+  const resetChangedCells = useMandalaStore.getState().resetChangedCells;
   if (accessToken) {
     // 인증 성공
     try {
-      const mandalaData = uiToServer(data, changedCells);
       if (callback !== undefined) {
         callback();
       }
 
-      if (mandalartId != null && reminderEnabled) {
-        const mandalartRes: ServerMandalaType = await updateMandalaAPI(
+      if (mandalartId != null) {
+        const mandalaData = uiToServer(data, changedCells, mandalartId);
+        const mandalartRes: ServerMandalaType = await createMandalaAPI(
           accessToken,
-          String(mandalartId),
           mandalaData
         );
-
+        resetChangedCells();
         return mandalartRes;
       } else {
-        const newData = {
-          data: {
-            mandalartId,
-            ...mandalaData.data,
-          },
-        };
-        await createMandalaAPI(accessToken, newData);
-
-        // 반환값 없음;
+        const mandalaData = uiToServer(data, changedCells);
+        const mandalartRes = await createMandalaAPI(accessToken, mandalaData);
+        resetChangedCells();
+        return mandalartRes;
       }
     } catch (error: any) {
       console.error(error);
 
-      if (error.status === 401) {
-        console.log("토큰 만료, 갱신 후 재시도...");
-        // 토큰 갱신 로직 추가
-      }
       alert(`저장 실패: ${error.message}`);
     }
   }
@@ -167,11 +157,23 @@ export const serverToUI = (
   serverData: ServerMandalaType["data"]
 ): MandalaType => {
   const uiMains: MainGoal[] = [];
+  const idManager = createMandalaIdManager(serverData);
+
+  // originalId를 설정할 조건을 확인하는 함수
+  // goalId가 있다면, 기존 데이터가 있다고 판단.
+  const getOriginalId = (
+    goalId: number | null | undefined
+  ): number | undefined => {
+    if (goalId == null) {
+      return undefined;
+    }
+    return goalId;
+  };
 
   // 1단계: 0번 main (core) 생성
   const coreAsMain: MainGoal = {
-    goalId: `core-${serverData.core?.goalId}`,
-    originalId: serverData.core?.goalId,
+    goalId: `core-0`,
+    originalId: getOriginalId(serverData.core?.goalId),
     position: 0,
     content: serverData.core?.content || "",
     subs: [],
@@ -180,18 +182,22 @@ export const serverToUI = (
   // subs 배열 생성 - position 기준으로 배치
   const coreSubsArray = new Array(9).fill(null);
   coreSubsArray[0] = {
-    goalId: `sub-${serverData.core.goalId}-${0}`,
-    originalId: serverData.core.goalId,
+    goalId: `sub-0-0`,
+    originalId: getOriginalId(serverData.core?.goalId),
     position: 0,
-    content: serverData.core.content || "",
+    content: serverData.core?.content || "",
   };
 
   serverData.core.mains?.forEach((main) => {
     const targetPosition = main.position;
     if (targetPosition >= 1 && targetPosition <= 8) {
       coreSubsArray[targetPosition] = {
-        goalId: `sub-${serverData.core.goalId}-${main.goalId}`,
-        originalId: main.goalId,
+        goalId: idManager.generateSubId(
+          coreAsMain.goalId,
+          main.goalId,
+          targetPosition
+        ),
+        originalId: getOriginalId(main.goalId),
         position: main.position,
         content: main.content || "",
       };
@@ -202,8 +208,8 @@ export const serverToUI = (
   for (let i = 1; i <= 8; i++) {
     if (!coreSubsArray[i]) {
       coreSubsArray[i] = {
-        goalId: `sub-${serverData.core.goalId}-${i}`,
-        originalId: undefined,
+        goalId: idManager.generateSubId(coreAsMain.goalId, undefined, i),
+        originalId: undefined, // 빈 데이터는 originalId 없음
         position: i,
         content: "",
       };
@@ -213,7 +219,6 @@ export const serverToUI = (
   uiMains[0] = coreAsMain;
 
   // 2단계: 1~8번 main들 생성 - position 기준 배치
-
   const uiMainsArray = new Array(9).fill(null);
   uiMainsArray[0] = coreAsMain; // 0번 설정
 
@@ -222,18 +227,19 @@ export const serverToUI = (
 
     if (targetPosition >= 1 && targetPosition <= 8) {
       const uiMain: MainGoal = {
-        goalId: `main-${main.goalId}`,
-        originalId: main.goalId,
+        goalId: idManager.generateMainId(main.goalId, targetPosition),
+        originalId: getOriginalId(main.goalId),
         position: targetPosition,
         content: main.content || "",
         subs: [],
       };
+
       // 해당 main의 subs 생성
       const subsArray = new Array(9).fill(null);
 
       subsArray[0] = {
-        goalId: `sub-${main.goalId}-${0}`,
-        originalId: main.goalId,
+        goalId: idManager.generateSubId(uiMain.goalId, undefined, 0),
+        originalId: getOriginalId(main.goalId),
         position: 0,
         content: main.content || "",
       };
@@ -243,19 +249,24 @@ export const serverToUI = (
         const subTargetPosition = sub.position;
         if (subTargetPosition >= 1 && subTargetPosition <= 8) {
           subsArray[subTargetPosition] = {
-            goalId: `sub-${main.goalId}-${sub.goalId}`,
-            originalId: sub.goalId,
+            goalId: idManager.generateSubId(
+              uiMain.goalId,
+              sub.goalId,
+              subTargetPosition
+            ),
+            originalId: getOriginalId(sub.goalId),
             position: subTargetPosition,
             content: sub.content || "",
           };
         }
       });
+
       // subs 빈 자리는 기본 값으로 채우기
       for (let j = 1; j <= 8; j++) {
         if (!subsArray[j]) {
           subsArray[j] = {
-            goalId: `sub-${main.goalId}-${j}`,
-            originalId: undefined,
+            goalId: idManager.generateSubId(uiMain.goalId, undefined, j),
+            originalId: undefined, // 빈 데이터는 originalId 없음
             position: j,
             content: "",
           };
@@ -271,8 +282,8 @@ export const serverToUI = (
   for (let k = 1; k <= 8; k++) {
     if (!uiMainsArray[k]) {
       const uiMain: MainGoal = {
-        goalId: `main-${k}`,
-        originalId: undefined,
+        goalId: idManager.generateMainId(undefined, k),
+        originalId: undefined, // 빈 데이터는 originalId 없음
         position: k,
         content: "",
         subs: [],
@@ -280,8 +291,8 @@ export const serverToUI = (
 
       // 빈 subs 배열 생성
       const subsArray = new Array(9).fill(null).map((_, idx) => ({
-        goalId: `sub-${k}-${idx}`,
-        originalId: undefined,
+        goalId: idManager.generateSubId(uiMain.goalId, undefined, idx),
+        originalId: undefined, // 빈 데이터는 originalId 없음
         position: idx,
         content: "",
       }));
@@ -290,6 +301,7 @@ export const serverToUI = (
       uiMainsArray[k] = uiMain;
     }
   }
+
   return {
     core: {
       goalId: coreAsMain.goalId,
@@ -299,18 +311,113 @@ export const serverToUI = (
   };
 };
 
-// 생성할 때
+const createMandalaIdManager = (serverData: ServerMandalaType["data"]) => {
+  const usedMainIds = new Set<string>();
+  const usedSubIds = new Set<string>();
+
+  const resgisterExistingIds = () => {
+    if (serverData.core?.goalId) {
+      usedMainIds.add(`core-${serverData.core.goalId}`);
+    }
+
+    serverData.core.mains.forEach((main) => {
+      if (main.goalId) {
+        usedMainIds.add(`main-${main.goalId}`);
+      }
+
+      main.subs.forEach((sub) => {
+        if (sub.goalId) {
+          usedSubIds.add(`sub-${main.goalId || main.position}-${sub.goalId}`);
+        }
+      });
+    });
+  };
+
+  resgisterExistingIds();
+
+  const generateCoreId = (originalId?: number) => {
+    if (originalId) {
+      return `core-${serverData.core.goalId}`;
+    }
+    return `core-0`;
+  };
+
+  const generateMainId = (originalId?: number, position?: number) => {
+    if (originalId) {
+      return `main-${originalId}`;
+    }
+
+    let candidateId = `main-${position}`;
+    let counter = 1000;
+
+    while (usedMainIds.has(candidateId)) {
+      candidateId = `main-${counter}`;
+      counter++;
+    }
+
+    usedMainIds.add(candidateId);
+    return candidateId;
+  };
+
+  const generateSubId = (
+    mainId: string,
+    originalId?: number,
+    position?: number
+  ) => {
+    if (originalId) {
+      return `sub-${mainId.replace("main-", "")}-${originalId}`;
+    }
+
+    let candidateId = `sub-${mainId.replace("main-", "")}-${position}`;
+    let counter = 1000;
+
+    while (usedSubIds.has(candidateId)) {
+      candidateId = `sub-${mainId.replace("main-", "")}-${counter}`;
+      counter++;
+    }
+
+    usedSubIds.add(candidateId);
+    return candidateId;
+  };
+
+  return {
+    generateCoreId,
+    generateMainId,
+    generateSubId,
+    getUsedMainId: () => Array.from(usedMainIds),
+    getUsedMSubId: () => Array.from(usedSubIds),
+  };
+};
+
+// 서버에 만다라트 대시보드 생성 & 수정
 export const uiToServer = (
   currentData: MandalaType<string>,
-  changedCells: Set<string>
+  changedCells: Set<string>,
+  id?: number
 ) => {
-  const result: { data: { core: Partial<ServerMandalaType["data"]["core"]> } } =
-    {
-      data: { core: {} },
-    };
+  const result: {
+    data: { core: Partial<ServerMandalaType["data"]["core"]> };
+    mandalartId?: number;
+  } = {
+    data: { core: {} },
+  };
+
+  // Core 초기 처리 (originalId가 있고 content가 있는 경우)
+  if (
+    currentData.core.mains[0].originalId &&
+    currentData.core.mains[0].content.trim() !== ""
+  ) {
+    result.data.core.content = currentData.core.mains[0].content;
+    result.data.core.goalId = currentData.core.mains[0].originalId;
+  }
+
+  if (id !== undefined) {
+    result.mandalartId = id;
+  }
 
   // 변경된 셀들을 직접 순회하면서 처리
   const processedMains = new Map<number, any>(); // mainIndex -> mainObj
+  const directlyChangedMains = new Set<number>(); // 직접 변경된 main들을 추적
 
   changedCells.forEach((cellId) => {
     if (cellId.startsWith("core")) {
@@ -325,12 +432,79 @@ export const uiToServer = (
       const mainIndex = currentData.core.mains.findIndex(
         (item) => item.goalId === cellId
       );
-      if (mainIndex === -1) return console.log("인덱스 추출 실패, ", cellId);
+      if (mainIndex === -1) {
+        console.log("main 인덱스 추출 실패: ", cellId);
+        return;
+      }
+
       const mainData = currentData.core.mains[mainIndex];
+      directlyChangedMains.add(mainIndex); // 직접 변경된 main 추적
 
       let mainObj = processedMains.get(mainIndex);
       if (!mainObj) {
-        mainObj = {};
+        mainObj = { subs: [] };
+        processedMains.set(mainIndex, mainObj);
+      }
+
+      // Main이 직접 변경된 경우: 모든 정보 포함
+      if (mainData.originalId) {
+        mainObj.goalId = mainData.originalId;
+      }
+      if (mainData.position) {
+        mainObj.position = mainData.position;
+      }
+      if (mainData.content && mainData.content.trim() !== "") {
+        mainObj.content = mainData.content;
+      }
+    } else if (cellId.startsWith("sub")) {
+      // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} | sub-center-{mainIndex}
+      let mainIndex;
+      let subIndex;
+      const parts = cellId.split("-");
+
+      if (parts[1] === "0" || parts[1] === "center") {
+        mainIndex = 0;
+        subIndex = parseInt(parts[2]);
+      } else {
+        // parts[1]이 숫자인지 확인
+        const parsedMainId = parseInt(parts[1]);
+
+        if (!isNaN(parsedMainId)) {
+          // 숫자라면 배열 인덱스가 아닌 goalId로 찾기
+          mainIndex = currentData.core.mains.findIndex(
+            (item) => item.goalId === `main-${parts[1]}`
+          );
+        } else {
+          // 숫자가 아니라면 goalId로 찾기
+          mainIndex = currentData.core.mains.findIndex(
+            (item) => item.goalId === `main-${parts[1]}`
+          );
+        }
+
+        if (mainIndex !== -1) {
+          subIndex = currentData.core.mains[mainIndex].subs.findIndex(
+            (item) => item.goalId === cellId
+          );
+        } else {
+          subIndex = -1;
+        }
+      }
+
+      if (mainIndex === -1) {
+        console.log("sub: main 인덱스 추출 실패: ", cellId);
+        return;
+      }
+      if (subIndex === -1) {
+        console.log("sub: sub 인덱스 추출 실패: ", cellId);
+        return;
+      }
+
+      const mainData = currentData.core.mains[mainIndex];
+      const subData = mainData.subs[subIndex];
+
+      let mainObj = processedMains.get(mainIndex);
+      if (!mainObj) {
+        mainObj = { subs: [] };
         processedMains.set(mainIndex, mainObj);
       }
 
@@ -338,66 +512,16 @@ export const uiToServer = (
         mainObj.goalId = mainData.originalId;
       }
 
-      if (mainData.position !== undefined && mainData.position > 0) {
+      if (mainData.position !== undefined) {
         mainObj.position = mainData.position;
       }
 
       if (mainData.content && mainData.content.trim() !== "") {
         mainObj.content = mainData.content;
       }
-    } else if (cellId.startsWith("sub")) {
-      // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} |  sub-center-{mainIndex}
-      let mainIndex;
-      let subIndex;
-      const parts = cellId.split("-");
-      if (parts[1] === "0") {
-        mainIndex = 0;
-        subIndex = parseInt(parts[2]);
-      } else if (parts[1] === "center") {
-        mainIndex = 0;
-        subIndex = parseInt(parts[2]);
-      } else {
-        mainIndex = parseInt(parts[1]);
-        subIndex = parseInt(parts[2]);
-        if (currentData.core.mains[mainIndex] === undefined) {
-          mainIndex = currentData.core.mains.findIndex(
-            (item) => item.goalId === `main-${parts[1]}`
-          );
-          subIndex = currentData.core.mains[mainIndex].subs.findIndex(
-            (item) => item.goalId === `sub-${parts[1]}-${parts[2]}`
-          );
-        }
-      }
 
-      if (mainIndex === -1)
-        return console.log("sub: main 인덱스 추출 실패, ", cellId);
-
-      if (subIndex === -1)
-        return console.log("sub: sub 인덱스 추출 실패, ", cellId);
-
-      const mainData = currentData.core.mains[mainIndex];
-      const subData = mainData.subs[subIndex];
-
-      let mainObj = processedMains.get(mainIndex);
-      if (!mainObj) {
-        mainObj = {};
-        processedMains.set(mainIndex, mainObj);
-
-        // Main의 기본 정보 설정
-        if (mainData.originalId) {
-          mainObj.goalId = mainData.originalId;
-        }
-        if (mainData.position !== undefined) {
-          mainObj.position = mainData.position;
-        }
-        if (mainData.content !== "" || mainData.content !== undefined) {
-          mainObj.content = mainData.content;
-        }
-      }
-
-      // Subs 배열 초기화
-      if (!mainObj.subs) {
-        mainObj.subs = [];
+      if (subData.position === 0) {
+        return;
       }
 
       // Sub 객체 생성
@@ -406,18 +530,16 @@ export const uiToServer = (
       if (subData.originalId) {
         subObj.goalId = subData.originalId;
       }
-
-      if (subData.position !== undefined) {
+      if (subData.position !== undefined && subData.content) {
         subObj.position = subData.position;
       }
-
-      if (subData.content) {
+      if (subData.content && subData.content.trim() !== "") {
         subObj.content = subData.content;
       }
 
       // 중복 제거 (같은 sub가 이미 추가되었는지 확인)
       const existingSubIndex = mainObj.subs.findIndex(
-        (s: any) => s.goalId === subObj.goalId || s.position === subObj.position
+        (s: any) => s.position === subObj.position
       );
 
       if (existingSubIndex !== -1) {
@@ -433,16 +555,75 @@ export const uiToServer = (
     }
   });
 
-  // // 처리된 mains를 결과에 추가
+  // 기존에 저장된 모든 데이터 추가 (originalId가 있는 것들)
+  currentData.core.mains.forEach((mainData, idx) => {
+    // idx 0은 core이므로 스킵
+    if (idx === 0) return;
+
+    // originalId가 있으면 기존 저장된 데이터
+    if (mainData.originalId) {
+      let mainObj = processedMains.get(idx);
+
+      if (!mainObj) {
+        // 아직 처리되지 않은 기존 데이터라면 새로 추가
+        mainObj = { subs: [] };
+        processedMains.set(idx, mainObj);
+      }
+
+      // 기존 데이터: goalId, position, content 모두 포함
+      mainObj.goalId = mainData.originalId;
+      mainObj.position = mainData.position;
+      if (mainData.content && mainData.content.trim() !== "") {
+        mainObj.content = mainData.content;
+      }
+
+      // 해당 main의 모든 기존 subs도 포함 (position 0 제외)
+      mainData.subs.forEach((subData) => {
+        // position 0인 sub는 제외 (main의 중복)
+        if (subData.position === 0) {
+          return;
+        }
+
+        if (subData.originalId) {
+          const existingSubIndex = mainObj.subs.findIndex(
+            (s: any) => s.position === subData.position
+          );
+
+          const subObj: any = {
+            goalId: subData.originalId,
+            position: subData.position,
+          };
+
+          if (subData.content && subData.content.trim() !== "") {
+            subObj.content = subData.content;
+          }
+
+          if (existingSubIndex !== -1) {
+            // 이미 처리된 sub라면 병합 (변경된 데이터 우선)
+            mainObj.subs[existingSubIndex] = {
+              ...subObj,
+              ...mainObj.subs[existingSubIndex],
+            };
+          } else {
+            // 새로 추가
+            mainObj.subs.push(subObj);
+          }
+        }
+      });
+    }
+  });
+
+  // 처리된 mains를 결과에 추가
   result.data.core.mains = Array.from(processedMains.values()).filter(
     (mainObj) => {
       // 유효한 데이터가 있는 main만 포함
       return (
+        mainObj.goalId ||
         mainObj.content ||
-        mainObj.originalId ||
         (mainObj.subs && mainObj.subs.length > 0)
       );
     }
   );
+
   return result;
 };
