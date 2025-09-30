@@ -14,7 +14,11 @@ import type { ThemeColor } from "@/data/themes";
 import OnboardingTutorial from "@/feature/tutorial/OnboardingTutorial";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import { useAuthStore } from "@/lib/stores/authStore";
-import { handleUpdateMandala, type ServerMandalaType } from "../service";
+import {
+  handleUpdateMandala,
+  uiToServer,
+  type ServerMandalaType,
+} from "../service";
 
 type MandaraChartProps = {
   currentTheme: ThemeColor;
@@ -30,40 +34,54 @@ export default function MandalaBoard({
   const hasSeenReminderSetup = useAuthStore(
     (state) => state.hasSeenReminderSetup
   );
-  const setData = useMandalaStore((state) => state.setData);
-  const changedCells = useMandalaStore((state) => state.changedCells);
+  const mandalartId = useMandalaStore((state) => state.mandalartId);
   const data = useMandalaStore((state) => state.data);
+  const changedCells = useMandalaStore((state) => state.changedCells);
+  const setData = useMandalaStore((state) => state.setData);
 
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
-  const showAgain = useTutorialStore((state) => state.showAgain);
   const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
-  const reminderEnabled = useMandalaStore(
-    (state) => state.reminderOption.reminderEnabled
-  );
-  const typeRef = useRef<"save" | "reminder">("save");
+  const showAgain = useTutorialStore((state) => state.showAgain);
   const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
   const setFullVisible = useMandalaStore((state) => state.setFullVisible);
   const setOnboardingVisible = useTutorialStore(
     (state) => state.setOnboardingVisible
   );
 
+  const typeRef = useRef<"save" | "reminder">("save");
+  const reminderEnabled = useMandalaStore(
+    (state) => state.reminderOption.reminderEnabled
+  );
+
+  const reminderOption = useMandalaStore((state) => state.reminderOption);
+  useEffect(() => {
+    console.log(reminderOption);
+    console.log(uiToServer(data, changedCells));
+  }, [data]);
+
   const handleSave = async () => {
-    if (!hasSeenReminderSetup) {
+    if (!hasSeenReminderSetup && !mandalartId) {
       onReminderOpen(true);
       typeRef.current = "save";
     } else {
+      if (changedCells.size <= 0) {
+        alert("변경된 목표가 없습니다!");
+        return;
+      }
       const mandalartRes: ServerMandalaType | undefined =
         await handleUpdateMandala(data, changedCells);
+
       if (mandalartRes !== undefined) {
         setData(mandalartRes.data);
+        alert("만다라트가 저장되었습니다!");
       }
     }
   };
 
   useEffect(() => {
     showAgain ? setOnboardingVisible(false) : setOnboardingVisible(true);
-  }, []);
+  }, [showAgain]);
 
   return (
     <div
