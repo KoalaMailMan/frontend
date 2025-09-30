@@ -12,7 +12,7 @@ export class ApiErrorHandler {
     const newAccessToken = await reissueWithRefreshToken();
 
     if (!newAccessToken) {
-      throw new Error("Unauthorized - refresh failed");
+      throw new Error(`Unauthorized - refresh failed/ ${error}`);
     }
   }
 
