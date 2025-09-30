@@ -1,22 +1,25 @@
 import { create } from "zustand";
 import { emptyDummyData, serverToUI } from "@/feature/mandala/service";
+import dummyData from "@/data/durmmy";
+import { findKeyByValue } from "@/feature/mandala/utills/\bindex";
 
 export type MandalaType<T = string> = {
   core: {
     goalId: T;
     content: string;
+    originalId?: number | undefined;
     mains: MainGoal<T>[];
   };
 };
 
 export type DataOption = {
   reminderEnabled: boolean;
-  reminderInterval: string;
+  remindInterval: string;
   remindScheduledAt: string | null;
 };
 export type MainGoal<T = string> = {
   goalId: T;
-  originalId?: number; // 서버 원본 ID
+  originalId?: number | undefined; // 서버 원본 ID
   position: number;
   content: string;
   subs: SubGoal<T>[];
@@ -24,7 +27,7 @@ export type MainGoal<T = string> = {
 
 export type SubGoal<T = string> = {
   goalId: T;
-  originalId?: number; // 서버 원본 ID
+  originalId?: number | undefined; // 서버 원본 ID
   position: number;
   content: string;
 };
@@ -49,10 +52,11 @@ type Actions = {
   setData: (newData: any) => void;
   getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
   setMandalartId: (id: number) => void;
+  handleCellChange: (cellId: string, value: string, index?: any) => void;
+  updateSubsCell: (subs: SubGoal[], data: string[]) => void;
   setReminderOption: (options: DataOption) => void;
   setReminderEnabled: (enabled: boolean) => void;
-  setReminderInterval: (interval: string) => void;
-  handleCellChange: (cellId: string, value: string, index?: any) => void;
+  setRemindInterval: (interval: string) => void;
   setEditingCell: (cellId: string | null) => void;
   setEditingSubCell: (cellId: string | null) => void;
   setEditingFullCell: (cellId: string | null) => void;
@@ -62,13 +66,14 @@ type Actions = {
   setReminderSetting: (state: boolean) => void;
   setFullVisible: (visible: boolean) => void;
   setEmptyState: (state: boolean) => void;
+  resetChangedCells: () => void;
 };
 
 export const useMandalaStore = create<States & Actions>((set, get) => ({
   data: serverToUI(emptyDummyData.data),
   reminderOption: {
     reminderEnabled: true,
-    reminderInterval: "1week",
+    remindInterval: "1week",
     remindScheduledAt: null,
   },
   mandalartId: null,
@@ -93,14 +98,22 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   setData: (newData) => set(() => ({ data: serverToUI(newData) })),
   setMandalartId: (id) => set(() => ({ mandalartId: id })),
   setReminderOption: (options) =>
-    set(() => ({ reminderOption: { ...options } })),
+    set(() => ({
+      reminderOption: {
+        ...options,
+        remindInterval: findKeyByValue(options.remindInterval) ?? "1week",
+      },
+    })),
   setReminderEnabled: (enabled) =>
     set((state) => ({
       reminderOption: { ...state.reminderOption, reminderEnabled: enabled },
     })),
-  setReminderInterval: (interval) =>
+  setRemindInterval: (interval) =>
     set((state) => ({
-      reminderOption: { ...state.reminderOption, reminderInterval: interval },
+      reminderOption: {
+        ...state.reminderOption,
+        remindInterval: interval,
+      },
     })),
 
   handleCellChange: (cellId, value, index) =>
@@ -132,10 +145,11 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
         }
 
         let mainIndex = dataList.findIndex((item) => item.goalId === mainId);
+        if (mainIndex === -1) return state;
         let subIndex = dataList[mainIndex].subs.findIndex(
           (sub) => sub.goalId === cellId
         );
-        if (!dataList[mainIndex].subs) return state;
+        if (subIndex === -1) return state;
 
         if (ids[1] === "center" || ids[1] === "0") {
           if (ids[2] === "0") {
@@ -228,6 +242,51 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
         isDirty: true,
       };
     }),
+  updateSubsCell: (subs, data) =>
+    set((state) => {
+      if (!subs || !data) return state;
+      const mainId = subs[0].goalId.split("-")[1];
+      const mainIndex = state.data.core.mains.findIndex(
+        (sub) => sub.goalId === `main-${mainId}`
+      );
+      console.log(mainIndex);
+      if (mainIndex === -1) return state;
+      const newSubs = [...state.data.core.mains[mainIndex].subs];
+      let dataIndex = 0;
+
+      const updateSubs = newSubs.map((item, i) => {
+        if (item.position === 0 || item.content) {
+          return item;
+        }
+
+        if (dataIndex < data.length) {
+          const newItem = { ...item, content: data[dataIndex] };
+          dataIndex++;
+          return newItem;
+        }
+
+        return item;
+      });
+
+      const cellIds = updateSubs
+        .filter((item, i) => item.content && i !== 0 && item.goalId)
+        .map((item) => item.goalId);
+      console.log(cellIds);
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          core: {
+            ...state.data.core,
+            mains: state.data.core.mains.map((main, index) =>
+              index === mainIndex ? { ...main, subs: updateSubs } : main
+            ),
+          },
+        },
+        changedCells: new Set([...state.changedCells, ...cellIds]),
+        isDirty: true,
+      };
+    }),
 
   setEditingCell: (cellId) => set(() => ({ editingCellId: cellId })),
   setEditingSubCell: (cellId) => set(() => ({ editingSubCellId: cellId })),
@@ -240,4 +299,7 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
     set(() => ({ reminderSettingComplete: state })),
   setFullVisible: (visible) => set(() => ({ isFullOpen: visible })),
   setEmptyState: (state) => set(() => ({ isEmpty: state })),
+
+  resetChangedCells: () =>
+    set(() => ({ changedCells: new Set([]), isDirty: false })),
 }));
