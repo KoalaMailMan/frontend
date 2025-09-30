@@ -143,7 +143,6 @@ class ApiClient {
       }
 
       let result;
-      console.log("response , , ,", response);
       if (this.responseInterceptors.length > 0) {
         result = response;
         for (const interceptor of this.responseInterceptors) {
