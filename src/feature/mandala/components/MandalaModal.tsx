@@ -1,14 +1,15 @@
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
 import { Fragment } from "react/jsx-runtime";
-import { useEffect } from "react";
-import { Lightbulb, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Lightbulb, Loader, X } from "lucide-react";
 
 import koalaImage from "@/assets/default_koala.png";
 import { createPortal } from "react-dom";
 import { Button } from "@/feature/ui/Button";
 import { cn } from "@/lib/utils";
 import { getGridClasses } from "../utills/css";
+import useGoalRecommendation from "../hooks/useGoalRecommendation";
 
 type Props = {
   isModalVisible: boolean;
@@ -99,7 +100,7 @@ export default function MandalaModal({
                             isEditing={isEditing}
                             compact={compact}
                             disabled={false}
-                            isEmpty={!sub.content && sub.content.trim() !== ""}
+                            isEmpty={!sub.content || !sub.content.trim()}
                             onStartEdit={() => handleSubStartEdit(sub.goalId)}
                             onContentChange={onContentChange}
                             onCancelEdit={handleSubCancelEdit}
@@ -115,7 +116,7 @@ export default function MandalaModal({
                     })}
                   </div>
                 </div>
-                <DetailedGoalRecommendationBox mainItem={item} />
+                <DetailedGoalRecommendationBox mainItems={item} />
               </div>
             </div>
           )}
@@ -131,17 +132,53 @@ export default function MandalaModal({
   return createPortal(modalContent, document.body);
 }
 
-function DetailedGoalRecommendationBox({ mainItem }: { mainItem: SubGoal[] }) {
-  const handleSuggestGoals = () => {
-    if (!mainItem[0].content.trim()) {
-      alert("먼저 주요 목표를 입력해주세요!");
+function DetailedGoalRecommendationBox({
+  mainItems,
+}: {
+  mainItems: SubGoal[];
+}) {
+  const updateSubsCell = useMandalaStore().updateSubsCell;
+  const main = mainItems[0];
+  const count = useRef(0);
+  const [shouldFetchRecommendation, setShouldFetchRecommendation] =
+    useState(false);
+  const { isLoading, data } = useGoalRecommendation({
+    enabled:
+      shouldFetchRecommendation && !!main.content.trim() && count.current > 0,
+    goal: main.content,
+    count: count.current,
+  });
+
+  useEffect(() => {
+    updateSubsCell(mainItems, data);
+    setShouldFetchRecommendation(false);
+  }, [data]);
+
+  const returnsEmptyCount = (subs: SubGoal[]) => {
+    if (!subs[0] || subs[0].content.trim() === "") {
       return;
     }
-    mainItem.forEach((main) => {
-      if (!main.content.trim()) {
-        // 주요 목표로 목표 추천 받기.
+    subs.forEach((sub) => {
+      if (!sub.content || sub.content.trim() === "") {
+        count.current = count.current + 1;
       }
     });
+  };
+
+  const handleSuggestGoals = () => {
+    if (isLoading) return;
+    if (!mainItems[0].content.trim()) {
+      alert("먼저 주요 목표를 입력해주세요!");
+      setShouldFetchRecommendation(false);
+      return;
+    }
+
+    returnsEmptyCount(mainItems);
+
+    const hasEmptyGoals = mainItems.some((main) => !main.content.trim());
+    if (hasEmptyGoals) {
+      setShouldFetchRecommendation(true);
+    }
   };
 
   return (
@@ -163,12 +200,21 @@ function DetailedGoalRecommendationBox({ mainItem }: { mainItem: SubGoal[] }) {
           <Button
             onClick={handleSuggestGoals}
             className="pixel-button bg-primary/90 hover:bg-primary text-white px-4 py-2 text-sm w-full"
-            disabled={!mainItem[0].content.trim()}
+            disabled={!mainItems[0].content.trim() || isLoading}
           >
-            <Lightbulb className="h-4 w-4 mr-2" />
-            목표 추천받기
+            {isLoading ? (
+              <>
+                <Loader />
+                loading...
+              </>
+            ) : (
+              <>
+                <Lightbulb className="h-4 w-4 mr-2" />
+                목표 추천받기
+              </>
+            )}
           </Button>
-          {!mainItem[0].content.trim() && (
+          {!mainItems[0].content.trim() && (
             <p className="text-xs text-gray-500 mt-2">
               주요 목표를 먼저 입력해주세요
             </p>
