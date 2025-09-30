@@ -10,8 +10,11 @@ export const getRecommendList = async (
   parentGoal: string,
   recommendationCount: number
 ) => {
-  const QEURY_URL = `?parentGoal=${parentGoal}?recommendationCount=${recommendationCount}`;
-  const RECOMMEND_URL = `/api/recommend/list/${QEURY_URL}`;
+  const params = new URLSearchParams({
+    parentGoal,
+    recommendationCount: recommendationCount.toString(),
+  });
+  const RECOMMEND_URL = `/api/recommend/list/?${params.toString()}`;
   try {
     const res = await apiClient.get(RECOMMEND_URL, {
       headers: {
