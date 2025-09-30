@@ -16,10 +16,18 @@ import { Mail } from "lucide-react";
 import { handleUpdateMandala, type ServerMandalaType } from "../service";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { patchReminderAPI } from "../api/reminder/patchReminder";
+import { APIWithRetry } from "@/feature/auth/\butils";
+import {
+  handleLogout,
+  reissueWithRefreshToken,
+  shouldAttemptRefresh,
+} from "@/feature/auth/service";
+import { IntervalType } from "../const";
 
 type PropsType = {
   openTree: "reminder" | "save";
 };
+
 export default function ReminderSetting({ openTree = "save" }: PropsType) {
   const accessToken = useAuthStore((state) => state.accessToken);
   const setSeenReminder = useAuthStore((state) => state.setSeenReminder);
@@ -27,76 +35,114 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
   const reminderEnabled = useMandalaStore(
     (state) => state.reminderOption.reminderEnabled
   );
-  const reminderInterval = useMandalaStore(
-    (state) => state.reminderOption.reminderInterval
+  const remindInterval = useMandalaStore(
+    (state) => state.reminderOption.remindInterval
   );
   const setReminderEnabled = useMandalaStore(
     (state) => state.setReminderEnabled
   );
-  const setReminderInterval = useMandalaStore(
-    (state) => state.setReminderInterval
-  );
+  const setRemindInterval = useMandalaStore((state) => state.setRemindInterval);
   const email = useAuthStore((state) => state.user.email);
 
   const data = useMandalaStore((state) => state.data);
   const mandalartId = useMandalaStore((state) => state.mandalartId);
   const changedCells = useMandalaStore((state) => state.changedCells);
   const isOpen = useMandalaStore((state) => state.isReminderOpen);
-  const setReminderSetting = useMandalaStore(
-    (state) => state.setReminderSetting
-  );
   const setData = useMandalaStore((state) => state.setData);
   const onClose = useMandalaStore((state) => state.setReminderVisible);
 
   if (!isOpen) return null;
 
   const handleReminder = async () => {
-    if (accessToken) {
+    if (!accessToken) {
+      // token X
+      if (shouldAttemptRefresh()) {
+        // access token 없으나 로그인 기록 있음.
+        const success = await APIWithRetry(reissueWithRefreshToken);
+        if (!success) {
+          return handleLogout();
+        }
+      } else {
+        handleLogout();
+        alert("세션 종료로 인해 처음 화면으로 돌아갑니다.");
+        return;
+      }
+    } else {
+      // token O
       try {
         if (mandalartId) {
+          // 기존 대시보드 존재
           setSeenReminder(true);
-          setReminderSetting(true);
+          const interval = IntervalType[remindInterval];
           const reminderOptionObj = {
             data: {
               mandalartId: mandalartId,
               reminderEnabled: reminderEnabled,
-              reminderInterval: reminderInterval,
+              reminderInterval: interval,
             },
           };
-          const reminderRes = await patchReminderAPI(
-            accessToken,
-            reminderOptionObj
-          );
-          console.log("reminderRes, ", reminderRes);
+          await patchReminderAPI(accessToken, reminderOptionObj);
+          alert("리마인드 설정이 완료되었습니다.");
+          onClose(false);
+        } else {
+          // 기존 대시보드 존재 X
+          if (openTree === "reminder") {
+            // 리마인더 설정 버튼으로 들어옴.
+            alert("먼저 만다라트를 저장해주세요!");
+            onClose(false);
+            return;
+          }
         }
       } catch (error) {
-        setReminderSetting(false);
+        setSeenReminder(true);
+        console.error("리마인더 설정 실패:", error);
       }
     }
   };
 
   const handleSave = async () => {
+    if (!accessToken) return;
     if (openTree === "reminder") {
       // 리마인더 설정
-      handleReminder();
-      onClose(false);
-      alert("리마인드 설정이 완료되었습니다! 🎉");
+      await handleReminder();
       return;
     }
     if (openTree === "save") {
-      // 초기 만다라트 셍성
-      // 1회 리마인드 설정 오픈
+      // 만다라트 저장
       if (changedCells.size <= 0) {
         alert("변경된 목표가 없습니다!");
         onClose(false);
         return;
       }
       const mandalartRes: ServerMandalaType | undefined =
-        await handleUpdateMandala(data, changedCells, () => onClose(false));
-      handleReminder();
-      if (mandalartRes !== undefined) {
+        await handleUpdateMandala(data, changedCells);
+      if (mandalartRes?.data) {
         setData(mandalartRes.data);
+
+        if (reminderEnabled && mandalartRes.data.mandalartId) {
+          const mandalartId = mandalartRes.data.mandalartId;
+          const interval = IntervalType[remindInterval];
+          const reminderOptionObj = {
+            data: {
+              mandalartId: mandalartId,
+              reminderEnabled: reminderEnabled,
+              remindInterval: interval,
+            },
+          };
+
+          try {
+            await patchReminderAPI(accessToken, reminderOptionObj);
+            setSeenReminder(true);
+            alert("만다라트 저장 및 리마인드 설정이 완료되었습니다! 🎉");
+          } catch (error) {
+            console.error("리마인더 설정 실패:", error);
+            alert("만다라트는 저장되었으나 리마인더 설정에 실패했습니다.");
+          }
+        } else {
+          alert("만다라트가 저장되었습니다!");
+        }
       }
+      onClose(false);
     }
   };
 
@@ -131,8 +177,8 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
               <div className="space-y-2">
                 <Label>리마인드 주기</Label>
                 <Select
-                  value={reminderInterval}
-                  onValueChange={setReminderInterval}
+                  value={remindInterval}
+                  onValueChange={setRemindInterval}
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue />
@@ -168,17 +214,17 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
                   <div className="text-sm">
                     <p className="font-medium text-red-900 mb-1">코알라 팁!</p>
                     <p className="text-red-800">
-                      {reminderInterval === "1week" &&
+                      {remindInterval === "1week" &&
                         "일주일에 한 번씩 목표를 점검하면 꾸준히 실행할 수 있어요!"}
-                      {reminderInterval === "2week" &&
+                      {remindInterval === "2week" &&
                         "2주 간격으로 리마인드를 받으면 적당한 긴장감을 유지할 수 있어요!"}
-                      {reminderInterval === "1month" &&
+                      {remindInterval === "1month" &&
                         "월 단위로 목표를 되돌아보면 큰 그림을 놓치지 않을 수 있어요!"}
-                      {reminderInterval === "2month" &&
+                      {remindInterval === "2month" &&
                         "2개월마다 목표를 점검하면 장기적인 관점을 유지할 수 있어요!"}
-                      {reminderInterval === "3month" &&
+                      {remindInterval === "3month" &&
                         "분기별 목표 점검으로 체계적인 성장을 이룰 수 있어요!"}
-                      {reminderInterval === "6month" &&
+                      {remindInterval === "6month" &&
                         "반년마다 큰 목표를 되돌아보며 인생의 방향을 확인해보세요!"}
                     </p>
                   </div>
