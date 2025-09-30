@@ -15,7 +15,7 @@ export const handleNaverLogin = () => {
 };
 
 export const handleLogin = () => {
-  const token = getURLQuery();
+  const token = getURLQuery("access_token");
   if (token) {
     const currentTime = new Date().toISOString();
     useAuthStore.getState().setAccessToken(token);
@@ -30,10 +30,11 @@ export const handleLogout = () => {
   try {
     logoutMiddleWare();
     logouAPI();
-    useAuthStore.getState().setWasLoggedIn(false);
-    useAuthStore.getState().setAccessToken(null);
   } catch (error) {
     console.error("Logout failed:", error);
+  } finally {
+    useAuthStore.getState().setWasLoggedIn(false);
+    useAuthStore.getState().setAccessToken(null);
   }
 };
 
@@ -49,21 +50,26 @@ export const logoutMiddleWare = () => {
   });
 };
 
+let refreshInProgress: Promise<string | null> | null = null;
 export const reissueWithRefreshToken = async () => {
-  try {
-    const accessToken = await refreshTokenAPI();
-
-    useAuthStore.getState().setAccessToken(accessToken);
-
-    return true;
-  } catch (error) {
-    console.error("refresh failed:", error);
-
-    // 실패 시 로그아웃 처리
-    handleLogout();
-
-    return false;
+  if (refreshInProgress) {
+    // 이미 리프레시가 진행중이라면, 진행중인 리프레시 반환
+    return refreshInProgress;
   }
+
+  refreshInProgress = (async () => {
+    try {
+      const newAccessToken = await refreshTokenAPI();
+      useAuthStore.getState().setAccessToken(newAccessToken);
+      return newAccessToken;
+    } catch (error) {
+      console.error("refresh failed:", error);
+      handleLogout();
+      return null;
+    } finally {
+      refreshInProgress = null;
+    }
+  })();
 };
 
 export const shouldAttemptRefresh = () => {
