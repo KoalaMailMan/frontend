@@ -1,6 +1,6 @@
 import { handleGoogleLogin, handleNaverLogin } from "@/feature/auth/service";
 import { Button } from "@/feature/ui/Button";
-import koalaTextLogoImage from "@/assets/koala_mailman_text_logo.png";
+import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png";
 
 export default function MainSection() {
   return (

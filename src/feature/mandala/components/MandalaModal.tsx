@@ -4,7 +4,7 @@ import { Fragment } from "react/jsx-runtime";
 import { useEffect, useRef, useState } from "react";
 import { Lightbulb, Loader, X } from "lucide-react";
 
-import koalaImage from "@/assets/default_koala.png";
+import koalaImage from "@/assets/common/default_koala.png";
 import { createPortal } from "react-dom";
 import { Button } from "@/feature/ui/Button";
 import { cn } from "@/lib/utils";

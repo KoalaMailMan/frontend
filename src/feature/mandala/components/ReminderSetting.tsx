@@ -1,4 +1,4 @@
-import koalaImage from "@/assets/default_koala.png";
+import koalaImage from "@/assets/common/default_koala.png";
 import { Button } from "@/feature/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/feature/ui/Card";
 import { Input } from "@/feature/ui/Input";

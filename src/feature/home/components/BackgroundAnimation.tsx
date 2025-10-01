@@ -1,6 +1,6 @@
-import koalaRedImage from "@/assets/mini_red_koala.png";
-import koalaGreenImage from "@/assets/mini_green_koala.png";
-import koalaPurpleImage from "@/assets/mini_purple_koala.png";
+import koalaRedImage from "@/assets/home/mini_red_koala.png";
+import koalaGreenImage from "@/assets/home/mini_green_koala.png";
+import koalaPurpleImage from "@/assets/home/mini_purple_koala.png";
 
 export default function BackgroundAnimation() {
   return (
