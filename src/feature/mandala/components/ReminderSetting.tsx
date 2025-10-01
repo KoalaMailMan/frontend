@@ -23,6 +23,7 @@ import {
   shouldAttemptRefresh,
 } from "@/feature/auth/service";
 import { IntervalType } from "../const";
+import useUserInfo from "@/feature/auth/hooks/useUserInfo";
 
 type PropsType = {
   openTree: "reminder" | "save";
@@ -42,7 +43,6 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
     (state) => state.setReminderEnabled
   );
   const setRemindInterval = useMandalaStore((state) => state.setRemindInterval);
-  const email = useAuthStore((state) => state.user.email);
 
   const data = useMandalaStore((state) => state.data);
   const mandalartId = useMandalaStore((state) => state.mandalartId);
@@ -50,6 +50,8 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
   const isOpen = useMandalaStore((state) => state.isReminderOpen);
   const setData = useMandalaStore((state) => state.setData);
   const onClose = useMandalaStore((state) => state.setReminderVisible);
+
+  const { data: user } = useUserInfo(accessToken || "");
 
   if (!isOpen) return null;
 
@@ -198,7 +200,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
                 <Label>수신 이메일</Label>
                 <Input
                   type="email"
-                  value={email || "이메일을 찾을 수 없습니다."}
+                  value={user?.email || "이메일을 찾을 수 없습니다."}
                   readOnly
                   className="bg-gray-100 cursor-not-allowed"
                   placeholder="로그인된 계정의 이메일이 사용됩니다"
