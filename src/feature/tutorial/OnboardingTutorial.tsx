@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Button } from "../ui/Button";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 
-import koalaPixelImage from "@/assets/default_koala.png";
+import koalaPixelImage from "@/assets/common/default_koala.png";
 import { Checkbox } from "../ui/CheckBox";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
 

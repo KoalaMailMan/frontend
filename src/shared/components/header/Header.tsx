@@ -1,5 +1,5 @@
-import koalaPixelImage from "@/assets/header_koala_logo.webp";
-import koalaTextLogoImage from "@/assets/koala_mailman_text_logo.png";
+import koalaPixelImage from "@/assets/common/header_koala_logo.webp";
+import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png";
 
 import { Button } from "@/feature/ui/Button";
 import { HelpCircle, LogOut } from "lucide-react";

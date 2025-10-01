@@ -1,9 +1,9 @@
-import PURPLE_BG from "../../assets/background_purple.png";
-import RED_BG from "../../assets/background_red.png";
-import BLUE_BG from "../../assets/background_blue.png";
-import GREEN_BG from "../../assets/background_green.png";
-import YELLOW_BG from "../../assets/background_yellow.png";
-import PINK_BG from "../../assets/background_pink.png";
+import PURPLE_BG from "@/assets/background/background_purple.png";
+import RED_BG from "@/assets/background/background_red.png";
+import BLUE_BG from "@/assets/background/background_blue.png";
+import GREEN_BG from "@/assets/background/background_green.png";
+import YELLOW_BG from "@/assets/background/background_yellow.png";
+import PINK_BG from "@/assets/background/background_pink.png";
 import { useEffect, useState } from "react";
 
 export type ThemeColor =
