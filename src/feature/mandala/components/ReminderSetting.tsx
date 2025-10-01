@@ -24,6 +24,7 @@ import {
 } from "@/feature/auth/service";
 import { IntervalType } from "../const";
 import useUserInfo from "@/feature/auth/hooks/useUserInfo";
+import { toast } from "sonner";
 
 type PropsType = {
   openTree: "reminder" | "save";
@@ -66,7 +67,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
         }
       } else {
         handleLogout();
-        alert("세션 종료로 인해 처음 화면으로 돌아갑니다.");
+        toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
         return;
       }
     } else {
@@ -84,13 +85,13 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
             },
           };
           await patchReminderAPI(accessToken, reminderOptionObj);
-          alert("리마인드 설정이 완료되었습니다.");
+          toast.success("리마인드 설정이 완료되었습니다.");
           onClose(false);
         } else {
           // 기존 대시보드 존재 X
           if (openTree === "reminder") {
             // 리마인더 설정 버튼으로 들어옴.
-            alert("먼저 만다라트를 저장해주세요!");
+            toast("먼저 만다라트를 저장해주세요!");
             onClose(false);
             return;
           }
@@ -112,7 +113,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
     if (openTree === "save") {
       // 만다라트 저장
       if (changedCells.size <= 0) {
-        alert("변경된 목표가 없습니다!");
+        toast("변경된 목표가 없습니다!");
         onClose(false);
         return;
       }
@@ -135,13 +136,17 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
           try {
             await patchReminderAPI(accessToken, reminderOptionObj);
             setSeenReminder(true);
-            alert("만다라트 저장 및 리마인드 설정이 완료되었습니다! 🎉");
+            toast.success(
+              "만다라트 저장 및 리마인드 설정이 완료되었습니다! 🎉"
+            );
           } catch (error) {
             console.error("리마인더 설정 실패:", error);
-            alert("만다라트는 저장되었으나 리마인더 설정에 실패했습니다.");
+            toast.warning(
+              "만다라트는 저장되었으나 리마인더 설정에 실패했습니다."
+            );
           }
         } else {
-          alert("만다라트가 저장되었습니다!");
+          toast.success("만다라트가 저장되었습니다! 🎉");
         }
       }
       onClose(false);

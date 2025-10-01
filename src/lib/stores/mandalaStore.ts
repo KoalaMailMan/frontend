@@ -42,7 +42,6 @@ type States = {
   changedCells: Set<string>;
   isModalOpen: boolean;
   isReminderOpen: boolean;
-  reminderSettingComplete: boolean;
   isFullOpen: boolean;
   isEmpty: boolean;
 };
@@ -62,7 +61,6 @@ type Actions = {
   setModalCellId: (cellId: string | null) => void;
   setModalVisible: (visible: boolean) => void;
   setReminderVisible: (visible: boolean) => void;
-  setReminderSetting: (state: boolean) => void;
   setFullVisible: (visible: boolean) => void;
   setEmptyState: (state: boolean) => void;
   resetChangedCells: () => void;
@@ -84,7 +82,6 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   changedCells: new Set([]),
   isModalOpen: false,
   isReminderOpen: false,
-  reminderSettingComplete: false,
   isFullOpen: false,
   isEmpty: true,
 
@@ -294,8 +291,6 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   setModalCellId: (cellId) => set(() => ({ modalCellId: cellId })),
   setModalVisible: (visible) => set(() => ({ isModalOpen: visible })),
   setReminderVisible: (visible) => set(() => ({ isReminderOpen: visible })),
-  setReminderSetting: (state) =>
-    set(() => ({ reminderSettingComplete: state })),
   setFullVisible: (visible) => set(() => ({ isFullOpen: visible })),
   setEmptyState: (state) => set(() => ({ isEmpty: state })),
 

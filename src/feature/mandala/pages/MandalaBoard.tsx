@@ -19,6 +19,7 @@ import {
   uiToServer,
   type ServerMandalaType,
 } from "../service";
+import { toast } from "sonner";
 
 type MandaraChartProps = {
   currentTheme: ThemeColor;
@@ -66,7 +67,7 @@ export default function MandalaBoard({
       typeRef.current = "save";
     } else {
       if (changedCells.size <= 0) {
-        alert("변경된 목표가 없습니다!");
+        toast("변경된 목표가 없습니다!");
         return;
       }
       const mandalartRes: ServerMandalaType | undefined =
@@ -74,7 +75,7 @@ export default function MandalaBoard({
 
       if (mandalartRes !== undefined) {
         setData(mandalartRes.data);
-        alert("만다라트가 저장되었습니다!");
+        toast.success("만다라트가 저장되었습니다!");
       }
     }
   };

@@ -13,6 +13,8 @@ import { handleMandalaData } from "./feature/mandala/service";
 import { APIWithRetry, getURLQuery } from "./feature/auth/\butils";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { Toaster } from "./feature/ui/Sonner";
+import { toast } from "sonner";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +38,7 @@ function App() {
           const success = await APIWithRetry(reissueWithRefreshToken);
           if (!success) {
             handleLogout();
-            alert("세션 종료로 인해 처음 화면으로 돌아갑니다.");
+            toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
             return;
           }
           await handleMandalaData();
@@ -63,6 +65,7 @@ function App() {
           getCurrentBackground={getCurrentBackground}
         />
       )}
+      <Toaster position="top-center" />
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
