@@ -21,7 +21,7 @@ export const handleLogin = () => {
     useAuthStore.getState().setAccessToken(token);
     useAuthStore.getState().setWasLoggedIn(true);
     useAuthStore.getState().setLastLoginTime(currentTime);
-    handleUserLookup();
+    handleUserLookup(token);
     window.history.replaceState({}, document.title, window.location.pathname);
   }
 };
@@ -78,8 +78,7 @@ export const shouldAttemptRefresh = () => {
   return !accessToken && wasLoggedIn;
 };
 
-export const handleUserLookup = async () => {
-  const accessToken = useAuthStore.getState().accessToken;
+export const handleUserLookup = async (accessToken: string) => {
   if (!accessToken) return;
   const res = await getUserProfileAPI(accessToken);
   const user = res?.data;
