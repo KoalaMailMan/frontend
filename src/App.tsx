@@ -11,8 +11,6 @@ import HomePage from "./feature/home/pages/HomePage";
 import useTheme from "./shared/hooks/useTheme";
 import { handleMandalaData } from "./feature/mandala/service";
 import { APIWithRetry, getURLQuery } from "./feature/auth/\butils";
-import useTitleChange from "./shared/hooks/useTitleChange";
-import useFavicon from "./shared/hooks/useFavicon";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 
@@ -21,9 +19,6 @@ const queryClient = new QueryClient();
 function App() {
   const { currentTheme, updateCurrentTheme, getCurrentBackground } = useTheme();
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
-
-  useTitleChange("Koala Mailman");
-  useFavicon("/src/assets/koala.svg");
 
   useEffect(() => {
     const initApp = async () => {
