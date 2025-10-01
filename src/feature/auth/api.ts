@@ -19,13 +19,10 @@ export const refreshTokenAPI = async () => {
 
   try {
     const res = await apiClient.post(REFRESH_URL, null, {
-      method: "POST",
       credentials: "include",
     });
 
     const accessToken = res.data.accessToken;
-    if (!accessToken) throw new Error("refresh failed");
-
     return accessToken;
   } catch (error) {
     console.error("refresh failed:", error);

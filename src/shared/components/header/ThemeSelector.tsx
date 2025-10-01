@@ -56,10 +56,7 @@ export default function ThemeSelector({
           {themes.map((theme) => (
             <button
               key={theme.id}
-              onClick={() => {
-                onThemeChange(theme.id);
-                setVisible(false);
-              }}
+              onClick={() => onThemeChange(theme.id)}
               className={`
                 relative p-4 rounded-lg border-2 transition-all pixel-button
                 ${
@@ -110,6 +107,7 @@ export default function ThemeSelector({
             선택한 테마는 앱 전체에 적용됩니다 🌈
           </p>
         </div>
+        <Button onClick={() => setVisible(false)}>확인</Button>
       </DialogContent>
     </Dialog>
   );

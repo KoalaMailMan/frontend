@@ -1,4 +1,4 @@
-import koalaPixelImage from "@/assets/default_koala.png";
+import koalaPixelImage from "@/assets/common//default_koala.png";
 import { Button } from "@/feature/ui/Button";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { ImageIcon, X } from "lucide-react";

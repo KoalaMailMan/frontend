@@ -1,6 +1,6 @@
 import { handleGoogleLogin, handleNaverLogin } from "@/feature/auth/service";
 import { Button } from "@/feature/ui/Button";
-import koalaTextLogoImage from "@/assets/koala_mailman_text_logo.png";
+import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png";
 
 export default function MainSection() {
   return (
@@ -10,11 +10,11 @@ export default function MainSection() {
         transform: `translateY(${Math.min(scrollY * 0.1, 20)}px)`,
       }}
     >
-      <div className="mb-4">
+      <div className="w-full">
         <img
           src={koalaTextLogoImage}
           alt="코알라 우체부"
-          className="pixelated drop-shadow-2xl max-w-xl mx-auto"
+          className="w-full pixelated drop-shadow-2xl max-w-xl mx-auto"
           style={{ filter: "drop-shadow(4px 4px 8px rgba(0,0,0,0.5))" }}
         />
       </div>
