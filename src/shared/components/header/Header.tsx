@@ -38,19 +38,16 @@ export default function Header({
         <div className="flex items-center gap-3 sm:gap-4">
           <img
             src={koalaPixelImage}
-            alt="코알라 우체부"
+            alt="날개 달린 코알라 캐릭터가 서있는 모습으로 서비스 메인 로고 이미지입니다."
             className="w-10 h-10 sm:w-12 sm:h-12 pixelated"
           />
           <div>
             <img
               src={koalaTextLogoImage}
-              alt="코알라 우체부"
+              alt="7가지 색상으로 색칠된 코알라 우체부 텍스트 로고 이미지입니다."
               className="pixelated h-6 sm:h-8 lg:h-10"
               style={{ filter: "drop-shadow(2px 2px 4px rgba(0,0,0,0.5))" }}
             />
-            <p className="text-white/80 mt-1 text-xs sm:text-sm">
-              체계적인 목표 설정으로 꿈을 현실로
-            </p>
           </div>
         </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">

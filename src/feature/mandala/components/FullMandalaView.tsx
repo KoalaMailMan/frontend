@@ -152,11 +152,10 @@ export default function FullMandalaView() {
             </Button>
           </div>
         </div>
-        <div className="p-2 sm:p-6">
+        <div ref={mandaraGridRef} className="p-2 sm:p-6">
           {/* 모바일에서는 스크롤 가능한 뷰 */}
           <div className="w-full overflow-auto sm:overflow-visible">
             <div
-              ref={mandaraGridRef}
               className="grid grid-cols-3 gap-0.5 sm:gap-1 mx-auto"
               style={{
                 minWidth: "360px", // 모바일 최소 너비
