@@ -13,11 +13,7 @@ import type { ThemeColor } from "@/data/themes";
 import OnboardingTutorial from "@/feature/tutorial/OnboardingTutorial";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import { useAuthStore } from "@/lib/stores/authStore";
-import {
-  handleUpdateMandala,
-  uiToServer,
-  type ServerMandalaType,
-} from "../service";
+import { handleUpdateMandala, type ServerMandalaType } from "../service";
 import { toast } from "sonner";
 
 type MandaraChartProps = {
@@ -53,12 +49,6 @@ export default function MandalaBoard({
   const reminderEnabled = useMandalaStore(
     (state) => state.reminderOption.reminderEnabled
   );
-
-  const reminderOption = useMandalaStore((state) => state.reminderOption);
-  useEffect(() => {
-    console.log(reminderOption);
-    console.log(uiToServer(data, changedCells));
-  }, [data]);
 
   const handleSave = async () => {
     if (!hasSeenReminderSetup && !mandalartId) {
@@ -98,7 +88,7 @@ export default function MandalaBoard({
         <NoticeContainer
           variant={"max"}
           shadow={"xl"}
-          className={cn("backdrop-blur-sm")}
+          className={cn("backdrop-blur-sm pr-4 pl-4")}
         >
           <div className="mailbox-slot"></div>
           <div className="mailbox-flag"></div>
@@ -114,7 +104,7 @@ export default function MandalaBoard({
               목표를 우체통에 넣어 코알라가 정기적으로 리마인드해드려요! 📬
             </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="px-0">
             <MandalaGrid />
             <div className="text-center mt-6">
               <Button
