@@ -1,7 +1,6 @@
 import MandalaGrid from "../components/MandalaGrid";
 import Header from "@/shared/\bcomponents/header/Header";
-import { CardContent, CardHeader, CardTitle } from "@/feature/ui/Card";
-import koalaPixelImage from "@/assets/common/default_koala.png";
+import { CardContent, CardHeader } from "@/feature/ui/Card";
 import { cn } from "@/lib/utils";
 import NoticeContainer from "@/feature/ui/NoticeContainer";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
