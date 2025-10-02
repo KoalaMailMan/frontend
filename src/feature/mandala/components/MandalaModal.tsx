@@ -10,6 +10,7 @@ import { Button } from "@/feature/ui/Button";
 import { cn } from "@/lib/utils";
 import { getGridClasses } from "../utills/css";
 import useGoalRecommendation from "../hooks/useGoalRecommendation";
+import { toast } from "sonner";
 
 type Props = {
   isModalVisible: boolean;
@@ -168,7 +169,7 @@ function DetailedGoalRecommendationBox({
   const handleSuggestGoals = () => {
     if (isLoading) return;
     if (!mainItems[0].content.trim()) {
-      alert("먼저 주요 목표를 입력해주세요!");
+      toast("먼저 주요 목표를 입력해주세요!");
       setShouldFetchRecommendation(false);
       return;
     }

@@ -8,6 +8,7 @@ import {
 } from "@/lib/stores/mandalaStore";
 import { apiClient } from "@/lib/api/client";
 import { createMandalaAPI } from "../api/mandalart/createMandala";
+import { toast } from "sonner";
 
 export const handleMandalaData = async () => {
   const accessToken = useAuthStore.getState().accessToken;
@@ -27,9 +28,6 @@ export const handleMandalaData = async () => {
           useMandalaStore
             .getState()
             .setReminderOption(mandalart.data.reminderOption);
-          useMandalaStore.getState().setReminderSetting(true);
-        } else {
-          useMandalaStore.getState().setReminderSetting(false);
         }
       }
     } else {
@@ -70,8 +68,7 @@ export const handleUpdateMandala = async (
       }
     } catch (error: any) {
       console.error(error);
-
-      alert(`저장 실패: ${error.message}`);
+      toast.warning("만다라트 저장에 실패했습니다. 다시 시도해주세요.");
     }
   }
 };

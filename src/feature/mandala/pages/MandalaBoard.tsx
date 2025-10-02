@@ -1,7 +1,6 @@
 import MandalaGrid from "../components/MandalaGrid";
 import Header from "@/shared/\bcomponents/header/Header";
-import { CardContent, CardHeader, CardTitle } from "@/feature/ui/Card";
-import koalaPixelImage from "@/assets/common/default_koala.png";
+import { CardContent, CardHeader } from "@/feature/ui/Card";
 import { cn } from "@/lib/utils";
 import NoticeContainer from "@/feature/ui/NoticeContainer";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
@@ -19,6 +18,7 @@ import {
   uiToServer,
   type ServerMandalaType,
 } from "../service";
+import { toast } from "sonner";
 
 type MandaraChartProps = {
   currentTheme: ThemeColor;
@@ -66,7 +66,7 @@ export default function MandalaBoard({
       typeRef.current = "save";
     } else {
       if (changedCells.size <= 0) {
-        alert("변경된 목표가 없습니다!");
+        toast("변경된 목표가 없습니다!");
         return;
       }
       const mandalartRes: ServerMandalaType | undefined =
@@ -74,7 +74,7 @@ export default function MandalaBoard({
 
       if (mandalartRes !== undefined) {
         setData(mandalartRes.data);
-        alert("만다라트가 저장되었습니다!");
+        toast.success("만다라트가 저장되었습니다!");
       }
     }
   };
@@ -102,26 +102,19 @@ export default function MandalaBoard({
         >
           <div className="mailbox-slot"></div>
           <div className="mailbox-flag"></div>
-          <CardHeader className="text-center pt-8 mb-4">
-            <CardTitle
-              className="flex items-center justify-center gap-2 pixel-subtitle"
-              style={{ fontSize: "14px" }}
-            >
-              <img src={koalaPixelImage} alt="코알라" className="w-6 h-6" />
-              코알라 우체통 📮
-            </CardTitle>
+          <CardHeader className="text-center pt-8">
             <p className="text-sm text-gray-600 mt-2">
               중앙에
-              <span className="font-semibold text-primary">핵심 목표</span>
-              를, 주변 8칸에
+              <span className="font-semibold text-primary">핵심 목표</span>를,
+              주변 8칸에
               <span className="font-semibold text-primary/80">주요 목표</span>를
               입력하세요
             </p>
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 mt-1 mb-4">
               목표를 우체통에 넣어 코알라가 정기적으로 리마인드해드려요! 📬
             </p>
           </CardHeader>
-          <CardContent className="pb-6">
+          <CardContent>
             <MandalaGrid />
             <div className="text-center mt-6">
               <Button
