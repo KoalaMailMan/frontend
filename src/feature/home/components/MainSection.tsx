@@ -1,6 +1,7 @@
 import { handleGoogleLogin, handleNaverLogin } from "@/feature/auth/service";
 import { Button } from "@/feature/ui/Button";
 import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png";
+import ScrollAnimation from "./ScrollAnimation";
 
 export default function MainSection() {
   return (
@@ -67,13 +68,17 @@ export default function MainSection() {
       </div>
       <div className="mt-8">
         <p
-          className="text-white/70 text-sm leading-relaxed"
-          style={{ textShadow: "1px 1px 2px rgba(0,0,0,0.5)" }}
+          className="text-white/70 text-sm leading-relaxed mb-6"
+          style={{
+            textShadow: "1px 1px 2px rgba(0,0,0,0.5)",
+          }}
         >
           로그인하면 <span className="text-white font-medium">이용약관</span> 및{" "}
           <span className="text-white font-medium">개인정보처리방침</span>에
           동의하는 것으로 간주됩니다.
         </p>
+        {/* 스크롤 안내 */}
+        <ScrollAnimation />
       </div>
     </section>
   );
