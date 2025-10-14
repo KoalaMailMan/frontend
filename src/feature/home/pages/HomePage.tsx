@@ -2,20 +2,12 @@ import MainSection from "../components/MainSection";
 import StoryBoardComponents from "../components/StoryBoardComponents";
 import { Button } from "../../ui/Button";
 import BackgroundAnimation from "../components/BackgroundAnimation";
-import Header from "@/shared/\bcomponents/header/Header";
-import type { ThemeColor } from "@/data/themes";
 
 type MandaraChartProps = {
-  currentTheme: ThemeColor;
-  onThemeChange: (theme: ThemeColor) => void;
   getCurrentBackground: () => void;
 };
 
-export default function HomePage({
-  currentTheme,
-  onThemeChange,
-  getCurrentBackground,
-}: MandaraChartProps) {
+export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
   const scrollToTop = () => {
     if (window) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -24,9 +16,6 @@ export default function HomePage({
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* 테마 선택기 - 우상단 */}
-      <Header currentTheme={currentTheme} onThemeChange={onThemeChange} />
-
       {/* 메인 로그인 섹션 */}
       <div
         className="min-h-screen flex flex-col items-center justify-center px-4 relative"
