@@ -9,8 +9,9 @@ import {
   DialogTrigger,
 } from "@/feature/ui/Dialog";
 import { cn } from "@/lib/utils";
-import { Check, Palette } from "lucide-react";
+import { Check } from "lucide-react";
 import { useState } from "react";
+import Palette from "./icons/Palette";
 
 type ThemeSelectorProps = {
   currentTheme: ThemeColor;
@@ -31,14 +32,14 @@ export default function ThemeSelector({
       <DialogTrigger asChild>
         <Button
           variant="outline"
-          size="sm"
+          size="default"
           className={cn("pixel-button gap-2", className)}
         >
           <div
             className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
             style={{ backgroundColor: currentThemeData?.color }}
           />
-          <Palette className="w-4 h-4" />
+          <Palette />
           <span className="hidden sm:inline">테마</span>
         </Button>
       </DialogTrigger>
