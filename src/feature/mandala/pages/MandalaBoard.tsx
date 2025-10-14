@@ -1,6 +1,7 @@
+import KoalaTextRowLogo from "@/assets/common/koala_mailman_text_row_logo.png";
+
 import MandalaGrid from "../components/MandalaGrid";
-import Header from "@/shared/\bcomponents/header/Header";
-import { CardContent, CardHeader } from "@/feature/ui/Card";
+import { CardContent } from "@/feature/ui/Card";
 import { cn } from "@/lib/utils";
 import NoticeContainer from "@/feature/ui/NoticeContainer";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
@@ -9,22 +10,17 @@ import { BellRing, Maximize2, Save } from "lucide-react";
 import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
 import { useEffect, useRef } from "react";
-import type { ThemeColor } from "@/data/themes";
-import OnboardingTutorial from "@/feature/tutorial/OnboardingTutorial";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { handleUpdateMandala, type ServerMandalaType } from "../service";
 import { toast } from "sonner";
+import OnboardingTutorial from "@/feature/tutorial/page";
 
 type MandaraChartProps = {
-  currentTheme: ThemeColor;
-  onThemeChange: (theme: ThemeColor) => void;
   getCurrentBackground: () => void;
 };
 
 export default function MandalaBoard({
-  currentTheme,
-  onThemeChange,
   getCurrentBackground,
 }: MandaraChartProps) {
   const hasSeenReminderSetup = useAuthStore(
@@ -75,7 +71,7 @@ export default function MandalaBoard({
 
   return (
     <div
-      className="min-h-screen p-4 transition-all"
+      className="min-h-screen p-4 pt-[51px] "
       style={{
         backgroundImage: `url(${getCurrentBackground()})`,
         backgroundSize: "cover",
@@ -83,33 +79,22 @@ export default function MandalaBoard({
         backgroundRepeat: "no-repeat",
       }}
     >
-      <Header currentTheme={currentTheme} onThemeChange={onThemeChange} />
       <div className="max-w-2xl mx-auto">
+        <div>
+          <img src={KoalaTextRowLogo} />
+        </div>
         <NoticeContainer
           variant={"max"}
           shadow={"xl"}
-          className={cn("backdrop-blur-sm pr-4 pl-4")}
+          className={cn("backdrop-blur-sm pr-4 pl-4 pt-[80px]")}
         >
-          <div className="mailbox-slot"></div>
-          <div className="mailbox-flag"></div>
-          <CardHeader className="text-center pt-8">
-            <p className="text-sm text-gray-600 mt-2">
-              중앙에
-              <span className="font-semibold text-primary">핵심 목표</span>를,
-              주변 8칸에
-              <span className="font-semibold text-primary/80">주요 목표</span>를
-              입력하세요
-            </p>
-            <p className="text-xs text-gray-500 mt-1 mb-4">
-              목표를 우체통에 넣어 코알라가 정기적으로 리마인드해드려요! 📬
-            </p>
-          </CardHeader>
           <CardContent className="px-0">
             <MandalaGrid />
             <div className="text-center mt-6">
               <Button
-                className="pixel-button bg-green-500/90 hover:bg-green-600/90 text-white px-8 py-3 text-base backdrop-blur-sm mb-4"
+                className="pixel-button border-1 bg-[#0AA372] hover:bg-[#077351] text-white px-8 pt-3 mb-3 text-base backdrop-blur-sm mb-4 shadow-[4px_4px_0_0_rgba(102,102,102,0.8)]"
                 onClick={handleSave}
+                data-tutorial="save-button"
               >
                 <Save className="h-5 w-5 mr-2" />
                 우체통에 저장하기 📮
@@ -127,6 +112,7 @@ export default function MandalaBoard({
                       ? "bg-green-50/90 border-green-300 text-green-700"
                       : "bg-white/90"
                   } backdrop-blur-sm`}
+                  data-tutorial="reminder-button"
                 >
                   <BellRing className="h-4 w-4" />
                   {reminderEnabled ? "리마인드 ON" : "리마인드 설정"}
