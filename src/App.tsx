@@ -56,17 +56,9 @@ function App() {
       <Header currentTheme={currentTheme} onThemeChange={updateCurrentTheme} />
 
       {wasLoggedIn ? (
-        <MandalaBoard
-          currentTheme={currentTheme}
-          onThemeChange={updateCurrentTheme}
-          getCurrentBackground={getCurrentBackground}
-        />
+        <MandalaBoard getCurrentBackground={getCurrentBackground} />
       ) : (
-        <HomePage
-          currentTheme={currentTheme}
-          onThemeChange={updateCurrentTheme}
-          getCurrentBackground={getCurrentBackground}
-        />
+        <HomePage getCurrentBackground={getCurrentBackground} />
       )}
       <Toaster position="top-center" />
       <ReactQueryDevtools initialIsOpen={false} />
