@@ -105,14 +105,14 @@ export const withNoContentInterceptor = async () => {
 export const emptyDummyData = {
   data: {
     core: {
-      goalId: null,
+      goalId: 0,
       content: "",
       mains: Array.from({ length: 8 }, (_, i) => ({
-        goalId: null,
+        goalId: 0,
         position: i + 1,
         content: "",
         subs: Array.from({ length: 8 }, (_, j) => ({
-          goalId: null,
+          goalId: 0,
           position: j + 1,
           content: "",
         })),
