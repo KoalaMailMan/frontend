@@ -79,7 +79,7 @@ export default function MandalaModal({
         <div className="p-6 text-center border-b">
           <p className="text-sm text-gray-600">
             <span className="font-medium text-primary">
-              "{item[centerIndex]?.content}"
+              {item[centerIndex]?.content || "주요 목표"}
             </span>
             을(를) 달성하기 위한 구체적인 실행 계획을 세워보세요
           </p>
@@ -122,11 +122,7 @@ export default function MandalaModal({
             </div>
           )}
         </div>
-        <div className="flex justify-end p-6 border-t">
-          <Button variant="outline" onClick={handleModalClose}>
-            닫기
-          </Button>
-        </div>
+        <div className="p-6"></div>
       </div>
     </div>
   );
@@ -139,6 +135,8 @@ function DetailedGoalRecommendationBox({
   mainItems: SubGoal[];
 }) {
   const updateSubsCell = useMandalaStore().updateSubsCell;
+  const modalCellId = useMandalaStore((state) => state.modalCellId);
+
   const main = mainItems[0];
   const count = useRef(0);
   const [shouldFetchRecommendation, setShouldFetchRecommendation] =
@@ -167,6 +165,7 @@ function DetailedGoalRecommendationBox({
   };
 
   const handleSuggestGoals = () => {
+    if (modalCellId === "empty-0") return;
     if (isLoading) return;
     if (!mainItems[0].content.trim()) {
       toast("먼저 주요 목표를 입력해주세요!");
@@ -200,8 +199,13 @@ function DetailedGoalRecommendationBox({
         <div className="text-center">
           <Button
             onClick={handleSuggestGoals}
-            className="pixel-button bg-primary/90 hover:bg-primary text-white px-4 py-2 text-sm w-full"
-            disabled={!mainItems[0].content.trim() || isLoading}
+            className="pixel-button bg-primary/90 hover:bg-primary text-white px-4 py-2 text-sm w-full "
+            disabled={
+              modalCellId === "empty-0"
+                ? false
+                : true || !mainItems[0].content.trim() || isLoading
+            }
+            data-tutorial="recommendation-button"
           >
             {isLoading ? (
               <>
