@@ -1,4 +1,4 @@
-import KoalaTextRowLogo from "@/assets/common/koala_mailman_text_row_logo.png";
+import KoalaTextRowLogo from "@/assets/common/header_text_logo.png";
 
 import MandalaGrid from "../components/MandalaGrid";
 import { CardContent } from "@/feature/ui/Card";
