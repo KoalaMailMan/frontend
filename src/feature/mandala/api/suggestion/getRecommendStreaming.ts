@@ -11,7 +11,7 @@ export const getRecommendStreaming = async (
   recommendationCount: number
 ) => {
   const QEURY_URL = `?parentGoal=${parentGoal}?recommendationCount=${recommendationCount}`;
-  const RECOMMEND_URL = `/api/recommend/streaming/${QEURY_URL}`;
+  const RECOMMEND_URL = `/api/recommend/streaming${QEURY_URL}`;
   try {
     const res = await apiClient.get(RECOMMEND_URL, {
       headers: {

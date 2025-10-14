@@ -14,7 +14,7 @@ export const getRecommendList = async (
     parentGoal,
     recommendationCount: recommendationCount.toString(),
   });
-  const RECOMMEND_URL = `/api/recommend/list/?${params.toString()}`;
+  const RECOMMEND_URL = `/api/recommend/list?${params.toString()}`;
   try {
     const res = await apiClient.get(RECOMMEND_URL, {
       headers: {
