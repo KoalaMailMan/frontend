@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
-import FingerArrow from "./FingerArrow";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
-import { cn } from "@/lib/utils";
 import TutorialArrowComponent from "./TutorialArrowComponent";
 
 type IconProps = {
@@ -15,7 +13,6 @@ export default function TutorialArrow({
   targetSelector,
   position,
   mobilePosition,
-  className,
 }: IconProps) {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const onClose = useTutorialStore((state) => state.setOnboardingVisible);

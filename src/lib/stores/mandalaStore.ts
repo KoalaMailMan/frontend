@@ -127,7 +127,7 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
       if (isSubGoal) {
         // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} |  sub-center-{0}
 
-        let mainId;
+        let mainId: string;
         if (ids[1] === "center") {
           if (ids[2] === "0") {
             mainId = `core-0`;

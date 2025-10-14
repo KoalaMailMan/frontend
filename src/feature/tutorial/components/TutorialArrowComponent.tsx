@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
 import FingerArrow from "./FingerArrow";
-import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import { cn } from "@/lib/utils";
 
 type IconProps = {
