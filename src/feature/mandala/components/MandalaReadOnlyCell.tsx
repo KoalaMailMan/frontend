@@ -47,12 +47,12 @@ export default function MandalaReadOnlyCell({
   return (
     <div
       className={cn(
-        "pixel-input border-2 border-gray-300 flex items-center justify-center text-center cursor-pointer transition-all hover:bg-primary/10 hover:border-primary relative",
+        "pixel-input border-2 border-[#B3B3B3] flex items-center justify-center text-center cursor-pointer transition-all hover:bg-primary/10 hover:border-primary relative",
         compact ? "p-1 " : "p-2",
         isCenter &&
           type === "center" &&
-          "bg-primary/20 border-primary text-primary-foreground font-semibold",
-        isEmpty && "text-gray-400 italic",
+          "border-primary text-primary-foreground font-semibold",
+        isEmpty && "text-gray-400",
         disabled && isCenter && "cursor-not-allowed opacity-50",
         className
       )}
@@ -82,12 +82,13 @@ export default function MandalaReadOnlyCell({
           variant="ghost"
           size="sm"
           className={cn(
-            "absolute top-1 right-1 w-6 h-6 p-0 transition-all pixel-button rounded-sm",
-            isHovered ? "opacity-100 bg-primary/20" : "opacity-60"
+            "absolute top-1 right-1 w-6 h-6 p-0 transition-all pixel-button rounded-sm text-[#ADADAD]",
+            isHovered ? "opacity-100 bg-primary/20" : "opacity-60 "
           )}
           onClick={(e) => {
             e.stopPropagation();
             if (onDetailClick) onDetailClick(id);
+            setIsHovered(false);
           }}
           title="세부목표 설정"
           data-tutorial={

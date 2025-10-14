@@ -1,7 +1,7 @@
 import { cn } from "@/lib/utils";
 import { cva, type VariantProps } from "class-variance-authority";
 
-const noticeVariants = cva("mailbox-card mx-auto p-8 bg-white/95", {
+const noticeVariants = cva("mailbox-card mx-auto p-8 bg-white/92", {
   variants: {
     variant: {
       default: "max-w-lg relative",

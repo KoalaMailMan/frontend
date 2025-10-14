@@ -22,12 +22,7 @@ export default function MainSection() {
       <div className="space-y-4 max-w-sm mx-auto">
         <Button
           onClick={handleNaverLogin}
-          className="w-full bg-green-500 hover:bg-green-600 text-white h-14 pixel-login-button text-lg shadow-2xl border-4 border-green-700"
-          style={{
-            boxShadow:
-              "0 0 0 2px #065f46, 4px 4px 0 #064e3b, 0 8px 16px rgba(0,0,0,0.3)",
-            background: "linear-gradient(145deg, #10b981 0%, #059669 100%)",
-          }}
+          className="w-full bg-[#0AA372] hover:bg-[#077351] text-white h-14 pixel-login-button text-lg shadow-2xl border-1 border-[#077351] hover:border-[#04432F] shadow-[4px_4px_0_0_rgba(0,0,0,0.3)] hover:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)] transition-shadow duration-200"
         >
           <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24" fill="currentColor">
             <path d="M16.273 12.845L7.376 0H0v24h7.726V11.156L16.624 24H24V0h-7.727v12.845z" />
@@ -38,12 +33,7 @@ export default function MainSection() {
         <Button
           onClick={handleGoogleLogin}
           variant="outline"
-          className="w-full h-14 border-4 pixel-login-button border-gray-400 bg-white/95 backdrop-blur-sm hover:bg-white text-gray-800 text-lg shadow-2xl"
-          style={{
-            boxShadow:
-              "0 0 0 2px #6b7280, 4px 4px 0 #4b5563, 0 8px 16px rgba(0,0,0,0.3)",
-            background: "linear-gradient(145deg, #ffffff 0%, #f9fafb 100%)",
-          }}
+          className="w-full h-14 border-1 pixel-login-button border-[#B3B3B3] bg-[#FFFFFF] hover:bg-[#E6E6E6] hover:border-[#999999] backdrop-blur-sm text-gray-800 text-lg  shadow-2xl shadow-[4px_4px_0_0_rgba(0,0,0,0.3)] hover:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)] transition-shadow duration-200"
         >
           <svg className="w-6 h-6 mr-3" viewBox="0 0 24 24">
             <path
