@@ -9,8 +9,7 @@ import { Button } from "@/feature/ui/Button";
 import { BellRing, Maximize2, Save } from "lucide-react";
 import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
-import { useEffect, useRef } from "react";
-import { useTutorialStore } from "@/lib/stores/tutorialStore";
+import { useRef } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { handleUpdateMandala, type ServerMandalaType } from "../service";
 import { toast } from "sonner";
@@ -34,16 +33,8 @@ export default function MandalaBoard({
 
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
-  const showAgain = useTutorialStore((state) => state.showAgain);
   const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
   const setFullVisible = useMandalaStore((state) => state.setFullVisible);
-  const setOnboardingVisible = useTutorialStore(
-    (state) => state.setOnboardingVisible
-  );
-
-  useEffect(() => {
-    showAgain ? setOnboardingVisible(false) : setOnboardingVisible(true);
-  }, [showAgain]);
 
   const typeRef = useRef<"save" | "reminder">("save");
   const reminderEnabled = useMandalaStore(
