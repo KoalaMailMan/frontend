@@ -8,7 +8,6 @@ import BLUE_IMAGE from "@/assets/background/background_blue.png";
 import GREEN_IMAGE from "@/assets/background/background_green.png";
 import YELLOW_IMAGE from "@/assets/background/background_yellow.png";
 import PINK_IMAGE from "@/assets/background/background_pink.png";
-import { useViewportStore } from "@/lib/stores/viewportStore";
 
 // buildImageSrc 통한 모바일 이미지 최적화
 const RED_MO_BG = buildImageSrc(RED_IMAGE, {
