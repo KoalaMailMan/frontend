@@ -13,8 +13,8 @@ export const tutorialSteps: TutorialStep[] = [
     title: "안녕하세요! 코알라 우체부예요",
     description:
       "만다라트로 당신의 꿈 여행을 시작해봐요. \n제가 옆에서 하나씩 안내해드릴게요.",
-    targetSelector: "",
-    className: "",
+    targetSelector: '[data-tutorial="next-button"]',
+    className: "next-button",
     position: "right",
     mobilePosition: "top",
   },
