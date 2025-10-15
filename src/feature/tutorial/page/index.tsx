@@ -1,16 +1,8 @@
-import { useEffect, useState } from "react";
-import OnboardingDesktop from "../OnboardingDesktop";
-import OnboardingMobile from "../OnboardingMobile";
+import { useViewportStore } from "@/lib/stores/viewportStore";
+import OnboardingDesktop from "../components/OnboardingDesktop";
+import OnboardingMobile from "../components/OnboardingMobile";
 
 export default function OnboardingTutorial() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkWidth = () => setIsMobile(window.innerWidth < 768);
-    checkWidth();
-    window.addEventListener("resize", checkWidth);
-    return () => window.removeEventListener("resize", checkWidth);
-  }, []);
-
+  const isMobile = useViewportStore((state) => state.isMobile);
   return isMobile ? <OnboardingMobile /> : <OnboardingDesktop />;
 }
