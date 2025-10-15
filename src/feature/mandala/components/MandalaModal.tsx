@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { getGridClasses } from "../utills/css";
 import useGoalRecommendation from "../hooks/useGoalRecommendation";
 import { toast } from "sonner";
+import { useTutorialStore } from "@/lib/stores/tutorialStore";
 
 type Props = {
   isModalVisible: boolean;
@@ -134,7 +135,8 @@ function DetailedGoalRecommendationBox({
 }: {
   mainItems: SubGoal[];
 }) {
-  const updateSubsCell = useMandalaStore().updateSubsCell;
+  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
+  const updateSubsCell = useMandalaStore((state) => state.updateSubsCell);
   const modalCellId = useMandalaStore((state) => state.modalCellId);
 
   const main = mainItems[0];
@@ -201,9 +203,7 @@ function DetailedGoalRecommendationBox({
             onClick={handleSuggestGoals}
             className="pixel-button bg-primary/90 hover:bg-primary text-white px-4 py-2 text-sm w-full "
             disabled={
-              modalCellId === "empty-0"
-                ? false
-                : true || !mainItems[0].content.trim() || isLoading
+              isOnboardingOpen || !mainItems[0].content.trim() || isLoading
             }
             data-tutorial="recommendation-button"
           >
