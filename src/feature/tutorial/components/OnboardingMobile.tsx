@@ -139,11 +139,12 @@ export default function OnboardingMobile() {
 
           <div className="flex justify-end items-center pt-2">
             {currentStep === tutorialSteps.length - 1 ? (
-              <div className="flex items-center space-x-2" onClick={nextStep}>
+              <div className="flex items-center space-x-2">
                 <label
                   htmlFor="dont-show-again"
                   className="text-sm text-[#4C4C4C] cursor-pointer select-none"
                   defaultChecked={showAgain}
+                  onClick={nextStep}
                 >
                   다음부터 튜토리얼 보지 않기
                 </label>
