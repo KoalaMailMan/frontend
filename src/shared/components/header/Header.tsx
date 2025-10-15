@@ -1,3 +1,5 @@
+import HeaderTextLogo from "@/assets/common/header_text_logo.png";
+
 import { Button } from "@/feature/ui/Button";
 import { LogOut } from "lucide-react";
 import { handleLogout } from "@/feature/auth/service";
@@ -6,6 +8,9 @@ import { useAuthStore } from "@/lib/stores/authStore";
 import type { ThemeColor } from "@/data/themes";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import AddressBook from "./icons/AddressBook";
+import { cn } from "@/lib/utils";
+import { useMandalaStore } from "@/lib/stores/mandalaStore";
+
 type MandaraChartProps = {
   currentTheme: ThemeColor;
   onThemeChange: (theme: ThemeColor) => void;
@@ -16,6 +21,7 @@ export default function Header({
   onThemeChange,
 }: MandaraChartProps) {
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
+  const isReminderOpen = useMandalaStore((state) => state.isReminderOpen);
   const setOnboardingVisible = useTutorialStore(
     (state) => state.setOnboardingVisible
   );
@@ -31,12 +37,23 @@ export default function Header({
     );
 
   return (
-    <div
-      className="w-full mx-auto mb-4 sm:mb-6 lg:mb-8 px-4 p-4 absolute"
-      dir="rtl"
-    >
-      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 relative">
-        <div className="flex flex-wrap gap-2 w-full sm:w-auto absolute start-0 top-0">
+    <div className="w-full mb-4 sm:mb-6 lg:mb-8 px-4 p-4 fixed z-[1]">
+      <div
+        className={cn(
+          "mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4",
+          !isReminderOpen ? "w-full justify-end" : "max-w-4xl justify-between"
+        )}
+      >
+        <div
+          className={cn("w-[210px] sm:w-[13rem]", !isReminderOpen && "hidden")}
+        >
+          <img
+            src={HeaderTextLogo}
+            alt="날개 달린 코알라 캐릭터가 서있는 모습으로 서비스 메인 로고 이미지입니다."
+            className="w-full pixelated"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
             size="default"
@@ -49,12 +66,10 @@ export default function Header({
             <span className="hidden sm:inline">튜토리얼</span>
             <span className="sm:hidden">?</span>
           </Button>
-          <div dir="ltr">
-            <ThemeSelector
-              currentTheme={currentTheme}
-              onThemeChange={onThemeChange}
-            />
-          </div>
+          <ThemeSelector
+            currentTheme={currentTheme}
+            onThemeChange={onThemeChange}
+          />
           <Button
             variant="outline"
             size="default"
