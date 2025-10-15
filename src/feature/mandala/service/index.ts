@@ -553,8 +553,68 @@ export const uiToServer = (
     }
   });
 
+  // 기존에 저장된 모든 데이터 추가 (originalId가 있는 것들)
+  currentData.core.mains.forEach((mainData, idx) => {
+    // idx 0은 core이므로 스킵
+    if (idx === 0) return;
+
+    // originalId가 있으면 기존 저장된 데이터
+    if (mainData.originalId) {
+      let mainObj = processedMains.get(idx);
+
+      if (!mainObj) {
+        // 아직 처리되지 않은 기존 데이터라면 새로 추가
+        mainObj = { subs: [] };
+        processedMains.set(idx, mainObj);
+      }
+
+      // 기존 데이터: goalId, position, content 모두 포함
+      mainObj.goalId = mainData.originalId;
+      mainObj.position = mainData.position;
+      if (mainData.content && mainData.content.trim() !== "") {
+        mainObj.content = mainData.content;
+      }
+
+      // 해당 main의 모든 기존 subs도 포함 (position 0 제외)
+      mainData.subs.forEach((subData) => {
+        // position 0인 sub는 제외 (main의 중복)
+        if (subData.position === 0) {
+          return;
+        }
+
+        if (subData.originalId) {
+          const existingSubIndex = mainObj.subs.findIndex(
+            (s: any) => s.position === subData.position
+          );
+
+          const subObj: any = {
+            goalId: subData.originalId,
+            position: subData.position,
+          };
+
+          if (subData.content && subData.content.trim() !== "") {
+            subObj.content = subData.content;
+          }
+
+          if (existingSubIndex !== -1) {
+            // 이미 처리된 sub라면 병합 (변경된 데이터 우선)
+            mainObj.subs[existingSubIndex] = {
+              ...subObj,
+              ...mainObj.subs[existingSubIndex],
+            };
+          } else {
+            // 새로 추가
+            mainObj.subs.push(subObj);
+          }
+        }
+      });
+    }
+  });
+
+  // 처리된 mains를 결과에 추가
   result.data.core.mains = Array.from(processedMains.values()).filter(
     (mainObj) => {
+      // 유효한 데이터가 있는 main만 포함
       return (
         mainObj.goalId ||
         mainObj.content ||
