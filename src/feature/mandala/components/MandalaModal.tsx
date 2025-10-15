@@ -138,11 +138,11 @@ function DetailedGoalRecommendationBox({
   const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
   const updateSubsCell = useMandalaStore((state) => state.updateSubsCell);
   const modalCellId = useMandalaStore((state) => state.modalCellId);
-
   const main = mainItems[0];
   const count = useRef(0);
   const [shouldFetchRecommendation, setShouldFetchRecommendation] =
     useState(false);
+
   const { isLoading, data } = useGoalRecommendation({
     enabled:
       shouldFetchRecommendation && !!main.content.trim() && count.current > 0,
@@ -169,7 +169,7 @@ function DetailedGoalRecommendationBox({
   const handleSuggestGoals = () => {
     if (modalCellId === "empty-0") return;
     if (isLoading) return;
-    if (!mainItems[0].content.trim()) {
+    if (!main.content.trim()) {
       toast("먼저 주요 목표를 입력해주세요!");
       setShouldFetchRecommendation(false);
       return;
@@ -202,9 +202,7 @@ function DetailedGoalRecommendationBox({
           <Button
             onClick={handleSuggestGoals}
             className="pixel-button bg-primary/90 hover:bg-primary text-white px-4 py-2 text-sm w-full "
-            disabled={
-              isOnboardingOpen || !mainItems[0].content.trim() || isLoading
-            }
+            disabled={isOnboardingOpen || !main?.content.trim() || isLoading}
             data-tutorial="recommendation-button"
           >
             {isLoading ? (
