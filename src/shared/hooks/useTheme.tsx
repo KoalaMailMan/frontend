@@ -1,59 +1,32 @@
 import { useEffect, useState } from "react";
-import { buildImageSrc } from "@/feature/mandala/utills/image";
 
-// 이미지
-import RED_IMAGE from "@/assets/background/background_red.png";
-import PURPLE_IMAGE from "@/assets/background/background_purple.png";
-import BLUE_IMAGE from "@/assets/background/background_blue.png";
-import GREEN_IMAGE from "@/assets/background/background_green.png";
-import YELLOW_IMAGE from "@/assets/background/background_yellow.png";
-import PINK_IMAGE from "@/assets/background/background_pink.png";
+// 모바일 이미지 최적화
+// @ts-expect-error -- vite-imagetools query import
+import RED_MO_BG from "@/assets/background/background_red.png?width=768&format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import PURPLE_MO_BG from "@/assets/background/background_purple.png?width=768&format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import BLUE_MO_BG from "@/assets/background/background_blue.png?width=768&format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import GREEN_MO_BG from "@/assets/background/background_green.png?width=768&format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import YELLOW_MO_BG from "@/assets/background/background_yellow.png?width=768&format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import PINK_MO_BG from "@/assets/background/background_pink.png?width=768&format=webp";
 
-// buildImageSrc 통한 모바일 이미지 최적화
-const RED_MO_BG = buildImageSrc(RED_IMAGE, {
-  width: "768",
-  format: "webp",
-});
-const PURPLE_MO_BG = buildImageSrc(PURPLE_IMAGE, {
-  width: "768",
-  format: "webp",
-});
-const BLUE_MO_BG = buildImageSrc(BLUE_IMAGE, {
-  width: "768",
-  format: "webp",
-});
-const GREEN_MO_BG = buildImageSrc(GREEN_IMAGE, {
-  width: "768",
-  format: "webp",
-});
-const YELLOW_MO_BG = buildImageSrc(YELLOW_IMAGE, {
-  width: "768",
-  format: "webp",
-});
-const PINK_MO_BG = buildImageSrc(PINK_IMAGE, {
-  width: "768",
-  format: "webp",
-});
-
-// buildImageSrc 통한 데스크탑 이미지 최적화
-const RED_BG = buildImageSrc(RED_IMAGE, {
-  format: "webp",
-});
-const PURPLE_BG = buildImageSrc(PURPLE_IMAGE, {
-  format: "webp",
-});
-const BLUE_BG = buildImageSrc(BLUE_IMAGE, {
-  format: "webp",
-});
-const GREEN_BG = buildImageSrc(GREEN_IMAGE, {
-  format: "webp",
-});
-const YELLOW_BG = buildImageSrc(YELLOW_IMAGE, {
-  format: "webp",
-});
-const PINK_BG = buildImageSrc(PINK_IMAGE, {
-  format: "webp",
-});
+// 데스크탑 이미지 최적화
+// @ts-expect-error -- vite-imagetools query import
+import RED_BG from "@/assets/background/background_red.png?format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import PURPLE_BG from "@/assets/background/background_purple.png?format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import BLUE_BG from "@/assets/background/background_blue.png?format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import GREEN_BG from "@/assets/background/background_green.png?format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import YELLOW_BG from "@/assets/background/background_yellow.png?format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import PINK_BG from "@/assets/background/background_pink.png?format=webp";
 
 export type ThemeColor =
   | "purple"
