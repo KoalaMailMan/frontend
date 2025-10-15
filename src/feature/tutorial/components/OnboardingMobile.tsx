@@ -1,16 +1,16 @@
 import tutorialKoala from "@/assets/tutorial/tutorial_koala.png";
 import { tutorialSteps } from "@/data/tutorial";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../ui/Button";
+import { Button } from "../../ui/Button";
 import { ChevronRight } from "lucide-react";
-import { Checkbox } from "../ui/CheckBox";
+import { Checkbox } from "../../ui/CheckBox";
 import {
   useTutorialStore,
   type TutorialStateType,
 } from "@/lib/stores/tutorialStore";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
-import TutorialArrow from "./components/TutorialArrow";
-import X from "./components/X";
+import TutorialArrow from "./TutorialArrow";
+import X from "./X";
 import { cn } from "@/lib/utils";
 
 export default function OnboardingMobile() {
@@ -139,12 +139,11 @@ export default function OnboardingMobile() {
 
           <div className="flex justify-end items-center pt-2">
             {currentStep === tutorialSteps.length - 1 ? (
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2" onClick={nextStep}>
                 <label
                   htmlFor="dont-show-again"
                   className="text-sm text-[#4C4C4C] cursor-pointer select-none"
                   defaultChecked={showAgain}
-                  onClick={nextStep}
                 >
                   다음부터 튜토리얼 보지 않기
                 </label>
