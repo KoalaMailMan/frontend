@@ -2,12 +2,15 @@ import MainSection from "../components/MainSection";
 import StoryBoardComponents from "../components/StoryBoardComponents";
 import { Button } from "../../ui/Button";
 import BackgroundAnimation from "../components/BackgroundAnimation";
+import { useViewportStore } from "@/lib/stores/viewportStore";
 
 type MandaraChartProps = {
   getCurrentBackground: () => void;
 };
 
 export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
+  const isMobile = useViewportStore((state) => state.isMobile);
+
   const scrollToTop = () => {
     if (window) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -24,7 +27,7 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
+          ...(!isMobile && { backgroundAttachment: "fixed" }),
         }}
       >
         {/* 날아가는 코알라 애니메이션 */}
@@ -67,7 +70,7 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
             </div>
 
             {/* 스토리보드 */}
-            <StoryBoardComponents />
+            <StoryBoardComponents isMobile={isMobile} />
 
             {/* 최종 CTA 섹션 */}
             <div className="text-center pt-16">
