@@ -63,3 +63,8 @@ export const captureAndDownload = async (
     document.body.removeChild(tempContainer);
   }
 };
+
+export const buildImageSrc = (
+  path: string,
+  { width, format }: { width?: string; format: string }
+) => `${path}?width=${width}&format=${format}` as unknown as string;
