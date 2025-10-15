@@ -114,7 +114,7 @@ export default function OnboardingDesktop() {
       {/* 튜토리얼 카드 */}
       <div
         ref={cardRef}
-        className="absolute bottom-[60px] left-0 w-[543px] h-[150px] flex gap-[15px] pl-[47px]"
+        className="absolute bottom-[60px] left-0 w-[543px] h-[150px] flex gap-[15px] pl-[47px] z-[1]"
       >
         <div className="w-[150px] flex-shrink-0">
           <img
@@ -193,6 +193,7 @@ export default function OnboardingDesktop() {
                 <Button
                   onClick={nextStep}
                   className="absolute bottom-[4px] right-0 w-[51px] bg-inherit hover:bg-inherit shadow-none flex items-center gap-[2px] pixel-button text-xs text-[#4C4C4C]"
+                  data-tutorial="next-button"
                 >
                   다음
                   {currentStep !== tutorialSteps.length - 1 && (
@@ -203,13 +204,13 @@ export default function OnboardingDesktop() {
             </div>
           </div>
         </div>
-        <TutorialArrow
-          key={currentStep}
-          targetSelector={currentTutorial.targetSelector}
-          position={currentTutorial.position}
-          mobilePosition={currentTutorial.mobilePosition}
-        />
       </div>
+      <TutorialArrow
+        key={currentStep}
+        targetSelector={currentTutorial.targetSelector}
+        position={currentTutorial.position}
+        mobilePosition={currentTutorial.mobilePosition}
+      />
     </article>
   );
 }

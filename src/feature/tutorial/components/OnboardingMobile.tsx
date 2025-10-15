@@ -160,6 +160,7 @@ export default function OnboardingMobile() {
               <Button
                 onClick={nextStep}
                 className="bg-inherit hover:bg-inherit shadow-none flex items-center gap-[2px] pixel-button text-xs text-[#4C4C4C]"
+                data-tutorial="next-button"
               >
                 다음
                 <ChevronRight className="h-4 w-4" />

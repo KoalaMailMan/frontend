@@ -57,7 +57,10 @@ function DesktopArrow({
     <>
       {position === "left" && (
         <>
-          <p className="h-full flex items-center text-xl font-semibold leading-[28px] tracking-[1px] text-white">
+          <p
+            className="h-full flex items-center text-xl font-semibold leading-[28px] tracking-[1px] text-white"
+            style={{ textShadow: "0 0 5px rgba(91, 91, 91, 1)" }}
+          >
             여기를 눌러보세요
           </p>
           <FingerArrow
@@ -81,7 +84,7 @@ function DesktopArrow({
       )}
       {position === "top" && (
         <div className="flex flex-col justify-center">
-          <p className="flex flex-col items-center text-xl font-semibold leading-[28px] tracking-[1px] text-white">
+          <p className="flex flex-col items-center text-xl font-semibold leading-[28px] tracking-[1px] text-white ">
             여기를 눌러보세요
           </p>
           <FingerArrow
@@ -135,7 +138,10 @@ function MobileArrow({
       )}
       {position === "top" && (
         <div className="flex flex-col justify-center">
-          <p className="flex flex-col items-center text-xl font-semibold leading-[28px] tracking-[1px] text-white">
+          <p
+            className="flex flex-col items-center text-xl font-semibold leading-[28px] tracking-[1px] text-white"
+            style={{ textShadow: "0 0 5px rgba(91, 91, 91, 1)" }}
+          >
             여기를 눌러보세요
           </p>
           <FingerArrow
