@@ -14,15 +14,16 @@ import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { handleUpdateMandala, type ServerMandalaType } from "../service";
 import { toast } from "sonner";
-import OnboardingTutorial from "@/feature/tutorial/page";
 
 type MandaraChartProps = {
-  getCurrentBackground: () => void;
+  getCurrentBackground: () => Record<string, string>;
 };
 
 export default function MandalaBoard({
   getCurrentBackground,
 }: MandaraChartProps) {
+  const { mobile, desktop } = getCurrentBackground();
+
   const hasSeenReminderSetup = useAuthStore(
     (state) => state.hasSeenReminderSetup
   );
@@ -33,13 +34,16 @@ export default function MandalaBoard({
 
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
-  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
   const showAgain = useTutorialStore((state) => state.showAgain);
   const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
   const setFullVisible = useMandalaStore((state) => state.setFullVisible);
   const setOnboardingVisible = useTutorialStore(
     (state) => state.setOnboardingVisible
   );
+
+  useEffect(() => {
+    showAgain ? setOnboardingVisible(false) : setOnboardingVisible(true);
+  }, [showAgain]);
 
   const typeRef = useRef<"save" | "reminder">("save");
   const reminderEnabled = useMandalaStore(
@@ -65,23 +69,36 @@ export default function MandalaBoard({
     }
   };
 
-  useEffect(() => {
-    showAgain ? setOnboardingVisible(false) : setOnboardingVisible(true);
-  }, [showAgain]);
-
   return (
-    <div
-      className="min-h-screen p-4 pt-[51px] "
-      style={{
-        backgroundImage: `url(${getCurrentBackground()})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <div className="relative min-h-screen p-4 pt-[51px] ">
+      {/* 모바일 배경 이미지 */}
+      <div
+        className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:hidden"
+        style={{
+          backgroundImage: `url(${mobile})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
+      {/* 데스크탑 배경 이미지 */}
+      <div
+        className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:block"
+        style={{
+          backgroundImage: `url(${desktop})`,
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      />
       <div className="max-w-2xl mx-auto">
-        <div>
-          <img src={KoalaTextRowLogo} />
+        <div
+          className={cn(
+            "w-[476px] max-w-full md:h-[96px] mx-auto",
+            isReminder && "h-[96px]"
+          )}
+        >
+          {!isReminder && <img src={KoalaTextRowLogo} className="w-full" />}
         </div>
         <NoticeContainer
           variant={"max"}
@@ -133,7 +150,6 @@ export default function MandalaBoard({
       </div>
       {isReminder && <ReminderSetting openTree={typeRef.current} />}
       {isFullOpen && <FullMandalaView />}
-      {isOnboardingOpen && <OnboardingTutorial />}
     </div>
   );
 }
