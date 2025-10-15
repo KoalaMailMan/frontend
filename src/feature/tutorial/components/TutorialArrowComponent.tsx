@@ -18,7 +18,6 @@ export default function TutorialArrowComponent({
   arrowPosition,
   className,
 }: IconProps) {
-  console.log(arrowPosition);
   return (
     <div
       className={cn(

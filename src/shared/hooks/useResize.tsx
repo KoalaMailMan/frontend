@@ -9,7 +9,6 @@ export default function useResize() {
       const width = window.innerWidth;
       const height = window.innerHeight;
       setViewport(width, height);
-      console.log(width, height);
     };
     handleResize();
 

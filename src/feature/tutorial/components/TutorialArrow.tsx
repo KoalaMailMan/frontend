@@ -105,7 +105,6 @@ export default function TutorialArrow({
     }
 
     setArrowPosition({ top, left });
-    console.log(top, left);
   };
   const updateMobilePosition = () => {
     const element = document.querySelector(targetSelector);
@@ -122,7 +121,6 @@ export default function TutorialArrow({
     const arrowWidth = 211;
     const arrowHeight = 50;
     const offset = isMobile ? 10 : 20;
-    console.log(rect);
     switch (mobilePosition) {
       case "top":
         top = rect.top - arrowHeight - offset;
