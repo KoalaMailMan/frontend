@@ -2,7 +2,11 @@ import { SERVICE_GUIDE_STEPS } from "@/data/step_guide";
 import { ImageWithFallback } from "@/feature/ui/ImageWithFallback";
 import { cn } from "@/lib/utils";
 
-export default function StoryBoardComponents() {
+type Props = {
+  isMobile: boolean;
+};
+
+export default function StoryBoardComponents({ isMobile }: Props) {
   return (
     <div className="space-y-8">
       {SERVICE_GUIDE_STEPS.map((step, index) => (
@@ -14,8 +18,8 @@ export default function StoryBoardComponents() {
             className={cn(
               "flex flex-col",
               index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse",
-              index === 1 && "h-[180px]",
-              index === 3 && "h-[471px]"
+              !isMobile && index === 1 && "h-[180px]",
+              !isMobile && index === 3 && "h-[471px]"
             )}
           >
             {/* 이미지 섹션 */}

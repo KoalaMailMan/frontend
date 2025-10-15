@@ -16,11 +16,17 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "./feature/ui/Sonner";
 import { toast } from "sonner";
 import Header from "./shared/\bcomponents/header/Header";
+import { useTutorialStore } from "./lib/stores/tutorialStore";
+import OnboardingTutorial from "./feature/tutorial/page";
+import useResize from "./shared/hooks/useResize";
 
 const queryClient = new QueryClient();
 
 function App() {
+  useResize();
   const { currentTheme, updateCurrentTheme, getCurrentBackground } = useTheme();
+  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
+
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
 
   useEffect(() => {
@@ -61,6 +67,7 @@ function App() {
         <HomePage getCurrentBackground={getCurrentBackground} />
       )}
       <Toaster position="top-center" />
+      {isOnboardingOpen && <OnboardingTutorial />}
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

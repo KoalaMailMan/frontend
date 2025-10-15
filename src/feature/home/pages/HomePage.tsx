@@ -2,12 +2,16 @@ import MainSection from "../components/MainSection";
 import StoryBoardComponents from "../components/StoryBoardComponents";
 import { Button } from "../../ui/Button";
 import BackgroundAnimation from "../components/BackgroundAnimation";
+import { useViewportStore } from "@/lib/stores/viewportStore";
 
 type MandaraChartProps = {
-  getCurrentBackground: () => void;
+  getCurrentBackground: () => Record<string, string>;
 };
 
 export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
+  const { mobile, desktop } = getCurrentBackground();
+  const isMobile = useViewportStore((state) => state.isMobile);
+
   const scrollToTop = () => {
     if (window) {
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -17,16 +21,28 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* 메인 로그인 섹션 */}
-      <div
-        className="min-h-screen flex flex-col items-center justify-center px-4 relative"
-        style={{
-          backgroundImage: `url(${getCurrentBackground()})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
-        }}
-      >
+      <div className="min-h-screen flex flex-col items-center justify-center px-4 relative">
+        {/* 모바일 배경 이미지 */}
+        <div
+          className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:hidden"
+          style={{
+            backgroundImage: `url(${mobile})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        />
+        {/* 데스크탑 배경 이미지 */}
+        <div
+          className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:block"
+          style={{
+            backgroundImage: `url(${desktop})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundAttachment: "fixed",
+          }}
+        />
         {/* 날아가는 코알라 애니메이션 */}
         <BackgroundAnimation />
 
@@ -35,16 +51,29 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
       </div>
 
       {/* 서비스 소개 섹션 */}
-      <div
-        className="py-20 px-4 relative"
-        style={{
-          backgroundImage: `url(${getCurrentBackground()})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
-        }}
-      >
+      <div className="py-20 px-4 relative">
+        {/* 모바일 배경 이미지 */}
+        <div
+          className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:hidden"
+          style={{
+            backgroundImage: `url(${mobile})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+          }}
+        />
+        {/* 데스크탑 배경 이미지 */}
+        <div
+          className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:block"
+          style={{
+            backgroundImage: `url(${desktop})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            backgroundRepeat: "no-repeat",
+            backgroundAttachment: "fixed",
+          }}
+        />
+
         {/* 불투명 오버레이 */}
         <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
         <div className="relative z-10">
@@ -67,7 +96,7 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
             </div>
 
             {/* 스토리보드 */}
-            <StoryBoardComponents />
+            <StoryBoardComponents isMobile={isMobile} />
 
             {/* 최종 CTA 섹션 */}
             <div className="text-center pt-16">

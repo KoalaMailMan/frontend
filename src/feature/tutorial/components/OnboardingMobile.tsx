@@ -1,16 +1,16 @@
 import tutorialKoala from "@/assets/tutorial/tutorial_koala.png";
 import { tutorialSteps } from "@/data/tutorial";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../ui/Button";
+import { Button } from "../../ui/Button";
 import { ChevronRight } from "lucide-react";
-import { Checkbox } from "../ui/CheckBox";
+import { Checkbox } from "../../ui/CheckBox";
 import {
   useTutorialStore,
   type TutorialStateType,
 } from "@/lib/stores/tutorialStore";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
-import TutorialArrow from "./components/TutorialArrow";
-import X from "./components/X";
+import TutorialArrow from "./TutorialArrow";
+import X from "./X";
 import { cn } from "@/lib/utils";
 
 export default function OnboardingMobile() {
@@ -161,6 +161,7 @@ export default function OnboardingMobile() {
               <Button
                 onClick={nextStep}
                 className="bg-inherit hover:bg-inherit shadow-none flex items-center gap-[2px] pixel-button text-xs text-[#4C4C4C]"
+                data-tutorial="next-button"
               >
                 다음
                 <ChevronRight className="h-4 w-4" />

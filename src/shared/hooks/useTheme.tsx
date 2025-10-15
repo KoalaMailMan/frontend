@@ -1,10 +1,59 @@
-import PURPLE_BG from "@/assets/background/background_purple.png";
-import RED_BG from "@/assets/background/background_red.png";
-import BLUE_BG from "@/assets/background/background_blue.png";
-import GREEN_BG from "@/assets/background/background_green.png";
-import YELLOW_BG from "@/assets/background/background_yellow.png";
-import PINK_BG from "@/assets/background/background_pink.png";
 import { useEffect, useState } from "react";
+import { buildImageSrc } from "@/feature/mandala/utills/image";
+
+// 이미지
+import RED_IMAGE from "@/assets/background/background_red.png";
+import PURPLE_IMAGE from "@/assets/background/background_purple.png";
+import BLUE_IMAGE from "@/assets/background/background_blue.png";
+import GREEN_IMAGE from "@/assets/background/background_green.png";
+import YELLOW_IMAGE from "@/assets/background/background_yellow.png";
+import PINK_IMAGE from "@/assets/background/background_pink.png";
+
+// buildImageSrc 통한 모바일 이미지 최적화
+const RED_MO_BG = buildImageSrc(RED_IMAGE, {
+  width: "768",
+  format: "webp",
+});
+const PURPLE_MO_BG = buildImageSrc(PURPLE_IMAGE, {
+  width: "768",
+  format: "webp",
+});
+const BLUE_MO_BG = buildImageSrc(BLUE_IMAGE, {
+  width: "768",
+  format: "webp",
+});
+const GREEN_MO_BG = buildImageSrc(GREEN_IMAGE, {
+  width: "768",
+  format: "webp",
+});
+const YELLOW_MO_BG = buildImageSrc(YELLOW_IMAGE, {
+  width: "768",
+  format: "webp",
+});
+const PINK_MO_BG = buildImageSrc(PINK_IMAGE, {
+  width: "768",
+  format: "webp",
+});
+
+// buildImageSrc 통한 데스크탑 이미지 최적화
+const RED_BG = buildImageSrc(RED_IMAGE, {
+  format: "webp",
+});
+const PURPLE_BG = buildImageSrc(PURPLE_IMAGE, {
+  format: "webp",
+});
+const BLUE_BG = buildImageSrc(BLUE_IMAGE, {
+  format: "webp",
+});
+const GREEN_BG = buildImageSrc(GREEN_IMAGE, {
+  format: "webp",
+});
+const YELLOW_BG = buildImageSrc(YELLOW_IMAGE, {
+  format: "webp",
+});
+const PINK_BG = buildImageSrc(PINK_IMAGE, {
+  format: "webp",
+});
 
 export type ThemeColor =
   | "purple"
@@ -32,6 +81,14 @@ const themeBackgrounds = {
   green: GREEN_BG,
   yellow: YELLOW_BG,
   pink: PINK_BG,
+};
+const themeMOBackgrounds = {
+  purple: PURPLE_MO_BG,
+  red: RED_MO_BG,
+  blue: BLUE_MO_BG,
+  green: GREEN_MO_BG,
+  yellow: YELLOW_MO_BG,
+  pink: PINK_MO_BG,
 };
 
 export default function useTheme() {
@@ -84,7 +141,10 @@ export default function useTheme() {
   };
 
   const getCurrentBackground = () => {
-    return themeBackgrounds[currentTheme];
+    return {
+      mobile: themeMOBackgrounds[currentTheme],
+      desktop: themeBackgrounds[currentTheme],
+    };
   };
 
   return {

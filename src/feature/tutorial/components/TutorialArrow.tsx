@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import TutorialArrowComponent from "./TutorialArrowComponent";
+import { useViewportStore } from "@/lib/stores/viewportStore";
 
 type IconProps = {
   targetSelector: string;
@@ -14,21 +15,10 @@ export default function TutorialArrow({
   position,
   mobilePosition,
 }: IconProps) {
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const isMobile = useViewportStore((state) => state.isMobile);
+
   const onClose = useTutorialStore((state) => state.setOnboardingVisible);
   const [arrowPosition, setArrowPosition] = useState({ top: 105, left: 531 });
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
 
   useEffect(() => {
     if (!targetSelector) return;
@@ -115,7 +105,6 @@ export default function TutorialArrow({
     }
 
     setArrowPosition({ top, left });
-    console.log(top, left);
   };
   const updateMobilePosition = () => {
     const element = document.querySelector(targetSelector);
@@ -132,7 +121,6 @@ export default function TutorialArrow({
     const arrowWidth = 211;
     const arrowHeight = 50;
     const offset = isMobile ? 10 : 20;
-    console.log(rect);
     switch (mobilePosition) {
       case "top":
         top = rect.top - arrowHeight - offset;

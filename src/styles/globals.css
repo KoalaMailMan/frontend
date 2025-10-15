@@ -10,7 +10,7 @@
 
   /* Theme Colors */
   --theme-purple: #86569d;
-  --theme-red: #ff5042;
+  --theme-red: #df6556;
   --theme-blue: #40bbed;
   --theme-green: #3aab63;
   --theme-yellow: #ffe849;
@@ -502,7 +502,7 @@ html {
   border: solid 2px #df6556 !important;
   /* 큰 box-shadow로 주변을 어둡게 만들어 오버레이 효과 대체 */
   box-shadow: 0 0 40px 25px rgba(255, 255, 255, 0.8),
-    0 0 0 max(100vw, 100vh) rgba(0, 0, 0, 0.2) !important;
+    0 0 0 max(100vw, 100vh) rgba(65, 65, 65, 0.6) !important;
   background-color: #ffffff !important;
   color: #df6556 !important;
 }
@@ -513,7 +513,7 @@ html {
   border: solid 2px #808080 !important;
   /* 큰 box-shadow로 주변을 어둡게 만들어 오버레이 효과 대체 */
   box-shadow: 0 0 20px 15px rgba(255, 255, 255, 0.8),
-    0 0 0 max(100vw, 100vh) rgba(0, 0, 0, 0.2) !important;
+    0 0 0 max(100vw, 100vh) rgba(65, 65, 65, 0.6) !important;
   background-color: #ffffff !important;
 }
 .tutorial-arrow-button {
@@ -521,8 +521,8 @@ html {
   z-index: 9999 !important;
   border: solid 2px #808080 !important;
   /* 큰 box-shadow로 주변을 어둡게 만들어 오버레이 효과 대체 */
-  box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.8),
-    0 0 0 max(100vw, 100vh) rgba(0, 0, 0, 0.2) !important;
+  box-shadow: 0 0 20px 5px rgba(255, 255, 255, 0.7),
+    0 0 0 max(100vw, 100vh) rgba(65, 65, 65, 0.6) !important;
   background-color: #ffffff !important;
 }
 .recommendation-button {
@@ -531,7 +531,7 @@ html {
   border: solid 1px rgba(255, 80, 66, 0.9) !important;
   /* 큰 box-shadow로 주변을 어둡게 만들어 오버레이 효과 대체 */
   box-shadow: 0 0 30px 0 rgba(255, 255, 255, 0.7),
-    0 0 0 max(100vw, 100vh) rgba(0, 0, 0, 0.2) !important;
+    0 0 0 max(100vw, 100vh) rgba(65, 65, 65, 0.6) !important;
   background-color: #ff8b81 !important;
 }
 .save-button {
@@ -540,7 +540,7 @@ html {
   border: solid 1px #077351 !important;
   /* 큰 box-shadow로 주변을 어둡게 만들어 오버레이 효과 대체 */
   box-shadow: 0 0 30px 5px rgba(255, 255, 255, 0.8),
-    0 0 0 max(100vw, 100vh) rgba(0, 0, 0, 0.2) !important;
+    0 0 0 max(100vw, 100vh) rgba(65, 65, 65, 0.6) !important;
   background-color: #0aa372 !important;
 }
 .reminder-button {
@@ -549,6 +549,6 @@ html {
   border: solid 1px #cccccc !important;
   /* 큰 box-shadow로 주변을 어둡게 만들어 오버레이 효과 대체 */
   box-shadow: 0 0 25px 0 rgba(255, 255, 255, 0.8),
-    0 0 0 max(100vw, 100vh) rgba(0, 0, 0, 0.2) !important;
+    0 0 0 max(100vw, 100vh) rgba(65, 65, 65, 0.6) !important;
   background-color: #ffffff !important;
 }

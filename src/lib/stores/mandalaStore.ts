@@ -245,7 +245,6 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
       const mainIndex = state.data.core.mains.findIndex(
         (sub) => sub.goalId === `main-${mainId}`
       );
-      console.log(mainIndex);
       if (mainIndex === -1) return state;
       const newSubs = [...state.data.core.mains[mainIndex].subs];
       let dataIndex = 0;
@@ -267,7 +266,6 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
       const cellIds = updateSubs
         .filter((item, i) => item.content && i !== 0 && item.goalId)
         .map((item) => item.goalId);
-      console.log(cellIds);
       return {
         ...state,
         data: {
