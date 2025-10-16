@@ -10,7 +10,7 @@ import {
 } from "@/lib/stores/tutorialStore";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import TutorialArrow from "./TutorialArrow";
-import X from "./X";
+import X from "./icons/X";
 import { cn } from "@/lib/utils";
 
 export default function OnboardingMobile() {
