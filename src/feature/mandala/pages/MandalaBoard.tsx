@@ -5,14 +5,17 @@ import { CardContent } from "@/feature/ui/Card";
 import { cn } from "@/lib/utils";
 import NoticeContainer from "@/feature/ui/NoticeContainer";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
-import { Button } from "@/feature/ui/Button";
-import { BellRing, Maximize2, Save } from "lucide-react";
+import Button from "@/feature/ui/Button";
 import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
 import { useRef } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { handleUpdateMandala, type ServerMandalaType } from "../service";
 import { toast } from "sonner";
+import MailIcon from "../components/icon/MailIcon";
+import ActivationBellIcon from "../components/icon/ActivationBellIcon";
+import DisableBellIcon from "../components/icon/DisableBellIcon";
+import FullIcon from "../components/icon/FullIcon";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
@@ -85,7 +88,7 @@ export default function MandalaBoard({
       <div className="max-w-2xl mx-auto">
         <div
           className={cn(
-            "w-[476px] max-w-full md:h-[96px] mx-auto",
+            "w-[476px] max-w-full md:h-[96px] mx-auto mt-[15px]",
             isReminder && "h-[96px]"
           )}
         >
@@ -100,12 +103,12 @@ export default function MandalaBoard({
             <MandalaGrid />
             <div className="text-center mt-6">
               <Button
-                className="pixel-button border-1 bg-[#0AA372] hover:bg-[#077351] text-white px-8 pt-3 mb-3 text-base backdrop-blur-sm mb-4 shadow-[4px_4px_0_0_rgba(102,102,102,0.8)]"
+                className="w-[196px] pixel-button border-1 bg-[#0AA372] active:bg-[#077351] active:border-[#04432F] text-white px-8 pt-3 mb-3 text-base backdrop-blur-sm mb-4 shadow-[4px_4px_0_0_rgba(102,102,102,0.8)] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)]"
                 onClick={handleSave}
                 data-tutorial="save-button"
               >
-                <Save className="h-5 w-5 mr-2" />
-                우체통에 저장하기 📮
+                <MailIcon />
+                우체통에 저장하기
               </Button>
               {/* 리마인드 설정 & 전체보기 버튼들 */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
@@ -115,23 +118,30 @@ export default function MandalaBoard({
                     typeRef.current = "reminder";
                     onReminderOpen(true);
                   }}
-                  className={`flex items-center gap-2 pixel-button text-sm px-4 py-2 ${
-                    reminderEnabled
-                      ? "bg-green-50/90 border-green-300 text-green-700"
-                      : "bg-white/90"
+                  className={`w-[136px] h-[32px] flex items-center gap-2 pixel-button text-sm px-4 py-2 ${
+                    reminderEnabled &&
+                    "bg-white border-[#CCCCCC] border-1 text-[#373737] active:bg-[#CCCCCC] active:border-[#B3B3B3] font-medium shadow-[4px_4px_0_0_rgba(102,102,102,0.6)] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)]"
                   } backdrop-blur-sm`}
                   data-tutorial="reminder-button"
                 >
-                  <BellRing className="h-4 w-4" />
+                  {reminderEnabled ? (
+                    <ActivationBellIcon />
+                  ) : (
+                    <DisableBellIcon />
+                  )}
                   {reminderEnabled ? "리마인드 ON" : "리마인드 설정"}
                 </Button>
-
                 <Button
                   variant="outline"
                   onClick={() => setFullVisible(true)}
-                  className="flex items-center gap-2 pixel-button bg-white/90 backdrop-blur-sm text-sm px-4 py-2"
+                  className={`w-[136px] h-[32px] flex items-center gap-2 pixel-button text-sm px-4 py-2 ${
+                    reminderEnabled
+                      ? "bg-white border-[#CCCCCC] border-1 text-[#373737] font-medium active:bg-[#CCCCCC] active:border-[#B3B3B3] shadow-[4px_4px_0_0_rgba(102,102,102,0.6)] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)]"
+                      : "bg-white"
+                  } backdrop-blur-sm`}
+                  data-tutorial="reminder-button"
                 >
-                  <Maximize2 className="h-4 w-4" />
+                  <FullIcon />
                   9x9 전체보기
                 </Button>
               </div>

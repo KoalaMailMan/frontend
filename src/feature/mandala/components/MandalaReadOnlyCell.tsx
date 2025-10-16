@@ -1,4 +1,4 @@
-import { Button } from "@/feature/ui/Button";
+import Button from "@/feature/ui/Button";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
@@ -51,7 +51,7 @@ export default function MandalaReadOnlyCell({
         compact ? "p-1 " : "p-2",
         isCenter &&
           type === "center" &&
-          "border-primary text-primary-foreground font-semibold",
+          "border-[#FF5042] text-primary-foreground font-semibold",
         isEmpty && "text-gray-400",
         disabled && isCenter && "cursor-not-allowed opacity-50",
         className
@@ -70,7 +70,7 @@ export default function MandalaReadOnlyCell({
           "leading-tight break-all word-break-break-all inline-block w-full",
           compact ? "text-xs" : "text-sm",
           isCenter && type !== "main-center" && type !== "sub"
-            ? "font-semibold text-primary"
+            ? "font-semibold text-[#FF5042]"
             : "text-gray-400"
         )}
       >
@@ -82,7 +82,7 @@ export default function MandalaReadOnlyCell({
           variant="ghost"
           size="sm"
           className={cn(
-            "absolute top-1 right-1 w-6 h-6 p-0 transition-all pixel-button rounded-sm text-[#ADADAD]",
+            "absolute top-1 right-1 w-6 h-6 p-0 transition-all pixel-button rounded-sm ",
             isHovered ? "opacity-100 bg-primary/20" : "opacity-60 "
           )}
           onClick={(e) => {
