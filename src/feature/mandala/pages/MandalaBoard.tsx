@@ -30,6 +30,7 @@ export default function MandalaBoard({
     (state) => state.hasSeenReminderSetup
   );
   const mandalartId = useMandalaStore((state) => state.mandalartId);
+  const setMandalartId = useMandalaStore((state) => state.setMandalartId);
   const data = useMandalaStore((state) => state.data);
   const changedCells = useMandalaStore((state) => state.changedCells);
   const setData = useMandalaStore((state) => state.setData);
@@ -53,10 +54,12 @@ export default function MandalaBoard({
         toast("변경된 목표가 없습니다!");
         return;
       }
-      const mandalartRes: ServerMandalaType | undefined =
-        await handleUpdateMandala(data, changedCells);
-
-      if (mandalartRes !== undefined) {
+      const mandalartRes: ServerMandalaType = await handleUpdateMandala(
+        data,
+        changedCells
+      );
+      if (mandalartRes.data.mandalartId != undefined) {
+        setMandalartId(mandalartRes.data.mandalartId);
         setData(mandalartRes.data);
         toast.success("만다라트가 저장되었습니다!");
       }
