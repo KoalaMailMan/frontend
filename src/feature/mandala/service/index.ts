@@ -394,8 +394,10 @@ export const uiToServer = (
   id?: number
 ) => {
   const result: {
-    data: { core: Partial<ServerMandalaType["data"]["core"]> };
-    mandalartId?: number;
+    data: {
+      core: Partial<ServerMandalaType["data"]["core"]>;
+      mandalartId?: number;
+    };
   } = {
     data: { core: {} },
   };
@@ -410,7 +412,7 @@ export const uiToServer = (
   }
 
   if (id !== undefined) {
-    result.mandalartId = id;
+    result.data.mandalartId = id;
   }
 
   // 변경된 셀들을 직접 순회하면서 처리

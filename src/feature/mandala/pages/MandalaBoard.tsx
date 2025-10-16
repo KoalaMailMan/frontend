@@ -59,7 +59,7 @@ export default function MandalaBoard({
         changedCells
       );
       if (mandalartRes.data.mandalartId != undefined) {
-        setMandalartId(mandalartRes.data.mandalartId);
+        setMandalartId(mandalartRes?.data?.mandalartId);
         setData(mandalartRes.data);
         toast.success("만다라트가 저장되었습니다!");
       }
