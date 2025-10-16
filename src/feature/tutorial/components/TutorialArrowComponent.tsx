@@ -1,4 +1,4 @@
-import FingerArrow from "./FingerArrow";
+import FingerArrow from "./icons/FingerArrow";
 import { cn } from "@/lib/utils";
 
 type IconProps = {

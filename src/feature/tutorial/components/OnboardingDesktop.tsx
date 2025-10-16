@@ -2,7 +2,7 @@ import tutorialKoala from "@/assets/tutorial/tutorial_koala.png";
 
 import { tutorialSteps } from "@/data/tutorial";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../../ui/Button";
+import Button from "../../ui/Button";
 import { ChevronRight } from "lucide-react";
 
 import { Checkbox } from "../../ui/CheckBox";
@@ -12,6 +12,7 @@ import {
 } from "@/lib/stores/tutorialStore";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import TutorialArrow from "./TutorialArrow";
+import X from "./icons/X";
 
 export default function OnboardingDesktop() {
   const [currentStep, setCurrentStep] = useState(0);
@@ -127,33 +128,10 @@ export default function OnboardingDesktop() {
         <div className="w-sm h-[149px] relative rounded-lg bg-white py-8 pr-[10px] pl-[20px] border-2 border-primary">
           {/* 닫기 버튼 */}
           <Button
-            // variant="ghost"
-            // size="icon"
             onClick={handleClose}
             className="absolute top-[4px] right-0 w-[14px] h-[14px] bg-inherit hover:bg-inherit shadow-none z-10"
           >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 14 14"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M10.5 3.5L3.5 10.5"
-                stroke="#B3B3B3"
-                strokeWidth="1.16667"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              <path
-                d="M3.5 3.5L10.5 10.5"
-                stroke="#B3B3B3"
-                strokeWidth="1.16667"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
+            <X />
           </Button>
 
           {/* 헤더 영역 */}

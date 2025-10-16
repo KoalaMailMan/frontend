@@ -1,5 +1,5 @@
 import { handleGoogleLogin, handleNaverLogin } from "@/feature/auth/service";
-import { Button } from "@/feature/ui/Button";
+import Button from "@/feature/ui/Button";
 import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png";
 import ScrollAnimation from "./ScrollAnimation";
 

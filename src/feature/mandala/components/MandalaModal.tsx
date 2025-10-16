@@ -6,7 +6,7 @@ import { Lightbulb, Loader, X } from "lucide-react";
 
 import koalaImage from "@/assets/common/default_koala.png";
 import { createPortal } from "react-dom";
-import { Button } from "@/feature/ui/Button";
+import Button from "@/feature/ui/Button";
 import { cn } from "@/lib/utils";
 import { getGridClasses } from "../utills/css";
 import useGoalRecommendation from "../hooks/useGoalRecommendation";
@@ -156,14 +156,16 @@ function DetailedGoalRecommendationBox({
   }, [data]);
 
   const returnsEmptyCount = (subs: SubGoal[]) => {
+    let localCount = 0;
     if (!subs[0] || subs[0].content.trim() === "") {
-      return;
+      return localCount;
     }
-    subs.forEach((sub) => {
-      if (!sub.content || sub.content.trim() === "") {
-        count.current = count.current + 1;
+    subs.forEach((sub, index) => {
+      if (index < 8 && (!sub.content || sub.content.trim() === "")) {
+        localCount++;
       }
     });
+    return localCount;
   };
 
   const handleSuggestGoals = () => {
@@ -175,7 +177,9 @@ function DetailedGoalRecommendationBox({
       return;
     }
 
-    returnsEmptyCount(mainItems);
+    const emptyCount = returnsEmptyCount(mainItems);
+    if (!emptyCount) return;
+    count.current = emptyCount;
 
     const hasEmptyGoals = mainItems.some((main) => !main.content.trim());
     if (hasEmptyGoals) {

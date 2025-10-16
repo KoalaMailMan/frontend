@@ -1,7 +1,7 @@
 import tutorialKoala from "@/assets/tutorial/tutorial_koala.png";
 import { tutorialSteps } from "@/data/tutorial";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../../ui/Button";
+import Button from "../../ui/Button";
 import { ChevronRight } from "lucide-react";
 import { Checkbox } from "../../ui/CheckBox";
 import {
@@ -10,7 +10,7 @@ import {
 } from "@/lib/stores/tutorialStore";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import TutorialArrow from "./TutorialArrow";
-import X from "./X";
+import X from "./icons/X";
 import { cn } from "@/lib/utils";
 
 export default function OnboardingMobile() {

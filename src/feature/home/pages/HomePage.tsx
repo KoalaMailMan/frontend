@@ -1,14 +1,16 @@
 import MainSection from "../components/MainSection";
 import StoryBoardComponents from "../components/StoryBoardComponents";
-import { Button } from "../../ui/Button";
+import Button from "../../ui/Button";
 import BackgroundAnimation from "../components/BackgroundAnimation";
 import { useViewportStore } from "@/lib/stores/viewportStore";
+import { useEffect } from "react";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
 };
 
 export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
+  const height = useViewportStore((state) => state.height);
   const { mobile, desktop } = getCurrentBackground();
   const isMobile = useViewportStore((state) => state.isMobile);
 
@@ -18,18 +20,24 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
     }
   };
 
+  useEffect(() => {
+    document.documentElement.style.setProperty("--real-vh", `${height}`);
+  }, [height]);
+
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* 메인 로그인 섹션 */}
       <div className="min-h-screen flex flex-col items-center justify-center px-4 relative">
         {/* 모바일 배경 이미지 */}
         <div
-          className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:hidden"
+          className="absolute inset-0 z-[-1000] pointer-events-none md:hidden"
           style={{
             backgroundImage: `url(${mobile})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
+            backgroundAttachment: "scroll",
+            height: "var(--real-vh)",
           }}
         />
         {/* 데스크탑 배경 이미지 */}
@@ -54,12 +62,14 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
       <div className="py-20 px-4 relative">
         {/* 모바일 배경 이미지 */}
         <div
-          className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:hidden"
+          className="absolute inset-0 z-[-1000] pointer-events-none md:hidden"
           style={{
             backgroundImage: `url(${mobile})`,
             backgroundSize: "cover",
             backgroundPosition: "center",
             backgroundRepeat: "no-repeat",
+            backgroundAttachment: "scroll",
+            height: "var(--real-vh)",
           }}
         />
         {/* 데스크탑 배경 이미지 */}
