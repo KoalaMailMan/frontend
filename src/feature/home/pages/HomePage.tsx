@@ -1,6 +1,6 @@
 import MainSection from "../components/MainSection";
 import StoryBoardComponents from "../components/StoryBoardComponents";
-import { Button } from "../../ui/Button";
+import Button from "../../ui/Button";
 import BackgroundAnimation from "../components/BackgroundAnimation";
 import { useViewportStore } from "@/lib/stores/viewportStore";
 

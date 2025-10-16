@@ -1,6 +1,6 @@
 import HeaderTextLogo from "@/assets/common/header_text_logo.png";
 
-import { Button } from "@/feature/ui/Button";
+import Button from "@/feature/ui/Button";
 import { LogOut } from "lucide-react";
 import { handleLogout } from "@/feature/auth/service";
 import ThemeSelector from "./ThemeSelector";

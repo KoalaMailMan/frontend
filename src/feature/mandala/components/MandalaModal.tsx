@@ -6,7 +6,7 @@ import { Lightbulb, Loader, X } from "lucide-react";
 
 import koalaImage from "@/assets/common/default_koala.png";
 import { createPortal } from "react-dom";
-import { Button } from "@/feature/ui/Button";
+import Button from "@/feature/ui/Button";
 import { cn } from "@/lib/utils";
 import { getGridClasses } from "../utills/css";
 import useGoalRecommendation from "../hooks/useGoalRecommendation";

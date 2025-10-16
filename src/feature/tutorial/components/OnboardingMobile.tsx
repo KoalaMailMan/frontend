@@ -1,7 +1,7 @@
 import tutorialKoala from "@/assets/tutorial/tutorial_koala.png";
 import { tutorialSteps } from "@/data/tutorial";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "../../ui/Button";
+import Button from "../../ui/Button";
 import { ChevronRight } from "lucide-react";
 import { Checkbox } from "../../ui/CheckBox";
 import {

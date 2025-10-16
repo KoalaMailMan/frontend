@@ -1,5 +1,5 @@
 import { themes, type ThemeColor } from "@/data/themes";
-import { Button } from "@/feature/ui/Button";
+import Button from "@/feature/ui/Button";
 import {
   Dialog,
   DialogContent,
