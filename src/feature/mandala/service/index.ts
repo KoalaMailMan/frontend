@@ -402,17 +402,15 @@ export const uiToServer = (
     data: { core: {} },
   };
 
-  // Core 초기 처리 (originalId가 있고 content가 있는 경우)
-  if (
-    currentData.core.mains[0].originalId &&
-    currentData.core.mains[0].content.trim() !== ""
-  ) {
-    result.data.core.content = currentData.core.mains[0].content;
-    result.data.core.goalId = currentData.core.mains[0].originalId;
-  }
-
   if (id !== undefined) {
     result.data.mandalartId = id;
+  }
+  // Core 초기 처리 (originalId가 있고 content가 있는 경우)
+  if (currentData.core.mains[0].originalId) {
+    result.data.core.goalId = currentData.core.mains[0].originalId;
+  }
+  if (currentData.core.mains[0].content.trim() !== "") {
+    result.data.core.content = currentData.core.mains[0].content;
   }
 
   // 변경된 셀들을 직접 순회하면서 처리
