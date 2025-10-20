@@ -1,0 +1,10 @@
+
+# 모든 크롤러 허용/모든 페이지 허용
+User-agent: *
+Allow: /
+
+# /api / json 파일 접근 차단
+Disallow: /api/
+Disallow: /*.json$
+
+Sitemap: https://ringdong.kr/sitemap.xml
