@@ -28,10 +28,23 @@ export default function MandalaModal({
   onContentChange,
   onCancelEdit,
 }: Props) {
+  // modal DetailedGoalRecommendationBox 컴포넌트 상태 관리
+  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
+  const updateSubsCell = useMandalaStore((state) => state.updateSubsCell);
+  const modalCellId = useMandalaStore((state) => state.modalCellId);
+  const count = useRef(0);
+  const { isLoading } = useGoalRecommendation({
+    enabled: false,
+    goal: item[0].content,
+    count: count.current,
+  });
+
+  // modal 컴포넌트 상태 관리
   const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
   const centerIndex = 0;
 
+  // 상태 관리 함수들
   const handleSubStartEdit = (goalId: string) => {
     setEditingSubCell(goalId);
   };
@@ -44,6 +57,35 @@ export default function MandalaModal({
     setEditingSubCell(null);
     onCancelEdit();
   };
+
+  const returnsEmptyCount = (subs: SubGoal[]) => {
+    let localCount = 0;
+    if (!subs[0] || subs[0].content.trim() === "") {
+      return localCount;
+    }
+    subs.forEach((sub, index) => {
+      if (index < 8 && (!sub.content || sub.content.trim() === "")) {
+        localCount++;
+      }
+    });
+    return localCount;
+  };
+
+  const emptyValueValidation = () => {
+    const hasEmptyGoals = item.some((main) => !main.content.trim());
+    const emptyCount = returnsEmptyCount(item);
+    if (emptyCount && hasEmptyGoals) {
+      // 0 & false or 1~8 & true
+      count.current = emptyCount;
+    }
+  };
+
+  useEffect(() => {
+    emptyValueValidation();
+    return () => {
+      count.current = 0;
+    };
+  }, [item]);
 
   useEffect(() => {
     if (isModalVisible) {
@@ -101,7 +143,7 @@ export default function MandalaModal({
                             item={sub}
                             isEditing={isEditing}
                             compact={compact}
-                            disabled={false}
+                            disabled={isCenter ? isLoading : false}
                             isEmpty={!sub.content || !sub.content.trim()}
                             onStartEdit={() => handleSubStartEdit(sub.goalId)}
                             onContentChange={onContentChange}
@@ -118,7 +160,13 @@ export default function MandalaModal({
                     })}
                   </div>
                 </div>
-                <DetailedGoalRecommendationBox mainItems={item} />
+                <DetailedGoalRecommendationBox
+                  mainItems={item}
+                  isOnboardingOpen={isOnboardingOpen}
+                  updateSubsCell={updateSubsCell}
+                  modalCellId={modalCellId}
+                  count={count.current}
+                />
               </div>
             </div>
           )}
@@ -130,43 +178,35 @@ export default function MandalaModal({
   return createPortal(modalContent, document.body);
 }
 
+type ComponentProps = {
+  mainItems: SubGoal[];
+  isOnboardingOpen: boolean;
+  updateSubsCell: (items: SubGoal[], data: string[]) => void;
+  modalCellId: string | null;
+  count: number;
+};
+
 function DetailedGoalRecommendationBox({
   mainItems,
-}: {
-  mainItems: SubGoal[];
-}) {
-  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
-  const updateSubsCell = useMandalaStore((state) => state.updateSubsCell);
-  const modalCellId = useMandalaStore((state) => state.modalCellId);
+  isOnboardingOpen,
+  updateSubsCell,
+  modalCellId,
+  count,
+}: ComponentProps) {
   const main = mainItems[0];
-  const count = useRef(0);
   const [shouldFetchRecommendation, setShouldFetchRecommendation] =
     useState(false);
 
   const { isLoading, data } = useGoalRecommendation({
-    enabled:
-      shouldFetchRecommendation && !!main.content.trim() && count.current > 0,
+    enabled: shouldFetchRecommendation && !!main.content.trim() && count > 0,
     goal: main.content,
-    count: count.current,
+    count: count,
   });
 
   useEffect(() => {
     updateSubsCell(mainItems, data);
     setShouldFetchRecommendation(false);
   }, [data]);
-
-  const returnsEmptyCount = (subs: SubGoal[]) => {
-    let localCount = 0;
-    if (!subs[0] || subs[0].content.trim() === "") {
-      return localCount;
-    }
-    subs.forEach((sub, index) => {
-      if (index < 8 && (!sub.content || sub.content.trim() === "")) {
-        localCount++;
-      }
-    });
-    return localCount;
-  };
 
   const handleSuggestGoals = () => {
     if (modalCellId === "empty-0") return;
@@ -177,14 +217,8 @@ function DetailedGoalRecommendationBox({
       return;
     }
 
-    const emptyCount = returnsEmptyCount(mainItems);
-    if (!emptyCount) return;
-    count.current = emptyCount;
-
-    const hasEmptyGoals = mainItems.some((main) => !main.content.trim());
-    if (hasEmptyGoals) {
-      setShouldFetchRecommendation(true);
-    }
+    if (!count) return;
+    setShouldFetchRecommendation(true);
   };
 
   return (
