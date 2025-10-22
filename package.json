@@ -2,7 +2,6 @@
   "name": "koalart",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -47,7 +46,6 @@
     "globals": "^16.3.0",
     "typescript": "^5.9.2",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.2",
-    "vite-plugin-prerender": "^1.0.8"
+    "vite": "^7.1.2"
   }
 }
