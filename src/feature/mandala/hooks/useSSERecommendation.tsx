@@ -1,5 +1,4 @@
-import { useStreamStore } from "@/lib/stores/streamStore";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
 type UseSSERecommendationOptions = {
   goal: string;
@@ -15,10 +14,12 @@ export default function useSSERecommendation({
   enabled,
   onError,
 }: UseSSERecommendationOptions) {
-  const { setError, setStreaming, setRecommendation, clearRecommendations } =
-    useStreamStore();
+  const [error, setError] = useState<string | null>(null);
+  const [isStreaming, setStreaming] = useState(false);
+  const [recommendation, setRecommendation] = useState<string[]>([]);
 
   const eventSourceRef = useRef<EventSource | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const startStream = () => {
     if (!goal || goal.trim() === "") {
@@ -37,11 +38,11 @@ export default function useSSERecommendation({
       eventSourceRef.current?.close();
     }
     // 초기화
-    clearRecommendations();
-    setStreaming(false);
+    setError(null);
+    setRecommendation([]);
 
-    const QEURY_URL = `?parentGoal=${goal}?recommendationCount=${count}`;
-    const RECOMMEND_URL = `/api/recommend/streaming${QEURY_URL}`;
+    const QUERY_URL = `?parentGoal=${goal}&recommendationCount=${count}`;
+    const RECOMMEND_URL = `/api/recommend/streaming${QUERY_URL}`;
 
     console.log(`🚀 스트림 연결 시작: ${RECOMMEND_URL}`);
     const eventSource = new EventSource(RECOMMEND_URL);
@@ -49,48 +50,64 @@ export default function useSSERecommendation({
 
     eventSource.onopen = () => {
       console.log("✅ 스트림 연결 성공");
+      setStreaming(true);
     };
 
     eventSource.onmessage = (event) => {
       const data = event.data;
-      const processingArrayData = data.split(/(?:\r\n|\r|\n)/g);
       console.log(`📨 데이터 수신: ${data}`);
       // 완료 신호 체크
 
-      setRecommendation(processingArrayData);
+      setRecommendation((prev) => [...prev, event.data]);
+
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+      timeoutRef.current = setTimeout(() => {
+        console.log("⏰ 유효 타임아웃");
+        eventSource.close();
+        setStreaming(false);
+      }, 5000);
     };
 
     eventSource.onerror = (error) => {
       console.error(`🚨 SSE 에러: ${error}`);
       const errorMsg = "스트림 연결 오류";
-      setError(errorMsg);
+      setError(null);
       setStreaming(false);
-      eventSource.close();
+      setRecommendation([]);
       onError?.(errorMsg);
+      timeoutRef.current = null;
+      eventSource.close();
     };
   };
 
   const stopStream = () => {
     console.log("❌ SSE 연결 중지");
-    eventSourceRef.current?.close();
     setStreaming(false);
+    timeoutRef.current = null;
+    eventSourceRef.current?.close();
   };
 
-  //   useEffect(() => {
-  //     if (goal.trim() && count > 0 && enabled) {
-  //       startStream();
-  //     }
-
-  //     return () => {
-  //       eventSourceRef.current?.close();
-  //     };
-  //   }, [goal, count, enabled]);
+  const parseSSEChunks = (rawData: string[]) => {
+    return rawData
+      .join("\n")
+      .split(/(?:\r\n|\r|\n)/g)
+      .map((item) => item.replace("[DONE]", "").trim())
+      .filter(Boolean);
+  };
 
   useEffect(() => {
     return () => {
+      setStreaming(false);
+      timeoutRef.current = null;
       eventSourceRef.current?.close();
     };
   }, []);
 
-  return { startStream, stopStream };
+  return {
+    startStream,
+    stopStream,
+    error,
+    isStreaming,
+    recommendation: parseSSEChunks(recommendation),
+  };
 }
