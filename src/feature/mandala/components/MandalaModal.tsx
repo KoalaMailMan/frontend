@@ -42,10 +42,12 @@ export default function MandalaModal({
       onComplete: (items) => {
         console.log("완료! 총", items.length, "개");
         toast.success(`목표 추천 완료되었습니다!`);
+        count.current = 0;
       },
       onError: (error) => {
         console.error("에러 발생:", error);
         toast.error(error);
+        count.current = 0;
       },
     });
 
