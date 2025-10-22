@@ -1,7 +1,7 @@
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
 import { Fragment } from "react/jsx-runtime";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Lightbulb, Loader, X } from "lucide-react";
 
 import koalaImage from "@/assets/common/default_koala.png";
@@ -9,9 +9,9 @@ import { createPortal } from "react-dom";
 import Button from "@/feature/ui/Button";
 import { cn } from "@/lib/utils";
 import { getGridClasses } from "../utills/css";
-import useGoalRecommendation from "../hooks/useGoalRecommendation";
 import { toast } from "sonner";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
+import useSSERecommendation from "../hooks/useSSERecommendation";
 
 type Props = {
   isModalVisible: boolean;
@@ -28,10 +28,34 @@ export default function MandalaModal({
   onContentChange,
   onCancelEdit,
 }: Props) {
+  // modal DetailedGoalRecommendationBox 컴포넌트 상태 관리
+  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
+  const updateSubsCell = useMandalaStore((state) => state.updateSubsCell);
+  const modalCellId = useMandalaStore((state) => state.modalCellId);
+  const count = useRef(0);
+
+  const { startStream, stopStream, recommendation, isStreaming } =
+    useSSERecommendation({
+      goal: item[0].content,
+      count: count.current,
+      onComplete: (items) => {
+        console.log("완료! 총", items.length, "개");
+        toast.success(`목표 추천 완료되었습니다!`);
+        count.current = 0;
+      },
+      onError: (error) => {
+        console.error("에러 발생:", error);
+        toast.error(error);
+        count.current = 0;
+      },
+    });
+
+  // modal 컴포넌트 상태 관리
   const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
   const centerIndex = 0;
 
+  // 상태 관리 함수들
   const handleSubStartEdit = (goalId: string) => {
     setEditingSubCell(goalId);
   };
@@ -44,6 +68,35 @@ export default function MandalaModal({
     setEditingSubCell(null);
     onCancelEdit();
   };
+
+  const returnsEmptyCount = (subs: SubGoal[]) => {
+    let localCount = 0;
+    if (!subs[0] || subs[0].content.trim() === "") {
+      return localCount;
+    }
+    subs.forEach((sub, index) => {
+      if (index < 8 && (!sub.content || sub.content.trim() === "")) {
+        localCount++;
+      }
+    });
+    return localCount;
+  };
+
+  const emptyValueValidation = () => {
+    const hasEmptyGoals = item.some((main) => !main.content.trim());
+    const emptyCount = returnsEmptyCount(item);
+    if (emptyCount && hasEmptyGoals) {
+      // 0 & false or 1~8 & true
+      count.current = emptyCount;
+    }
+  };
+
+  useEffect(() => {
+    emptyValueValidation();
+    return () => {
+      count.current = 0;
+    };
+  }, [item]);
 
   useEffect(() => {
     if (isModalVisible) {
@@ -101,7 +154,7 @@ export default function MandalaModal({
                             item={sub}
                             isEditing={isEditing}
                             compact={compact}
-                            disabled={false}
+                            disabled={isCenter ? isStreaming : false}
                             isEmpty={!sub.content || !sub.content.trim()}
                             onStartEdit={() => handleSubStartEdit(sub.goalId)}
                             onContentChange={onContentChange}
@@ -118,7 +171,17 @@ export default function MandalaModal({
                     })}
                   </div>
                 </div>
-                <DetailedGoalRecommendationBox mainItems={item} />
+                <DetailedGoalRecommendationBox
+                  mainItems={item}
+                  isOnboardingOpen={isOnboardingOpen}
+                  updateSubsCell={updateSubsCell}
+                  modalCellId={modalCellId}
+                  count={count.current}
+                  isStreaming={isStreaming}
+                  startStream={startStream}
+                  stopStream={stopStream}
+                  recommendation={recommendation}
+                />
               </div>
             </div>
           )}
@@ -130,61 +193,47 @@ export default function MandalaModal({
   return createPortal(modalContent, document.body);
 }
 
+type ComponentProps = {
+  mainItems: SubGoal[];
+  isOnboardingOpen: boolean;
+  updateSubsCell: (items: SubGoal[], data: string[]) => void;
+  modalCellId: string | null;
+  count: number;
+  isStreaming: boolean;
+  startStream: () => void;
+  stopStream: () => void;
+  recommendation: string[];
+};
+
 function DetailedGoalRecommendationBox({
   mainItems,
-}: {
-  mainItems: SubGoal[];
-}) {
-  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
-  const updateSubsCell = useMandalaStore((state) => state.updateSubsCell);
-  const modalCellId = useMandalaStore((state) => state.modalCellId);
+  isOnboardingOpen,
+  updateSubsCell,
+  modalCellId,
+  count,
+  isStreaming,
+  startStream,
+  stopStream,
+  recommendation,
+}: ComponentProps) {
   const main = mainItems[0];
-  const count = useRef(0);
-  const [shouldFetchRecommendation, setShouldFetchRecommendation] =
-    useState(false);
-
-  const { isLoading, data } = useGoalRecommendation({
-    enabled:
-      shouldFetchRecommendation && !!main.content.trim() && count.current > 0,
-    goal: main.content,
-    count: count.current,
-  });
 
   useEffect(() => {
-    updateSubsCell(mainItems, data);
-    setShouldFetchRecommendation(false);
-  }, [data]);
-
-  const returnsEmptyCount = (subs: SubGoal[]) => {
-    let localCount = 0;
-    if (!subs[0] || subs[0].content.trim() === "") {
-      return localCount;
+    if (recommendation.length > 0) {
+      updateSubsCell(mainItems, recommendation);
     }
-    subs.forEach((sub, index) => {
-      if (index < 8 && (!sub.content || sub.content.trim() === "")) {
-        localCount++;
-      }
-    });
-    return localCount;
-  };
+  }, [recommendation]);
 
   const handleSuggestGoals = () => {
     if (modalCellId === "empty-0") return;
-    if (isLoading) return;
+    if (isStreaming) return;
     if (!main.content.trim()) {
       toast("먼저 주요 목표를 입력해주세요!");
-      setShouldFetchRecommendation(false);
       return;
     }
 
-    const emptyCount = returnsEmptyCount(mainItems);
-    if (!emptyCount) return;
-    count.current = emptyCount;
-
-    const hasEmptyGoals = mainItems.some((main) => !main.content.trim());
-    if (hasEmptyGoals) {
-      setShouldFetchRecommendation(true);
-    }
+    if (!count) return;
+    startStream();
   };
 
   return (
@@ -206,13 +255,13 @@ function DetailedGoalRecommendationBox({
           <Button
             onClick={handleSuggestGoals}
             className="pixel-button bg-primary/90 hover:bg-primary text-white px-4 py-2 text-sm w-full "
-            disabled={isOnboardingOpen || !main?.content.trim() || isLoading}
+            disabled={isOnboardingOpen || !main?.content.trim() || isStreaming}
             data-tutorial="recommendation-button"
           >
-            {isLoading ? (
+            {isStreaming ? (
               <>
                 <Loader />
-                loading...
+                Ai가 맞춤 추천을 생성하고 있습니다...
               </>
             ) : (
               <>
@@ -221,6 +270,7 @@ function DetailedGoalRecommendationBox({
               </>
             )}
           </Button>
+          {isStreaming && <Button onClick={stopStream}>취소하기</Button>}
           {!mainItems[0].content.trim() && (
             <p className="text-xs text-gray-500 mt-2">
               주요 목표를 먼저 입력해주세요

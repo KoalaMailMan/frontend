@@ -23,7 +23,7 @@ export default function useGoalRecommendation({
   const shouldFetch = enabled && !!goal && !!count && !!accessToken;
 
   return useQuery({
-    queryKey: ["goal-recommendation", goal.trim().toLowerCase()],
+    queryKey: ["goal-recommendation", goal.trim().toLowerCase(), count],
     queryFn: () => {
       if (!accessToken) {
         throw new Error("accessToken이 없습니다.");
