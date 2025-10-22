@@ -38,7 +38,6 @@ export default function MandalaModal({
     useSSERecommendation({
       goal: item[0].content,
       count: count.current,
-      enabled: false,
       onComplete: (items) => {
         console.log("완료! 총", items.length, "개");
         toast.success(`목표 추천 완료되었습니다!`);

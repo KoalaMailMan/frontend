@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 type UseSSERecommendationOptions = {
   goal: string;
   count: number;
-  enabled: boolean;
   onComplete?: (items: string[]) => void;
   onError?: (error: string) => void;
 };
@@ -11,7 +10,6 @@ type UseSSERecommendationOptions = {
 export default function useSSERecommendation({
   goal,
   count,
-  enabled,
   onError,
 }: UseSSERecommendationOptions) {
   const [error, setError] = useState<string | null>(null);
