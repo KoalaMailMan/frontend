@@ -10,6 +10,7 @@ type UseSSERecommendationOptions = {
 export default function useSSERecommendation({
   goal,
   count,
+  onComplete,
   onError,
 }: UseSSERecommendationOptions) {
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +18,6 @@ export default function useSSERecommendation({
   const [recommendation, setRecommendation] = useState<string[]>([]);
 
   const eventSourceRef = useRef<EventSource | null>(null);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const startStream = () => {
     if (!goal || goal.trim() === "") {
@@ -55,15 +55,15 @@ export default function useSSERecommendation({
       const data = event.data;
       console.log(`📨 데이터 수신: ${data}`);
       // 완료 신호 체크
-
-      setRecommendation((prev) => [...prev, event.data]);
-
-      if (timeoutRef.current) clearTimeout(timeoutRef.current);
-      timeoutRef.current = setTimeout(() => {
-        console.log("⏰ 유효 타임아웃");
+      if (data.includes("__COMPLETE__")) {
+        console.log(`🎉 스트림 완료`);
         eventSource.close();
         setStreaming(false);
-      }, 5000);
+        onComplete?.(parseSSEChunks(recommendation));
+        return;
+      }
+
+      setRecommendation((prev) => [...prev, event.data]);
     };
 
     eventSource.onerror = (error) => {
@@ -73,7 +73,6 @@ export default function useSSERecommendation({
       setStreaming(false);
       setRecommendation([]);
       onError?.(errorMsg);
-      timeoutRef.current = null;
       eventSource.close();
     };
   };
@@ -81,7 +80,6 @@ export default function useSSERecommendation({
   const stopStream = () => {
     console.log("❌ SSE 연결 중지");
     setStreaming(false);
-    timeoutRef.current = null;
     eventSourceRef.current?.close();
   };
 
@@ -96,7 +94,6 @@ export default function useSSERecommendation({
   useEffect(() => {
     return () => {
       setStreaming(false);
-      timeoutRef.current = null;
       eventSourceRef.current?.close();
     };
   }, []);
