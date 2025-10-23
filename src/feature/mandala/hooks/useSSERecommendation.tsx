@@ -1,10 +1,30 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { EventSourcePolyfill } from "event-source-polyfill";
 
 type UseSSERecommendationOptions = {
   goal: string;
   count: number;
+  getAccessToken: () => Promise<string | undefined | null>;
   onComplete?: (items: string[]) => void;
   onError?: (error: string) => void;
+};
+
+const EventSource = EventSourcePolyfill;
+
+const parseSSEChunks = (rawData: string[]) => {
+  return rawData
+    .join("\n")
+    .split(/(?:\r\n|\r|\n)/g)
+    .map((item) => item.replace("__COMPLETE__", "").trim())
+    .filter(Boolean);
+};
+
+const encodingURI = (options: Record<string, string>) => {
+  const params = new URLSearchParams({
+    ...options,
+  });
+
+  return params.toString();
 };
 
 export default function useSSERecommendation({
@@ -12,6 +32,7 @@ export default function useSSERecommendation({
   count,
   onComplete,
   onError,
+  getAccessToken,
 }: UseSSERecommendationOptions) {
   const [error, setError] = useState<string | null>(null);
   const [isStreaming, setStreaming] = useState(false);
@@ -19,7 +40,7 @@ export default function useSSERecommendation({
 
   const eventSourceRef = useRef<EventSource | null>(null);
 
-  const startStream = () => {
+  const startStream = useCallback(async () => {
     if (!goal || goal.trim() === "") {
       console.warn("유효하지 않은 매개변수: 주요 목표 설정 안됨.");
       setError("주요 목표를 작성해주세요.");
@@ -31,6 +52,13 @@ export default function useSSERecommendation({
       return;
     }
 
+    const accessToken = await getAccessToken();
+    if (!accessToken) {
+      console.warn("인증 토큰이 없습니다.");
+      setError("세션 종료로 인해 로그인 화면으로 돌아갑니다.");
+      return;
+    }
+
     // 이전 연결 종료
     if (eventSourceRef.current != null) {
       eventSourceRef.current?.close();
@@ -38,12 +66,19 @@ export default function useSSERecommendation({
     // 초기화
     setError(null);
     setRecommendation([]);
-
-    const QUERY_URL = `?parentGoal=${goal}&recommendationCount=${count}`;
-    const RECOMMEND_URL = `/api/recommend/streaming${QUERY_URL}`;
+    const params = encodingURI({
+      parentGoal: goal,
+      recommendationCount: count.toString(),
+    });
+    const RECOMMEND_URL = `/api/recommend/streaming?${params}`;
 
     console.log(`🚀 스트림 연결 시작: ${RECOMMEND_URL}`);
-    const eventSource = new EventSource(RECOMMEND_URL);
+    const eventSource = new EventSource(RECOMMEND_URL, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      withCredentials: true,
+    });
     eventSourceRef.current = eventSource;
 
     eventSource.onopen = () => {
@@ -51,19 +86,21 @@ export default function useSSERecommendation({
       setStreaming(true);
     };
 
+    let allItems: string[] = [];
     eventSource.onmessage = (event) => {
       const data = event.data;
+      allItems.push(data);
       console.log(`📨 데이터 수신: ${data}`);
       // 완료 신호 체크
       if (data.includes("__COMPLETE__")) {
         console.log(`🎉 스트림 완료`);
         eventSource.close();
         setStreaming(false);
-        onComplete?.(parseSSEChunks(recommendation));
+        onComplete?.(parseSSEChunks(allItems));
         return;
       }
 
-      setRecommendation((prev) => [...prev, event.data]);
+      setRecommendation(allItems);
     };
 
     eventSource.onerror = (error) => {
@@ -75,21 +112,13 @@ export default function useSSERecommendation({
       onError?.(errorMsg);
       eventSource.close();
     };
-  };
+  }, [goal, count]);
 
-  const stopStream = () => {
+  const stopStream = useCallback(() => {
     console.log("❌ SSE 연결 중지");
     setStreaming(false);
     eventSourceRef.current?.close();
-  };
-
-  const parseSSEChunks = (rawData: string[]) => {
-    return rawData
-      .join("\n")
-      .split(/(?:\r\n|\r|\n)/g)
-      .map((item) => item.replace("[DONE]", "").trim())
-      .filter(Boolean);
-  };
+  }, []);
 
   useEffect(() => {
     return () => {

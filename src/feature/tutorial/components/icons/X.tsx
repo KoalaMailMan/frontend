@@ -1,9 +1,14 @@
 type IconProps = {
   className?: string;
   size?: number;
+  stroke?: string;
 };
 
-export default function X({ className, size = 14 }: IconProps) {
+export default function X({
+  className,
+  size = 14,
+  stroke = "#B3B3B3",
+}: IconProps) {
   return (
     <svg
       width={size}
@@ -15,14 +20,14 @@ export default function X({ className, size = 14 }: IconProps) {
     >
       <path
         d="M10.5 3.5L3.5 10.5"
-        stroke="#B3B3B3"
+        stroke={stroke}
         strokeWidth="1.16667"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M3.5 3.5L10.5 10.5"
-        stroke="#B3B3B3"
+        stroke={stroke}
         strokeWidth="1.16667"
         strokeLinecap="round"
         strokeLinejoin="round"

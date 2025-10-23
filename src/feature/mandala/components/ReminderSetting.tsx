@@ -1,6 +1,5 @@
-import koalaImage from "@/assets/common/default_koala.png";
 import Button from "@/feature/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/feature/ui/Card";
+import { Card, CardContent } from "@/feature/ui/Card";
 import { Input } from "@/feature/ui/Input";
 import { Label } from "@/feature/ui/Label";
 import {
@@ -12,7 +11,6 @@ import {
 import { Switch } from "@/feature/ui/Switch";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { Select } from "@radix-ui/react-select";
-import { Mail } from "lucide-react";
 import { handleUpdateMandala, type ServerMandalaType } from "../service";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { patchReminderAPI } from "../api/reminder/patchReminder";
@@ -156,16 +154,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
   return (
     <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4">
       <Card className="w-full max-w-lg">
-        <CardHeader className="text-center">
-          <div className="flex justify-center mb-4">
-            <img src={koalaImage} alt="코알라" className="w-16 h-16" />
-          </div>
-          <CardTitle className="flex items-center justify-center gap-2">
-            <Mail className="h-5 w-5" />
-            코알라 리마인드 설정
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-6 pt-[42px] pb-[113px]">
           <div className="flex items-center justify-between">
             <div>
               <Label className="font-medium">이메일 리마인드</Label>
@@ -208,7 +197,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
                   value={user?.email || "이메일을 찾을 수 없습니다."}
                   readOnly
                   className="bg-gray-100 cursor-not-allowed"
-                  placeholder="로그인된 계정의 이메일이 사용됩니다"
+                  placeholder="user@example.com"
                 />
                 <p className="text-xs text-gray-500">
                   * 로그인된 계정의 이메일로 리마인드가 발송됩니다
@@ -216,13 +205,14 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
               </div>
 
               <div className="bg-red-50 p-4 rounded-lg">
-                <div className="flex items-start gap-3">
-                  <img src={koalaImage} alt="코알라" className="w-8 h-8 mt-1" />
+                <div className="flex items-start gap-3 pl-8">
                   <div className="text-sm">
-                    <p className="font-medium text-red-900 mb-1">코알라 팁!</p>
-                    <p className="text-red-800">
+                    <p className="font-medium text-[#82181A] mb-1">
+                      코알라 팁!
+                    </p>
+                    <p className="text-[#9F0712]">
                       {remindInterval === "1week" &&
-                        "일주일에 한 번씩 목표를 점검하면 꾸준히 실행할 수 있어요!"}
+                        "리마인드를 켜면 코알라 우체부에게 편지를 받을 수 있어요!"}
                       {remindInterval === "2week" &&
                         "2주 간격으로 리마인드를 받으면 적당한 긴장감을 유지할 수 있어요!"}
                       {remindInterval === "1month" &&
@@ -243,7 +233,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
           <div className="flex gap-3">
             <Button
               variant="outline"
-              className="flex-1"
+              className="flex-1 border-[#CCCCCC]"
               onClick={() => onClose(false)}
             >
               취소

@@ -47,7 +47,7 @@ export default function MandalaReadOnlyCell({
   return (
     <div
       className={cn(
-        "pixel-input border-2 border-[#B3B3B3] flex items-center justify-center text-center cursor-pointer transition-all hover:bg-primary/10 hover:border-primary relative",
+        "pixel-input border-2 border-[#B3B3B3] flex items-center justify-center text-center cursor-pointer transition-all hover:bg-[#FF5042]/10 hover:border-[#FF5042] relative",
         compact ? "p-1 " : "p-2",
         isCenter &&
           type === "center" &&
