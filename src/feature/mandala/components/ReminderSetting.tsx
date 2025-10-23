@@ -1,6 +1,5 @@
-import koalaImage from "@/assets/common/default_koala.png";
 import Button from "@/feature/ui/Button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/feature/ui/Card";
+import { Card, CardContent } from "@/feature/ui/Card";
 import { Input } from "@/feature/ui/Input";
 import { Label } from "@/feature/ui/Label";
 import {
@@ -12,7 +11,6 @@ import {
 import { Switch } from "@/feature/ui/Switch";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { Select } from "@radix-ui/react-select";
-import { Mail } from "lucide-react";
 import { handleUpdateMandala, type ServerMandalaType } from "../service";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { patchReminderAPI } from "../api/reminder/patchReminder";

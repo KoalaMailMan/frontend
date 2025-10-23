@@ -2,9 +2,8 @@ import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
 import { Fragment } from "react/jsx-runtime";
 import { useCallback, useEffect, useRef } from "react";
-import { Lightbulb, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 
-import koalaImage from "@/assets/common/default_koala.png";
 import { createPortal } from "react-dom";
 import Button from "@/feature/ui/Button";
 import { cn } from "@/lib/utils";
