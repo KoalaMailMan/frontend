@@ -27,6 +27,8 @@ const encodingURI = (options: Record<string, string>) => {
   return params.toString();
 };
 
+const baseURL = import.meta.env.VITE_BACKEND_URL;
+
 export default function useSSERecommendation({
   goal,
   count,
@@ -70,7 +72,7 @@ export default function useSSERecommendation({
       parentGoal: goal,
       recommendationCount: count.toString(),
     });
-    const RECOMMEND_URL = `/api/recommend/streaming?${params}`;
+    const RECOMMEND_URL = `${baseURL}/api/recommend/streaming?${params}`;
 
     console.log(`🚀 스트림 연결 시작: ${RECOMMEND_URL}`);
     const eventSource = new EventSource(RECOMMEND_URL, {
