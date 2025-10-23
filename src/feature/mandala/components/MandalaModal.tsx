@@ -98,7 +98,7 @@ export default function MandalaModal({
       return localCount;
     }
     subs.forEach((sub, index) => {
-      if (index < 8 && (!sub.content || sub.content.trim() === "")) {
+      if (index < 9 && (!sub.content || sub.content.trim() === "")) {
         localCount++;
       }
     });
@@ -145,10 +145,6 @@ export default function MandalaModal({
         onClick={(e) => e.stopPropagation()} // 모달 내용 클릭 시 이벤트 버블링 방지
       >
         <div className="flex items-center justify-end p-6 border-b">
-          {/* <div className="flex items-center gap-3"> */}
-          {/* <img src={koalaImage} alt="코알라" className="w-8 h-8" /> */}
-          {/* <h2 className="text-xl font-semibold">세부 목표 설정</h2> */}
-          {/* </div> */}
           <Button variant="none" size="icon" onClick={handleModalClose}>
             <X size={22} stroke="#2A2D3A" />
           </Button>
