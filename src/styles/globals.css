@@ -10,11 +10,26 @@
 
   /* Theme Colors */
   --theme-purple: #86569d;
-  --theme-red: #df6556;
+  --theme-red: #ff5042;
   --theme-blue: #40bbed;
   --theme-green: #3aab63;
   --theme-yellow: #ffe849;
   --theme-pink: #e17aaa;
+
+  /* Modal Theme Colors - 모달 전용 테마 */
+  --modal-red: #df6556;
+  --modal-purple: #86569d;
+  --modal-blue: #40bbed;
+  --modal-green: #3aab63;
+  --modal-yellow: #ffe849;
+  --modal-pink: #e17aaa;
+  /* Modal border outline Theme Colors - 모달 전용 테마 */
+  --outline-red: #a80d00;
+  --outline-purple: #86569d;
+  --outline-blue: #40bbed;
+  --outline-green: #3aab63;
+  --outline-yellow: #ffe849;
+  --outline-pink: #e17aaa;
 
   /* Current Theme (default: red) */
   --current-theme: var(--theme-red);
@@ -22,6 +37,50 @@
   --current-theme-lighter: color-mix(in srgb, var(--current-theme) 5%, white);
   --current-theme-dark: color-mix(in srgb, var(--current-theme) 80%, black);
   --current-theme-darker: color-mix(in srgb, var(--current-theme) 60%, black);
+  /* Current Modal Theme (모달 전용 테마) */
+  --current-modal-theme: var(--modal-red);
+  --current-modal-theme-light: color-mix(
+    in srgb,
+    var(--current-modal-theme) 10%,
+    white
+  );
+  --current-modal-theme-lighter: color-mix(
+    in srgb,
+    var(--current-modal-theme) 5%,
+    white
+  );
+  --current-modal-theme-dark: color-mix(
+    in srgb,
+    var(--current-modal-theme) 80%,
+    black
+  );
+  --current-modal-theme-darker: color-mix(
+    in srgb,
+    var(--current-modal-theme) 60%,
+    black
+  );
+  /* Current Modal Border Outline Theme (모달 border outline 전용 테마) */
+  --current-modal-outline-theme: var(--outline-red);
+  --current-modal-outline-theme-light: color-mix(
+    in srgb,
+    var(--current-modal-outline-theme) 10%,
+    white
+  );
+  --current-modal-outline-theme-lighter: color-mix(
+    in srgb,
+    var(--current-modal-outline-theme) 5%,
+    white
+  );
+  --current-modal-outline-theme-dark: color-mix(
+    in srgb,
+    var(--current-modal-outline-theme) 80%,
+    black
+  );
+  --current-modal-outline-theme-darker: color-mix(
+    in srgb,
+    var(--current-modal-outline-theme) 60%,
+    black
+  );
 
   --background: #fef2f2;
   --foreground: #2a2d3a;
@@ -29,6 +88,11 @@
   --card-foreground: #2a2d3a;
   --popover: #ffffff;
   --popover-foreground: #2a2d3a;
+  /* 모달 전용 primary */
+  --primary-modal: var(--current-modal-theme);
+  --primary-modal-foreground: #ffffff;
+  --primary-modal-outline: var(--current-modal-outline-theme);
+  /* 기존 primary 변수들 */
   --primary: var(--current-theme);
   --primary-foreground: #ffffff;
   --secondary: var(--current-theme-lighter);
@@ -110,8 +174,16 @@
   --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
+
+  /* 기존 primary (기본 페이지용) */
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
+  /* 모달 전용 primary*/
+  --color-primary-modal: var(--primary-modal);
+  --color-primary-modal-foreground: var(--primary-modal-foreground);
+  /* 모달 전용 border outline color */
+  --color-primary-modal-outline: var(--primary-modal-outline);
+
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
   --color-muted: var(--muted);
@@ -499,7 +571,7 @@ html {
   position: relative !important;
   z-index: 9999 !important;
   border-radius: 8px !important;
-  border: solid 2px #df6556 !important;
+  border: solid 2px #ff5042 !important;
   /* 큰 box-shadow로 주변을 어둡게 만들어 오버레이 효과 대체 */
   box-shadow: 0 0 40px 25px rgba(255, 255, 255, 0.8),
     0 0 0 max(100vw, 100vh) rgba(65, 65, 65, 0.6) !important;

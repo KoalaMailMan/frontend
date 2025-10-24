@@ -181,7 +181,7 @@ export default function MandalaModal({
                             className={cn(
                               getGridClasses(index),
                               isCenter
-                                ? " bg-[#DF6556]/20 border-[#DF6556] font-medium text-primary"
+                                ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
                                 : ""
                             )}
                           />
@@ -277,7 +277,7 @@ function DetailedGoalRecommendationBox({
         <div className="text-center px-[57px]">
           <Button
             onClick={handleSuggestGoals}
-            className="pixel-button border-1 border-[#A80D00] bg-[#FF1502] opacity-50 hover:bg-primary text-white py-2 text-sm w-full "
+            className="pixel-button border-1 border-primary-modal-outline bg-primary opacity-50 hover:bg-primary text-white py-2 text-sm w-full "
             disabled={isOnboardingOpen || !main?.content.trim() || isStreaming}
             data-tutorial="recommendation-button"
           >
