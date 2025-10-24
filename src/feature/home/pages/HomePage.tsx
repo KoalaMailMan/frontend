@@ -124,7 +124,7 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
                 </p>
                 <Button
                   onClick={scrollToTop}
-                  className="bg-primary hover:bg-primary/90 text-white h-12 pixel-button px-8"
+                  className="bg-primary-modal hover:bg-primary-modal/90 text-white h-12 pixel-button px-8"
                 >
                   ↑ 위로 올라가서 로그인하기 📝
                 </Button>
