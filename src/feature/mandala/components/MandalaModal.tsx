@@ -146,7 +146,7 @@ export default function MandalaModal({
       >
         <div className="flex items-center justify-end p-6 border-b">
           <Button variant="none" size="icon" onClick={handleModalClose}>
-            <X size={22} stroke="#2A2D3A" />
+            <X size={22} strokeColor="#2A2D3A" stroke={1} />
           </Button>
         </div>
         <div className="p-6 text-center border-b">
@@ -221,7 +221,7 @@ type ComponentProps = {
   isStreaming: boolean;
   startStream: () => void;
   stopStream: () => void;
-  recommendation: string[];
+  recommendation: string[] | null;
 };
 
 function DetailedGoalRecommendationBox({
@@ -238,7 +238,7 @@ function DetailedGoalRecommendationBox({
   const main = mainItems[0];
 
   useEffect(() => {
-    if (recommendation.length > 0) {
+    if (recommendation && recommendation.length > 0) {
       updateSubsCell(mainItems, recommendation);
     }
   }, [recommendation]);
