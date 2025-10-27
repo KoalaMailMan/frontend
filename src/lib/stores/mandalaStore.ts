@@ -70,7 +70,7 @@ export const useMandalaStore = create<States & Actions>((set, get) => ({
   data: serverToUI(emptyDummyData.data),
   reminderOption: {
     reminderEnabled: true,
-    remindInterval: "1week",
+    remindInterval: "3month",
     remindScheduledAt: null,
   },
   mandalartId: null,
