@@ -47,11 +47,11 @@ export default function MandalaReadOnlyCell({
   return (
     <div
       className={cn(
-        "pixel-input border-2 border-[#B3B3B3] flex items-center justify-center text-center cursor-pointer transition-all hover:bg-[#FF5042]/10 hover:border-[#FF5042] relative",
+        "pixel-input border-2 border-[#B3B3B3] flex items-center justify-center text-center cursor-pointer transition-all hover:bg-primary/10 hover:border-primary relative",
         compact ? "p-1 " : "p-2",
         isCenter &&
           type === "center" &&
-          "border-[#FF5042] text-primary-foreground font-semibold",
+          "border-primary text-primary-foreground font-semibold",
         isEmpty && "text-gray-400",
         disabled && isCenter && "cursor-not-allowed opacity-50",
         className
@@ -70,7 +70,7 @@ export default function MandalaReadOnlyCell({
           "leading-tight break-all word-break-break-all inline-block w-full",
           compact ? "text-xs" : "text-sm",
           isCenter && type !== "main-center" && type !== "sub"
-            ? "font-semibold text-[#FF5042]"
+            ? "font-semibold text-primary"
             : "text-gray-400"
         )}
       >

@@ -16,7 +16,7 @@ export const themes = [
   {
     id: "red" as ThemeColor,
     name: "빨강",
-    color: "#df6556",
+    color: "#ff5042",
     description: "따뜻한 빨강",
   },
   {

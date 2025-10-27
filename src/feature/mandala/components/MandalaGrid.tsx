@@ -85,7 +85,7 @@ export default function MandalaGrid() {
           <Fragment key={`main-${index}`}>
             <MandalaContainer
               className={`
-              ${isCenter && "border-[#FF5042] text-primary font-semibold"}
+              ${isCenter && "border-primary text-primary font-semibold"}
               ${hasSubGoals ? "ring-2 ring-primary/50 bg-primary/5" : ""}
               ${getGridClasses(index)}
             `}

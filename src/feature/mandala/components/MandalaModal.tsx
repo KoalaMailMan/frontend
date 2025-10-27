@@ -146,7 +146,7 @@ export default function MandalaModal({
       >
         <div className="flex items-center justify-end p-6 border-b">
           <Button variant="none" size="icon" onClick={handleModalClose}>
-            <X size={22} stroke="#2A2D3A" />
+            <X size={22} strokeColor="#2A2D3A" stroke={1} />
           </Button>
         </div>
         <div className="p-6 text-center border-b">
@@ -181,7 +181,7 @@ export default function MandalaModal({
                             className={cn(
                               getGridClasses(index),
                               isCenter
-                                ? " bg-[#DF6556]/20 border-[#DF6556] font-medium text-primary"
+                                ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
                                 : ""
                             )}
                           />
@@ -221,7 +221,7 @@ type ComponentProps = {
   isStreaming: boolean;
   startStream: () => void;
   stopStream: () => void;
-  recommendation: string[];
+  recommendation: string[] | null;
 };
 
 function DetailedGoalRecommendationBox({
@@ -238,7 +238,7 @@ function DetailedGoalRecommendationBox({
   const main = mainItems[0];
 
   useEffect(() => {
-    if (recommendation.length > 0) {
+    if (recommendation && recommendation.length > 0) {
       updateSubsCell(mainItems, recommendation);
     }
   }, [recommendation]);
@@ -277,7 +277,7 @@ function DetailedGoalRecommendationBox({
         <div className="text-center px-[57px]">
           <Button
             onClick={handleSuggestGoals}
-            className="pixel-button border-1 border-[#A80D00] bg-[#FF1502] opacity-50 hover:bg-primary text-white py-2 text-sm w-full "
+            className="pixel-button border-1 border-primary-modal-outline bg-primary opacity-50 hover:bg-primary text-white py-2 text-sm w-full "
             disabled={isOnboardingOpen || !main?.content.trim() || isStreaming}
             data-tutorial="recommendation-button"
           >

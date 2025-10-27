@@ -40,7 +40,23 @@ const THEME_STORAGE_KEY = "koalart_theme";
 
 const themeColors = {
   purple: "#86569d",
+  red: "#ff5042",
+  blue: "#40bbed",
+  green: "#3aab63",
+  yellow: "#ffe849",
+  pink: "#e17aaa",
+};
+const modalThemeColors = {
+  purple: "#86569d",
   red: "#df6556",
+  blue: "#40bbed",
+  green: "#3aab63",
+  yellow: "#ffe849",
+  pink: "#e17aaa",
+};
+const modalBorderThemeColors = {
+  red: "#a80d00",
+  purple: "#86569d",
   blue: "#40bbed",
   green: "#3aab63",
   yellow: "#ffe849",
@@ -74,6 +90,7 @@ export default function useTheme() {
   });
 
   useEffect(() => {
+    // if()
     updateCurrentTheme(currentTheme);
   }, [currentTheme]);
 
@@ -83,6 +100,12 @@ export default function useTheme() {
 
     const root = document.documentElement;
     const color = themeColors[theme] ? themeColors[theme] : themeColors["red"];
+    const modalColor = modalThemeColors[theme]
+      ? modalThemeColors[theme]
+      : modalThemeColors["red"];
+    const modalBorderColor = modalBorderThemeColors[theme]
+      ? modalBorderThemeColors[theme]
+      : modalBorderThemeColors["red"];
 
     root.style.setProperty("--current-theme", color);
 
@@ -102,6 +125,43 @@ export default function useTheme() {
       "--current-theme-darker",
       `color-mix(in srgb, ${color} 60%, black);`
     );
+
+    // 모달 테마 CSS 변수 설정
+    root.style.setProperty("--current-modal-theme", modalColor);
+    root.style.setProperty(
+      "--current-modal-theme-lighter",
+      `color-mix(in srgb, ${modalColor} 5%, white)`
+    );
+    root.style.setProperty(
+      "--current-modal-theme-light",
+      `color-mix(in srgb, ${modalColor} 10%, white)`
+    );
+    root.style.setProperty(
+      "--current-modal-theme-dark",
+      `color-mix(in srgb, ${modalColor} 80%, black)`
+    );
+    root.style.setProperty(
+      "--current-modal-theme-darker",
+      `color-mix(in srgb, ${modalColor} 60%, black)`
+    );
+    // 모달 border 테마 CSS 변수 설정
+    root.style.setProperty("--current-modal-outline-theme", modalBorderColor);
+    root.style.setProperty(
+      "--current-modal-outline-theme-lighter",
+      `color-mix(in srgb, ${modalBorderColor} 5%, white)`
+    );
+    root.style.setProperty(
+      "--current-modal-outline-theme-light",
+      `color-mix(in srgb, ${modalBorderColor} 10%, white)`
+    );
+    root.style.setProperty(
+      "--current-modal-outline-theme-dark",
+      `color-mix(in srgb, ${modalBorderColor} 80%, black)`
+    );
+    root.style.setProperty(
+      "--current-modal-outline-theme-darker",
+      `color-mix(in srgb, ${modalBorderColor} 60%, black)`
+    );
   };
   const updateCurrentTheme = (theme: ThemeColor) => {
     if (typeof window === "undefined") return;
@@ -120,11 +180,20 @@ export default function useTheme() {
     };
   };
 
+  const getCurrentThemeColor = (): ThemeColor => {
+    return currentTheme;
+  };
+  const getModalThemeColors = () => {
+    return modalThemeColors;
+  };
+
   return {
     currentTheme,
     themeColors,
     themeBackgrounds,
     updateCurrentTheme,
     getCurrentBackground,
+    getCurrentThemeColor,
+    getModalThemeColors,
   };
 }

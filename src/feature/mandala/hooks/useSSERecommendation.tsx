@@ -88,21 +88,18 @@ export default function useSSERecommendation({
       setStreaming(true);
     };
 
-    let allItems: string[] = [];
     eventSource.onmessage = (event) => {
       const data = event.data;
-      allItems.push(data);
       console.log(`📨 데이터 수신: ${data}`);
       // 완료 신호 체크
       if (data.includes("__COMPLETE__")) {
         console.log(`🎉 스트림 완료`);
         eventSource.close();
         setStreaming(false);
-        onComplete?.(parseSSEChunks(allItems));
+        onComplete?.(parseSSEChunks([...recommendation, data]));
         return;
       }
-
-      setRecommendation(allItems);
+      setRecommendation((prev) => [...prev, data]);
     };
 
     eventSource.onerror = (error) => {
@@ -110,7 +107,6 @@ export default function useSSERecommendation({
       const errorMsg = "스트림 연결 오류";
       setError(null);
       setStreaming(false);
-      setRecommendation([]);
       onError?.(errorMsg);
       eventSource.close();
     };
@@ -134,6 +130,6 @@ export default function useSSERecommendation({
     stopStream,
     error,
     isStreaming,
-    recommendation: parseSSEChunks(recommendation),
+    recommendation: isStreaming ? null : parseSSEChunks(recommendation),
   };
 }
