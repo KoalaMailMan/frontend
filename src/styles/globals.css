@@ -31,6 +31,14 @@
   --outline-yellow: #ffe849;
   --outline-pink: #e17aaa;
 
+  /* Recommend Button Theme Colors - 목표 추천 버튼 전용 테마 */
+  --recommend-btn-red: #ff7f75;
+  --recommend-btn-purple: #86569d;
+  --recommend-btn-blue: #40bbed;
+  --recommend-btn-green: #3aab63;
+  --recommend-btn-yellow: #ffe849;
+  --recommend-btn-pink: #e17aaa;
+
   /* Current Theme (default: red) */
   --current-theme: var(--theme-red);
   --current-theme-light: color-mix(in srgb, var(--current-theme) 10%, white);
@@ -82,6 +90,29 @@
     black
   );
 
+  /* Recommend Button Theme Colors - 목표 추천 버튼 전용 테마 */
+  --current-recommend-btn-theme: var(--recommend-btn-red);
+  --current-recommend-btn-theme-light: color-mix(
+    in srgb,
+    var(--current-recommend-btn-theme) 10%,
+    white
+  );
+  --current-recommend-btn-theme-lighter: color-mix(
+    in srgb,
+    var(--current-recommend-btn-theme) 5%,
+    white
+  );
+  --current-recommend-btn-theme-dark: color-mix(
+    in srgb,
+    var(--current-recommend-btn-theme) 80%,
+    black
+  );
+  --current-recommend-btn-theme-darker: color-mix(
+    in srgb,
+    var(--current-recommend-btn-theme) 60%,
+    black
+  );
+
   --background: #fef2f2;
   --foreground: #2a2d3a;
   --card: #ffffff;
@@ -92,6 +123,8 @@
   --primary-modal: var(--current-modal-theme);
   --primary-modal-foreground: #ffffff;
   --primary-modal-outline: var(--current-modal-outline-theme);
+  /* 목표 추천 버튼 색상 */
+  --primary-recommend-btn: var(--current-recommend-btn-theme);
   /* 기존 primary 변수들 */
   --primary: var(--current-theme);
   --primary-foreground: #ffffff;
@@ -183,6 +216,8 @@
   --color-primary-modal-foreground: var(--primary-modal-foreground);
   /* 모달 전용 border outline color */
   --color-primary-modal-outline: var(--primary-modal-outline);
+  /* 목표추천 버튼 color */
+  --color-primary-recommend-btn: var(--primary-recommend-btn);
 
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
