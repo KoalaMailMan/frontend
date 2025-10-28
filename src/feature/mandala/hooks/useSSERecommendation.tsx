@@ -87,7 +87,6 @@ export default function useSSERecommendation({
       console.log("✅ 스트림 연결 성공");
       setStreaming(true);
     };
-
     eventSource.onmessage = (event) => {
       const data = event.data;
       console.log(`📨 데이터 수신: ${data}`);
@@ -96,7 +95,6 @@ export default function useSSERecommendation({
         console.log(`🎉 스트림 완료`);
         eventSource.close();
         setStreaming(false);
-        onComplete?.(parseSSEChunks([...recommendation, data]));
         return;
       }
       setRecommendation((prev) => [...prev, data]);
@@ -105,7 +103,7 @@ export default function useSSERecommendation({
     eventSource.onerror = (error) => {
       console.error(`🚨 SSE 에러: ${error}`);
       const errorMsg = "스트림 연결 오류";
-      setError(null);
+      setError(errorMsg);
       setStreaming(false);
       onError?.(errorMsg);
       eventSource.close();
@@ -125,11 +123,17 @@ export default function useSSERecommendation({
     };
   }, []);
 
+  useEffect(() => {
+    if (!isStreaming && !error && recommendation.length > 0) {
+      onComplete?.(parseSSEChunks(recommendation));
+    }
+  }, [isStreaming, error, recommendation]);
+
   return {
     startStream,
     stopStream,
     error,
     isStreaming,
-    recommendation: isStreaming ? null : parseSSEChunks(recommendation),
+    recommendation: parseSSEChunks(recommendation),
   };
 }
