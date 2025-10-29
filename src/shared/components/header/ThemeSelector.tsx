@@ -3,7 +3,6 @@ import Button from "@/feature/ui/Button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
