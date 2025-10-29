@@ -31,6 +31,8 @@ type PropsType = {
 
 export default function ReminderSetting({ openTree = "save" }: PropsType) {
   const accessToken = useAuthStore((state) => state.accessToken);
+  const setAuthText = useAuthStore((state) => state.setAuthText);
+  const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
   const setSeenReminder = useAuthStore((state) => state.setSeenReminder);
 
   const reminderEnabled = useMandalaStore(
@@ -103,7 +105,12 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
   };
 
   const handleSave = async () => {
-    if (!accessToken) return onClose(false);
+    if (!accessToken) {
+      setAuthText("리마인드 설정");
+      setAuthOpen(true);
+      onClose(false);
+      return;
+    }
     if (openTree === "reminder") {
       // 리마인더 설정
       await handleReminder();

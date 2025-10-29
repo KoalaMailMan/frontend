@@ -26,6 +26,10 @@ export default function MandalaBoard({
 }: MandaraChartProps) {
   const { mobile, desktop } = getCurrentBackground();
 
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
+  const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
+  const setAuthText = useAuthStore((state) => state.setAuthText);
   const hasSeenReminderSetup = useAuthStore(
     (state) => state.hasSeenReminderSetup
   );
@@ -46,6 +50,12 @@ export default function MandalaBoard({
   );
 
   const handleSave = async () => {
+    if (!accessToken && !wasLoggedIn) {
+      console.log("ATest");
+      setAuthText("만다라트 저장");
+      setAuthOpen(true);
+      return;
+    }
     if (!hasSeenReminderSetup && !mandalartId) {
       onReminderOpen(true);
       typeRef.current = "save";

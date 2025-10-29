@@ -9,6 +9,8 @@ type States = {
     nickname: string;
     email: string;
   };
+  isAuthOpen: boolean;
+  authComponentText: string;
 } & AuthPersistedState;
 
 type Actions = {
@@ -19,6 +21,8 @@ type Actions = {
   setLastLoginTime: (state: string) => void;
   setUserInfo: (state: States["user"]) => void;
   setSeenReminder: (state: boolean) => void;
+  setAuthOpen: (state: boolean) => void;
+  setAuthText: (state: string) => void;
 };
 
 type AuthPersistedState = {
@@ -42,6 +46,9 @@ export const useAuthStore = create<States & Actions>()(
         email: "",
       },
       hasSeenReminderSetup: false,
+      isAuthOpen: false,
+      authComponentText: "",
+
       getAccessToken: () => get().accessToken,
       setAccessToken: (token: string | null) =>
         set(() => ({ accessToken: token })),
@@ -52,6 +59,8 @@ export const useAuthStore = create<States & Actions>()(
         set(() => ({ lastLoginTime: state })),
       setUserInfo: (state) => set(() => ({ user: state })),
       setSeenReminder: (state) => set(() => ({ hasSeenReminderSetup: state })),
+      setAuthOpen: (state) => set(() => ({ isAuthOpen: state })),
+      setAuthText: (state) => set(() => ({ authComponentText: state })),
     }),
     {
       name: AUTH_INFO,
