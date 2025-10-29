@@ -1,17 +1,14 @@
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
 import { Fragment } from "react/jsx-runtime";
-import { useCallback, useEffect, useRef } from "react";
-import { Loader } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 import { createPortal } from "react-dom";
 import Button from "@/feature/ui/Button";
 import { cn } from "@/lib/utils";
 import { getGridClasses } from "../utills/css";
 import { toast } from "sonner";
-import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import useSSERecommendation from "../hooks/useSSERecommendation";
-import RecommendIcon from "./icon/RecommendIcon";
 import X from "@/feature/tutorial/components/icons/X";
 import { useAuthStore } from "@/lib/stores/authStore";
 import {
@@ -20,6 +17,8 @@ import {
   shouldAttemptRefresh,
 } from "@/feature/auth/service";
 import { APIWithRetry } from "@/feature/auth/\butils";
+import QuestionIcon from "./icon/QuestionIcon";
+import LoadingSpiner from "@/feature/ui/LoadingSpiner";
 
 type Props = {
   isModalVisible: boolean;
@@ -36,12 +35,19 @@ export default function MandalaModal({
   onContentChange,
   onCancelEdit,
 }: Props) {
-  // modal DetailedGoalRecommendationBox 컴포넌트 상태 관리
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
   const updateSubsCell = useMandalaStore((state) => state.updateSubsCell);
-  const modalCellId = useMandalaStore((state) => state.modalCellId);
-  const count = useRef(0);
+
+  // modal 컴포넌트 상태 관리
+  const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
+  const accessToken = useAuthStore((state) => state.accessToken);
+  const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
+
+  const positionRef = useRef<HTMLDivElement | null>(null);
+  const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
+  const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
+  const [width, setWidth] = useState(0);
+  const [isQuestion, setIsQuestion] = useState(false);
+  const centerIndex = 0;
 
   const getAccessToken = useCallback(async () => {
     if (accessToken) return accessToken;
@@ -56,27 +62,18 @@ export default function MandalaModal({
     }
   }, [accessToken]);
 
-  const { startStream, stopStream, recommendation, isStreaming } =
-    useSSERecommendation({
-      goal: item[0].content,
-      count: count.current,
-      getAccessToken,
-      onComplete: (items) => {
-        console.log("완료! 총", items.length, "개");
-        toast.success(`목표 추천 완료되었습니다!`);
-        count.current = 0;
-      },
-      onError: (error) => {
-        console.error("에러 발생:", error);
-        toast.error(error);
-        count.current = 0;
-      },
-    });
-
-  // modal 컴포넌트 상태 관리
-  const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
-  const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
-  const centerIndex = 0;
+  const { startStream, recommendation, isStreaming } = useSSERecommendation({
+    goal: item[0].content,
+    getAccessToken,
+    onComplete: (items) => {
+      console.log("완료! 총", items.length, "개");
+      toast.success(`목표 추천 완료되었습니다!`);
+    },
+    onError: (error) => {
+      console.error("에러 발생:", error);
+      toast.error(error);
+    },
+  });
 
   // 상태 관리 함수들
   const handleSubStartEdit = (goalId: string) => {
@@ -90,6 +87,17 @@ export default function MandalaModal({
   const handleModalClose = () => {
     setEditingSubCell(null);
     onCancelEdit();
+  };
+
+  const handleRecommend = () => {
+    if (!wasLoggedIn && !accessToken) {
+      setAuthOpen(true);
+      return;
+    }
+    const emptyCount = emptyValueValidation();
+    if (emptyCount) {
+      startStream(emptyCount);
+    }
   };
 
   const returnsEmptyCount = (subs: SubGoal[]) => {
@@ -108,20 +116,32 @@ export default function MandalaModal({
   const emptyValueValidation = () => {
     const hasEmptyGoals = item.some((main) => !main.content.trim());
     const emptyCount = returnsEmptyCount(item);
+    if (!emptyCount)
+      toast.warning("목표 추천을 위해 주요 목표를 먼저 입력해주세요.");
     if (emptyCount && hasEmptyGoals) {
       // 0 & false or 1~8 & true
-      count.current = emptyCount;
+      return emptyCount;
     }
   };
 
   useEffect(() => {
-    emptyValueValidation();
-    return () => {
-      count.current = 0;
-    };
-  }, [item]);
+    if (!isStreaming && recommendation) {
+      updateSubsCell(item, recommendation);
+    }
+    return () => {};
+  }, [isStreaming]);
 
   useEffect(() => {
+    const updateWidth = () => {
+      const element = positionRef.current;
+      if (element) {
+        const rect = element.getBoundingClientRect();
+        setWidth(rect.width);
+      }
+    };
+    const timer = setTimeout(updateWidth, 0);
+    window.addEventListener("resize", updateWidth);
+
     if (isModalVisible) {
       document.body.style.overflow = "hidden";
     } else {
@@ -130,6 +150,8 @@ export default function MandalaModal({
 
     return () => {
       document.body.style.overflow = "unset";
+      clearTimeout(timer);
+      window.removeEventListener("resize", updateWidth);
     };
   }, [isModalVisible]);
 
@@ -140,29 +162,43 @@ export default function MandalaModal({
       className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleModalClose} // 배경 클릭 시 모달 닫기
     >
+      {isStreaming && <LoadingSpiner />}
       <div
-        className="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+        ref={positionRef}
+        className="relative bg-white rounded-lg shadow-2xl max-w-[500px] w-full max-h-[648px] pb-12 "
         onClick={(e) => e.stopPropagation()} // 모달 내용 클릭 시 이벤트 버블링 방지
       >
-        <div className="flex items-center justify-end p-6 border-b">
+        <div className="flex items-center justify-between p-[10px]">
+          {width > 0 && (
+            <GuideWritingComponent
+              parentWidth={width}
+              isQuestion={isQuestion}
+              setIsQuestion={setIsQuestion}
+            />
+          )}
           <Button variant="none" size="icon" onClick={handleModalClose}>
-            <X size={22} strokeColor="#2A2D3A" stroke={1} />
+            <X size={20} strokeColor="#B3B3B3" stroke={1} />
           </Button>
         </div>
-        <div className="p-6 text-center border-b">
-          <p className="text-sm text-gray-600">
-            <span className="font-medium text-primary">
-              {item[centerIndex]?.content || "주요 목표"}
-            </span>
-            을(를) 달성하기 위한 구체적인 실행 계획을 세워보세요
+        <div className="text-center flex flex-col justify-center">
+          <p className="w-full h-[36px] text-2xl font-semibold leading-[24.5px] text-[#2A2D3A]">
+            세부 목표 설정
+          </p>
+          <p className="w-full h-[18px] text-[10px] font-normal leading-[17.5px] text-[#666666]">
+            <span> {item[centerIndex]?.content || "주요 목표"}</span>를 달성하기
+            위한 구체적인 세부 목표을 세워보세요
           </p>
         </div>
-        <div className="space-y-4">
+        <div>
           {centerIndex !== undefined && (
-            <div className="space-y-2">
-              <div className="p-6">
-                <div className="flex justify-center">
-                  <div className="grid grid-cols-3 gap-2 w-96 aspect-square">
+            <div>
+              <div>
+                <div className="flex justify-center py-[25px] px-[54px]">
+                  <div className="grid grid-cols-3 gap-2 w-full aspect-square relative">
+                    {/* 로딩스피너 오버레이(화이트) */}
+                    {isStreaming && (
+                      <div className="w-full h-full absolute bg-white opacity-80 z-1" />
+                    )}
                     {item.map((sub, index) => {
                       const isCenter = centerIndex === index;
                       const isEditing = editingSubCellId === sub.goalId;
@@ -179,6 +215,7 @@ export default function MandalaModal({
                             onContentChange={onContentChange}
                             onCancelEdit={handleSubCancelEdit}
                             className={cn(
+                              "md:min-w-[125px] w-full h-full",
                               getGridClasses(index),
                               isCenter
                                 ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
@@ -190,117 +227,103 @@ export default function MandalaModal({
                     })}
                   </div>
                 </div>
-                <DetailedGoalRecommendationBox
-                  mainItems={item}
-                  isOnboardingOpen={isOnboardingOpen}
-                  updateSubsCell={updateSubsCell}
-                  modalCellId={modalCellId}
-                  count={count.current}
-                  isStreaming={isStreaming}
-                  startStream={startStream}
-                  stopStream={stopStream}
-                  recommendation={recommendation}
-                />
               </div>
+              <div className="w-full h-[62px] flex justify-center">
+                <Button
+                  className="w-[282px] h-[34px] bg-primary-recommend-btn border-primary-modal rounded-1 mt-[20px] shadow-[4px_4px_4px_0_rgba(102,102,102,0.6)]"
+                  onClick={handleRecommend}
+                  data-tutorial="recommendation-button"
+                >
+                  맞춤 목표 찾기
+                </Button>
+              </div>
+              <p className="w-full h-[18px] flex justify-center text-[10px] leading-[180%] font-semibold text-[#999999]">
+                모두지우기
+              </p>
             </div>
           )}
         </div>
-        <div className="p-6"></div>
       </div>
     </div>
   );
   return createPortal(modalContent, document.body);
 }
 
-type ComponentProps = {
-  mainItems: SubGoal[];
-  isOnboardingOpen: boolean;
-  updateSubsCell: (items: SubGoal[], data: string[]) => void;
-  modalCellId: string | null;
-  count: number;
-  isStreaming: boolean;
-  startStream: () => void;
-  stopStream: () => void;
-  recommendation: string[] | null;
-};
-
-function DetailedGoalRecommendationBox({
-  mainItems,
-  isOnboardingOpen,
-  updateSubsCell,
-  modalCellId,
-  count,
-  isStreaming,
-  startStream,
-  stopStream,
-  recommendation,
-}: ComponentProps) {
-  const main = mainItems[0];
-
+function GuideWritingComponent({
+  parentWidth = 500,
+  isQuestion,
+  setIsQuestion,
+}: {
+  parentWidth: number;
+  isQuestion: boolean;
+  setIsQuestion: (state: any) => void;
+}) {
+  const positionRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
-    if (recommendation && recommendation.length > 0) {
-      updateSubsCell(mainItems, recommendation);
-    }
-  }, [recommendation]);
+    const resizing = () => {
+      const child = positionRef?.current;
+      const rect = child?.getBoundingClientRect();
 
-  const handleSuggestGoals = () => {
-    if (modalCellId === "empty-0") return;
-    if (isStreaming) return;
-    if (!main.content.trim()) {
-      toast("먼저 주요 목표를 입력해주세요!");
-      return;
-    }
+      if (child && rect) {
+        const width = rect.width;
+        const isOutOfViewport = rect.left < 0;
 
-    if (!count) return;
-    startStream();
-  };
+        if (isOutOfViewport) {
+          const centered = Math.floor((parentWidth - width) / 2);
+          child.style.top = `-61px`;
+          child.style.left = `${centered}px`;
+        } else {
+          child.style.top = `-1px`;
+          child.style.left = `-310px`;
+        }
+      }
+    };
 
+    resizing();
+    window.addEventListener("resize", resizing);
+
+    return () => {
+      window.removeEventListener("resize", resizing);
+    };
+  }, [isQuestion, parentWidth]);
   return (
-    <div className="flex justify-center mt-6">
-      <div className="bg-primary/10 p-4 rounded-lg  max-w-md w-full">
-        <div className="md:px-[45px] flex items-start gap-3 mb-4">
-          {/* <img src={koalaImage} alt="코알라" className="w-6 h-6 mt-1" /> */}
-          <div className="text-[10px]">
-            <p className="text-base font-semibold text-primary mb-1">TIP!</p>
-            <p className="text-[#999999] flex flex-col">
-              <span className="flex-1">
-                각 세부 목표는 측정 가능하고 구체적으로 작성하세요.
-              </span>
-              <span className="flex-1">
-                ex) 운동하기 → 주 3회 30분 이상 조깅하기
-              </span>
-            </p>
-          </div>
-        </div>
+    <>
+      <div
+        className="w-[26px] h-[26px] flex justify-center align-center"
+        onClick={() => setIsQuestion((prev: boolean) => !prev)}
+      >
+        <QuestionIcon className="hover:fill-[#333333]" />
+      </div>
 
-        {/* 목표 추천받기 버튼 */}
-        <div className="text-center px-[57px]">
-          <Button
-            onClick={handleSuggestGoals}
-            className="pixel-button border-1 border-primary-modal-outline bg-primary opacity-50 hover:bg-primary text-white py-2 text-sm w-full "
-            disabled={isOnboardingOpen || !main?.content.trim() || isStreaming}
-            data-tutorial="recommendation-button"
-          >
-            {isStreaming ? (
-              <>
-                <Loader />
-                Ai가 맞춤 추천을 생성하고 있습니다...
-              </>
-            ) : (
-              <>
-                <RecommendIcon />
-                목표 추천받기
-              </>
-            )}
-          </Button>
-          {isStreaming && <Button onClick={stopStream}>취소하기</Button>}
-          {!mainItems[0].content.trim() && (
-            <p className="text-[9px] text-[#999999] mt-2">
-              주요 목표를 먼저 입력해주세요
-            </p>
-          )}
+      <div
+        ref={positionRef}
+        className={cn(
+          "w-[297px] h-[186px] bg-white px-[20px] pt-[10px] pb-[18px] absolute rounded-[6px] border-2 border-[#CCCCCC]",
+          !isQuestion && "hidden"
+        )}
+      >
+        <div className="w-full h-[42px] text-[#4C4C4C] flex flex-col align-item justify-center mb-[10px]">
+          <p className="h-[34px] indent-[17px]">세부 목표 작성 가이드</p>
+          <hr className="w-full bg-[#CCCCCC]" />
+        </div>
+        <div>
+          <ol className="w-full h-[116px] flex flex-col gap-[10px] text-[#4C4C4C] text-[11px] leading-[20px] list-decimal pl-[20px]">
+            <li className="w-full h-[20px]">
+              <p>주요 목표를 먼저 입력해주세요.</p>
+            </li>
+            <li>
+              <p>각 세부 목표는 측정 가능하고 구체적으로 작성하세요.</p>
+              <span className="text-[10px] leading-[14px] text-[#999999]">{`ex) 운동하기 -> 주 3회 30분 이상 조깅하기`}</span>
+            </li>
+            <li>
+              <p>
+                잘 모르겠다면 '목표 추천받기' 버튼을 눌러보세요. <br />
+                당신에게 맞는 목표를 추천해드릴게요.
+              </p>
+            </li>
+          </ol>
         </div>
       </div>
-    </div>
+    </>
   );
 }
