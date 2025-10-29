@@ -31,7 +31,6 @@ export default function OnboardingDesktop() {
     setCurrentStage(currentTutorial.className as TutorialStateType);
   }, [currentStep]);
   useEffect(() => {
-    console.log(currentTutorial.targetSelector);
     if (!currentTutorial.targetSelector) return;
     const { targetSelector, className, id } = currentTutorial;
     if (id === "recommend") {
@@ -56,7 +55,6 @@ export default function OnboardingDesktop() {
       });
 
       const element = document.querySelector(targetSelector);
-      console.log(`Applying ${className} to:`, element);
 
       if (element) {
         element.classList.add(className);
