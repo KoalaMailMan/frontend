@@ -7,7 +7,6 @@ import {
 } from "./feature/auth/service";
 import { useAuthStore } from "./lib/stores/authStore";
 import MandalaBoard from "./feature/mandala/pages/MandalaBoard";
-import HomePage from "./feature/home/pages/HomePage";
 import useTheme from "./shared/hooks/useTheme";
 import { handleMandalaData } from "./feature/mandala/service";
 import { APIWithRetry, getURLQuery } from "./feature/auth/\butils";
@@ -19,6 +18,7 @@ import Header from "./shared/\bcomponents/header/Header";
 import { useTutorialStore } from "./lib/stores/tutorialStore";
 import OnboardingTutorial from "./feature/tutorial/page";
 import useResize from "./shared/hooks/useResize";
+import AuthComponent from "./feature/auth/components/AuthComponent";
 
 const queryClient = new QueryClient();
 
@@ -26,6 +26,8 @@ function App() {
   useResize();
   const { currentTheme, updateCurrentTheme, getCurrentBackground } = useTheme();
   const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
+  const isAuthOpen = useAuthStore((state) => state.isAuthOpen);
+  const authComponentText = useAuthStore((state) => state.authComponentText);
 
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
 
@@ -61,13 +63,13 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Header currentTheme={currentTheme} onThemeChange={updateCurrentTheme} />
 
-      {wasLoggedIn ? (
-        <MandalaBoard getCurrentBackground={getCurrentBackground} />
-      ) : (
-        <HomePage getCurrentBackground={getCurrentBackground} />
-      )}
+      <MandalaBoard getCurrentBackground={getCurrentBackground} />
       <Toaster position="top-center" />
       {isOnboardingOpen && <OnboardingTutorial />}
+      {isAuthOpen && !wasLoggedIn && (
+        <AuthComponent>{authComponentText}</AuthComponent>
+      )}
+
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );

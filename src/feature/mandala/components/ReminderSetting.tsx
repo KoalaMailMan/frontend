@@ -23,6 +23,7 @@ import {
 import { IntervalType } from "../const";
 import useUserInfo from "@/feature/auth/hooks/useUserInfo";
 import { toast } from "sonner";
+import RemindeIcon from "./icon/RemindeIcon";
 
 type PropsType = {
   openTree: "reminder" | "save";
@@ -30,6 +31,8 @@ type PropsType = {
 
 export default function ReminderSetting({ openTree = "save" }: PropsType) {
   const accessToken = useAuthStore((state) => state.accessToken);
+  const setAuthText = useAuthStore((state) => state.setAuthText);
+  const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
   const setSeenReminder = useAuthStore((state) => state.setSeenReminder);
 
   const reminderEnabled = useMandalaStore(
@@ -102,7 +105,12 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
   };
 
   const handleSave = async () => {
-    if (!accessToken) return;
+    if (!accessToken) {
+      setAuthText("리마인드 설정");
+      setAuthOpen(true);
+      onClose(false);
+      return;
+    }
     if (openTree === "reminder") {
       // 리마인더 설정
       await handleReminder();
@@ -152,16 +160,16 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50 p-4">
-      <Card className="w-full max-w-lg">
-        <CardContent className="space-y-6 pt-[42px] pb-[113px]">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label className="font-medium">이메일 리마인드</Label>
-              <p className="text-sm text-gray-600 mt-1">
-                코알라가 주기적으로 목표를 상기시켜드려요
-              </p>
-            </div>
+    <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
+      <Card className="w-[421px] max-w-lg px-[20px] pt-[21px] pb-[17px]">
+        <CardContent className="space-y-3 p-0">
+          <div className="w-full h-[62px] pl-[10px] flex items-center">
+            <RemindeIcon />
+          </div>
+          <div className="h-[24px] flex items-center justify-between">
+            <Label className="text-base font-semibold leading-[12.25px]">
+              이메일 리마인드 설정
+            </Label>
             <Switch
               checked={reminderEnabled}
               onCheckedChange={setReminderEnabled}
@@ -170,16 +178,22 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
 
           {reminderEnabled && (
             <>
-              <div className="space-y-2">
-                <Label>리마인드 주기</Label>
+              <div className="space-y-3">
+                <Input
+                  type="email"
+                  value={user?.email || "이메일을 찾을 수 없습니다."}
+                  readOnly
+                  className="bg-white border-1 border-[#CCCCCC] text-[#B3B3B3] cursor-not-allowed"
+                  placeholder="user@example.com"
+                />
                 <Select
                   value={remindInterval}
                   onValueChange={setRemindInterval}
                 >
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full border-1 border-[#CCCCCC] text-[#666666]">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="border-1 border-[#CCCCCC]">
                     <SelectItem value="1week">1주</SelectItem>
                     <SelectItem value="2week">2주</SelectItem>
                     <SelectItem value="1month">1달</SelectItem>
@@ -189,56 +203,15 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
                   </SelectContent>
                 </Select>
               </div>
-
-              <div className="space-y-2">
-                <Label>수신 이메일</Label>
-                <Input
-                  type="email"
-                  value={user?.email || "이메일을 찾을 수 없습니다."}
-                  readOnly
-                  className="bg-gray-100 cursor-not-allowed"
-                  placeholder="user@example.com"
-                />
-                <p className="text-xs text-gray-500">
-                  * 로그인된 계정의 이메일로 리마인드가 발송됩니다
-                </p>
-              </div>
-
-              <div className="bg-red-50 p-4 rounded-lg">
-                <div className="flex items-start gap-3 pl-8">
-                  <div className="text-sm">
-                    <p className="font-medium text-[#82181A] mb-1">
-                      코알라 팁!
-                    </p>
-                    <p className="text-[#9F0712]">
-                      {remindInterval === "1week" &&
-                        "리마인드를 켜면 코알라 우체부에게 편지를 받을 수 있어요!"}
-                      {remindInterval === "2week" &&
-                        "2주 간격으로 리마인드를 받으면 적당한 긴장감을 유지할 수 있어요!"}
-                      {remindInterval === "1month" &&
-                        "월 단위로 목표를 되돌아보면 큰 그림을 놓치지 않을 수 있어요!"}
-                      {remindInterval === "2month" &&
-                        "2개월마다 목표를 점검하면 장기적인 관점을 유지할 수 있어요!"}
-                      {remindInterval === "3month" &&
-                        "분기별 목표 점검으로 체계적인 성장을 이룰 수 있어요!"}
-                      {remindInterval === "6month" &&
-                        "반년마다 큰 목표를 되돌아보며 인생의 방향을 확인해보세요!"}
-                    </p>
-                  </div>
-                </div>
-              </div>
             </>
           )}
 
-          <div className="flex gap-3">
+          <div className="w-full h-[70px] flex items-center justify-center">
             <Button
-              variant="outline"
-              className="flex-1 border-[#CCCCCC]"
-              onClick={() => onClose(false)}
+              variant="shadow"
+              className="min-w-[299px] h-[30px] active:border-[#4C4C4C] active:bg-[#CCCCCC] active:shadow-none"
+              onClick={handleSave}
             >
-              취소
-            </Button>
-            <Button className="flex-1" onClick={handleSave}>
               저장하기
             </Button>
           </div>

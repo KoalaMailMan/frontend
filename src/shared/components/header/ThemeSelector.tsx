@@ -3,7 +3,6 @@ import Button from "@/feature/ui/Button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -45,13 +44,10 @@ export default function ThemeSelector({
       </DialogTrigger>
 
       <DialogContent className="pixel-card sm:max-w-md">
-        <DialogHeader>
+        <DialogHeader className="h-[40px]">
           <DialogTitle className="pixel-subtitle flex items-center gap-2">
-            🎨 코알라트 테마 선택
+            🎨 테마 선택
           </DialogTitle>
-          <DialogDescription>
-            원하는 색상 테마를 선택하여 앱 전체의 색상을 변경하세요.
-          </DialogDescription>
         </DialogHeader>
         <div className="grid grid-cols-2 gap-3 p-4">
           {themes.map((theme) => (
@@ -90,7 +86,7 @@ export default function ThemeSelector({
                   </div>
                 </div>
 
-                {true && (
+                {currentTheme === theme.id && (
                   <div
                     className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: theme.color }}
@@ -108,7 +104,6 @@ export default function ThemeSelector({
             선택한 테마는 앱 전체에 적용됩니다 🌈
           </p>
         </div>
-        <Button onClick={() => setVisible(false)}>확인</Button>
       </DialogContent>
     </Dialog>
   );

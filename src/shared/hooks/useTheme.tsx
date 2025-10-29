@@ -62,6 +62,14 @@ const modalBorderThemeColors = {
   yellow: "#ffe849",
   pink: "#e17aaa",
 };
+const recommendButtonThemeColors = {
+  red: "#ff7f75",
+  purple: "#86569d",
+  blue: "#40bbed",
+  green: "#3aab63",
+  yellow: "#ffe849",
+  pink: "#e17aaa",
+};
 
 const themeBackgrounds = {
   purple: PURPLE_BG,
@@ -106,6 +114,9 @@ export default function useTheme() {
     const modalBorderColor = modalBorderThemeColors[theme]
       ? modalBorderThemeColors[theme]
       : modalBorderThemeColors["red"];
+    const recommendBtnColor = recommendButtonThemeColors[theme]
+      ? recommendButtonThemeColors[theme]
+      : recommendButtonThemeColors["red"];
 
     root.style.setProperty("--current-theme", color);
 
@@ -161,6 +172,24 @@ export default function useTheme() {
     root.style.setProperty(
       "--current-modal-outline-theme-darker",
       `color-mix(in srgb, ${modalBorderColor} 60%, black)`
+    );
+    // 목표 추천 버튼 테마 CSS 변수 설정
+    root.style.setProperty("--current-recommend-btn-theme", recommendBtnColor);
+    root.style.setProperty(
+      "--current-recommend-btn-theme-lighter",
+      `color-mix(in srgb, ${recommendBtnColor} 5%, white)`
+    );
+    root.style.setProperty(
+      "--current-recommend-btn-theme-light",
+      `color-mix(in srgb, ${recommendBtnColor} 10%, white)`
+    );
+    root.style.setProperty(
+      "--current-recommend-btn-theme-dark",
+      `color-mix(in srgb, ${recommendBtnColor} 80%, black)`
+    );
+    root.style.setProperty(
+      "--current-recommend-btn-theme-darker",
+      `color-mix(in srgb, ${recommendBtnColor} 60%, black)`
     );
   };
   const updateCurrentTheme = (theme: ThemeColor) => {
