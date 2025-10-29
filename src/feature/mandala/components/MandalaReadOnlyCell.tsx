@@ -47,7 +47,7 @@ export default function MandalaReadOnlyCell({
   return (
     <div
       className={cn(
-        "pixel-input border-2 border-[#B3B3B3] flex items-center justify-center text-center cursor-pointer transition-all hover:bg-primary/10 hover:border-primary relative",
+        "pixel-input flex items-center justify-center text-center cursor-pointer transition-all hover:bg-primary/10 hover:border-primary relative",
         compact ? "p-1 " : "p-2",
         isCenter &&
           type === "center" &&
@@ -68,10 +68,11 @@ export default function MandalaReadOnlyCell({
       <span
         className={cn(
           "leading-tight break-all word-break-break-all inline-block w-full",
-          compact ? "text-xs" : "text-sm",
+          compact ? "text-xs" : isModalOpen ? "text-[10px]" : "text-[13px]",
           isCenter && type !== "main-center" && type !== "sub"
             ? "font-semibold text-primary"
-            : "text-gray-400"
+            : "text-gray-400",
+          content && "text-[#333333]"
         )}
       >
         {content || display}
