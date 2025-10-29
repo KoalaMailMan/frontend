@@ -21,20 +21,12 @@ export default function Header({
   onThemeChange,
 }: MandaraChartProps) {
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
+  const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
+  const setAuthText = useAuthStore((state) => state.setAuthText);
   const isReminderOpen = useMandalaStore((state) => state.isReminderOpen);
   const setOnboardingVisible = useTutorialStore(
     (state) => state.setOnboardingVisible
   );
-
-  if (!wasLoggedIn)
-    return (
-      <div className="absolute top-4 right-4 z-30">
-        <ThemeSelector
-          currentTheme={currentTheme}
-          onThemeChange={onThemeChange}
-        />
-      </div>
-    );
 
   return (
     <div className="w-full mb-4 sm:mb-6 lg:mb-8 px-4 p-4 fixed z-[1]">
@@ -70,17 +62,32 @@ export default function Header({
             currentTheme={currentTheme}
             onThemeChange={onThemeChange}
           />
-          <Button
-            variant="outline"
-            size="default"
-            onClick={handleLogout}
-            className="pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
-            dir="ltr"
-          >
-            <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
-            <span className="hidden sm:inline">로그아웃</span>
-            <span className="sm:hidden">Exit</span>
-          </Button>
+          {wasLoggedIn ? (
+            <Button
+              variant="outline"
+              size="default"
+              onClick={handleLogout}
+              className="pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
+              dir="ltr"
+            >
+              <LogOut className="h-3 w-3 sm:h-4 sm:w-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">로그아웃</span>
+              <span className="sm:hidden">Exit</span>
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="default"
+              onClick={() => {
+                setAuthText("만다라트 대시보드 이용");
+                setAuthOpen(true);
+              }}
+              className="w-[86px] pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
+              dir="ltr"
+            >
+              <span>로그인</span>
+            </Button>
+          )}
         </div>
       </div>
     </div>
