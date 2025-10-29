@@ -202,7 +202,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
           <div className="w-full h-[70px] flex items-center justify-center">
             <Button
               variant="shadow"
-              className="min-w-[299px] h-[30px]"
+              className="min-w-[299px] h-[30px] active:border-[#4C4C4C] active:bg-[#CCCCCC] active:shadow-none"
               onClick={handleSave}
             >
               저장하기
