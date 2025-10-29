@@ -58,11 +58,11 @@ function MandalaEditableCell(
         onKeyDown={handleKeyDown}
         disabled={disabled}
       />
-      {!isCenter && compact && (
+      {/* {!isCenter && compact && (
         <div className="absolute bottom-1 right-1 text-xs text-gray-400">
           {content.length}/40
         </div>
-      )}
+      )} */}
     </div>
   );
 }
