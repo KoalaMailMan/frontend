@@ -17,10 +17,11 @@ export type Type = "center" | "main" | "main-center" | "sub";
 
 export const findbyCSS = (type: Type) => {
   const typeObj = {
-    center: " bg-primary/20 border-primary text-primary font-semibold",
-    "main-center": " bg-primary/5 border-primary/30",
-    main: " bg-primary/10 border-primary/50 font-medium",
-    sub: " bg-gray-50 border-gray-200",
+    center:
+      " bg-primary-modal/20 border-primary-modal text-primary font-semibold",
+    "main-center": " bg-primary-modal/10 border-primary-modal/50 opacity-50",
+    main: " bg-primary-modal/5 border-primary-modal/30 font-medium",
+    sub: " bg-[#F9FAFB] border-[#E5E7EB]",
   };
   if (typeObj[type]) return typeObj[type];
   return typeObj["sub"];

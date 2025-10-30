@@ -99,7 +99,7 @@ export default function FullMandalaView() {
       const index = findByIdWithGoalIndex(id);
       console.log("Editing:", id, "at index:", index, "value:", value);
 
-      handleCellChange(id, value, index[0]);
+      handleCellChange(id, value);
     }
   };
 
@@ -116,21 +116,7 @@ export default function FullMandalaView() {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
-          <div className="flex items-center gap-2 sm:gap-3">
-            <img
-              src={koalaPixelImage}
-              alt="코알라"
-              className="w-6 h-6 sm:w-8 sm:h-8"
-            />
-            <div>
-              <h2 className="pixel-subtitle" style={{ fontSize: "12px" }}>
-                📮 완전한 9x9 만다라트 우체통
-              </h2>
-              <p className="text-xs sm:text-sm text-gray-600 mt-1 hidden sm:block">
-                모든 목표를 한눈에 보고 편집할 수 있어요
-              </p>
-            </div>
-          </div>
+          <div className="flex items-center gap-2 sm:gap-3"></div>
           <div className="flex items-center gap-2">
             {/* 이미지 저장 버튼 */}
             <Button
@@ -186,6 +172,7 @@ export default function FullMandalaView() {
                             disabled={false}
                             isEmpty={!sub.content && sub.content.trim() !== ""}
                             className={cn(
+                              "",
                               findbyCSS((sub.type as Type) || "sub"),
                               getGridClasses(subIdx)
                             )}
