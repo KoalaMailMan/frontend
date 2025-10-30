@@ -168,23 +168,27 @@ export default function MandalaModal({
         className="relative bg-white rounded-lg shadow-2xl max-w-[500px] w-full max-h-[648px] pb-12 "
         onClick={(e) => e.stopPropagation()} // 모달 내용 클릭 시 이벤트 버블링 방지
       >
-        <div className="flex items-center justify-between p-[10px]">
-          {width > 0 && (
-            <GuideWritingComponent
-              parentWidth={width}
-              isQuestion={isQuestion}
-              setIsQuestion={setIsQuestion}
-            />
-          )}
-          <Button variant="none" size="icon" onClick={handleModalClose}>
+        <div className="h-[46px] flex items-center gap-[424px] py-[10px] pl-[20px] pr-[13px]">
+          <GuideWritingComponent
+            parentWidth={width}
+            isQuestion={isQuestion}
+            setIsQuestion={setIsQuestion}
+          />
+
+          <Button
+            variant="none"
+            size="icon"
+            className="w-[20px] h-[20px]"
+            onClick={handleModalClose}
+          >
             <X size={20} strokeColor="#B3B3B3" stroke={1} />
           </Button>
         </div>
-        <div className="text-center flex flex-col justify-center">
-          <p className="w-full h-[36px] text-2xl font-semibold leading-[24.5px] text-[#2A2D3A]">
+        <div className=" flex flex-col justify-center">
+          <p className="w-full h-[36px] flex justify-center items-center text-2xl font-semibold leading-[24.5px] text-[#2A2D3A]">
             세부 목표 설정
           </p>
-          <p className="w-full h-[18px] text-[10px] font-normal leading-[17.5px] text-[#666666]">
+          <p className="w-full h-[26px] flex justify-center items-center text-[10px] font-normal leading-[17.5px] text-[#666666]">
             <span> {item[centerIndex]?.content || "주요 목표"}</span>를 달성하기
             위한 구체적인 세부 목표을 세워보세요
           </p>
@@ -193,7 +197,7 @@ export default function MandalaModal({
           {centerIndex !== undefined && (
             <div>
               <div>
-                <div className="flex justify-center py-[25px] px-[54px]">
+                <div className="h-[430px] flex justify-center py-[25px] px-[54px]">
                   <div className="grid grid-cols-3 gap-2 w-full aspect-square relative">
                     {/* 로딩스피너 오버레이(화이트) */}
                     {isStreaming && (
@@ -289,7 +293,7 @@ function GuideWritingComponent({
   return (
     <>
       <div
-        className="w-[26px] h-[26px] flex justify-center align-center"
+        className="min-w-[26px] min-h-[26px] flex justify-center items-center"
         onClick={() => setIsQuestion((prev: boolean) => !prev)}
       >
         <QuestionIcon className="hover:fill-[#333333]" />
