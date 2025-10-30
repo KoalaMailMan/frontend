@@ -39,7 +39,7 @@ export default function MandalaReadOnlyCell({
     : isModalOpen
     ? isCenter
       ? ""
-      : "주요 목표를 입력하세요"
+      : "세부 목표를 입력하세요"
     : isCenter
     ? "핵심 목표를 입력하세요"
     : "주요 목표를 입력하세요";
