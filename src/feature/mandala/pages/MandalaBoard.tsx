@@ -134,12 +134,14 @@ export default function MandalaBoard({
                   className={`w-[136px] h-[32px] flex items-center gap-2 pixel-button text-sm px-4 py-2 bg-white border-[#CCCCCC] border-1 text-[#373737] active:bg-[#CCCCCC] active:border-[#B3B3B3] font-medium shadow-[4px_4px_0_0_rgba(102,102,102,0.6)] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)] backdrop-blur-sm`}
                   data-tutorial="reminder-button"
                 >
-                  {reminderEnabled ? (
+                  {reminderEnabled && wasLoggedIn ? (
                     <ActivationBellIcon />
                   ) : (
                     <DisableBellIcon />
                   )}
-                  {reminderEnabled ? "리마인드 ON" : "리마인드 설정"}
+                  {reminderEnabled && wasLoggedIn
+                    ? "리마인드 ON"
+                    : "리마인드 OFF"}
                 </Button>
                 <Button
                   variant="outline"

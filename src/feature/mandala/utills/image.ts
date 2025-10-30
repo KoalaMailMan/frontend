@@ -47,7 +47,7 @@ export const captureAndDownload = async (
     });
 
     const link = document.createElement("a");
-    link.download = `koalart-mandara-${new Date()
+    link.download = `koala-mailman-${new Date()
       .toISOString()
       .slice(0, 10)}.png`;
     link.href = dataUrl;
