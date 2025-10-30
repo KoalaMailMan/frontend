@@ -12,10 +12,10 @@ const EventSource = EventSourcePolyfill;
 
 const parseSSEChunks = (rawData: string[]) => {
   return rawData
-    .join("\n")
-    .split(/(?:\r\n|\r|\n)/g)
-    .map((item) => item.replace("__COMPLETE__", "").trim())
-    .filter(Boolean);
+    .join("")
+    .split(/\s*,\s*/g)
+    .map((item) => item.replace("__COMPLETE__", ""))
+    .filter((item) => item.length > 0);
 };
 
 const encodingURI = (options: Record<string, string>) => {
