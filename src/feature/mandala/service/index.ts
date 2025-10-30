@@ -190,11 +190,7 @@ export const serverToUI = (
     const targetPosition = main.position;
     if (targetPosition >= 1 && targetPosition <= 8) {
       coreSubsArray[targetPosition] = {
-        goalId: idManager.generateSubId(
-          coreAsMain.goalId,
-          main.goalId,
-          targetPosition
-        ),
+        goalId: idManager.generateSubId("0", main.goalId, targetPosition),
         originalId: getOriginalId(main.goalId),
         position: main.position,
         content: main.content || "",
@@ -215,6 +211,7 @@ export const serverToUI = (
   }
   coreAsMain.subs = coreSubsArray;
   uiMains[0] = coreAsMain;
+  console.log(uiMains);
 
   // 2단계: 1~8번 main들 생성 - position 기준 배치
   const uiMainsArray = new Array(9).fill(null);
@@ -299,6 +296,7 @@ export const serverToUI = (
       uiMainsArray[k] = uiMain;
     }
   }
+  console.log(uiMainsArray);
 
   return {
     core: {
