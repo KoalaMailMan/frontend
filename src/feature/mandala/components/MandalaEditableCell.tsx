@@ -35,7 +35,7 @@ function MandalaEditableCell(
     <div
       data-mandala-cell={isModalOpen && "editing"}
       className={cn(
-        "border-2 border-primary bg-white flex items-center justify-center relative rounded-lg",
+        "w-full h-full border-2 border-primary bg-white flex items-center justify-center relative rounded-lg",
         compact ? "p-1" : "p-2",
         isCenter && "bg-primary/10"
       )}
