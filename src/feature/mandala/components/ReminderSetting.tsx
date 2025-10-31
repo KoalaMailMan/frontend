@@ -24,6 +24,7 @@ import { IntervalType } from "../const";
 import useUserInfo from "@/feature/auth/hooks/useUserInfo";
 import { toast } from "sonner";
 import RemindeIcon from "./icon/RemindeIcon";
+import X from "@/feature/tutorial/components/icons/X";
 
 type PropsType = {
   openTree: "reminder" | "save";
@@ -108,7 +109,6 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
     if (!accessToken) {
       setAuthText("리마인드 설정");
       setAuthOpen(true);
-      onClose(false);
       return;
     }
     if (openTree === "reminder") {
@@ -161,7 +161,13 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
 
   return (
     <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
-      <Card className="w-[421px] max-w-lg px-[20px] pt-[21px] pb-[17px]">
+      <Card className="w-[421px] max-w-lg px-[20px] pt-[21px] pb-[17px] relative">
+        <div
+          className="w-[40px] h-[40px] absolute right-[13px] top-[13px]"
+          onClick={() => onClose(false)}
+        >
+          <X className="w-full h-full p-2" />
+        </div>
         <CardContent className="space-y-3 p-0">
           <div className="w-full h-[62px] pl-[10px] flex items-center">
             <RemindeIcon />
