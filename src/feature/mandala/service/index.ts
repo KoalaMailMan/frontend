@@ -211,7 +211,6 @@ export const serverToUI = (
   }
   coreAsMain.subs = coreSubsArray;
   uiMains[0] = coreAsMain;
-  console.log(uiMains);
 
   // 2단계: 1~8번 main들 생성 - position 기준 배치
   const uiMainsArray = new Array(9).fill(null);
@@ -296,7 +295,6 @@ export const serverToUI = (
       uiMainsArray[k] = uiMain;
     }
   }
-  console.log(uiMainsArray);
 
   return {
     core: {
@@ -310,7 +308,6 @@ export const serverToUI = (
 const createMandalaIdManager = (serverData: ServerMandalaType["data"]) => {
   const usedMainIds = new Set<string>();
   const usedSubIds = new Set<string>();
-
   const resgisterExistingIds = () => {
     if (serverData.core?.goalId) {
       usedMainIds.add(`core-${serverData.core.goalId}`);
