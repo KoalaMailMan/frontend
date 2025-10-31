@@ -110,12 +110,15 @@ export default function MandalaGrid() {
           </Fragment>
         );
       })}
-      {isModalOpen && modalCellId && (
+      {isModalOpen && (
         <MandalaModal
           isModalVisible={isModalOpen}
-          item={getData(findByIdWithGoalIndex(modalCellId)) as SubGoal[]}
+          item={
+            getData(findByIdWithGoalIndex(modalCellId as string)) as SubGoal[]
+          }
           compact={false}
           onContentChange={handleSubContentChange}
+          onRemove={handleContentChange}
           onCancelEdit={handleModalClose}
         />
       )}

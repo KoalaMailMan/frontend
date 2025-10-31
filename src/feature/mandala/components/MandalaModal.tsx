@@ -25,6 +25,7 @@ type Props = {
   item: SubGoal[];
   compact: boolean;
   onContentChange: (value: string) => void;
+  onRemove: (id: string, value: string) => void;
   onCancelEdit: () => void;
 };
 
@@ -33,6 +34,7 @@ export default function MandalaModal({
   item,
   compact,
   onContentChange,
+  onRemove,
   onCancelEdit,
 }: Props) {
   const updateSubsCell = useMandalaStore((state) => state.updateSubsCell);
@@ -122,6 +124,10 @@ export default function MandalaModal({
       // 0 & false or 1~8 & true
       return emptyCount;
     }
+  };
+
+  const removeSubGoalValue = (id: SubGoal["goalId"]) => {
+    onRemove(id, "");
   };
 
   useEffect(() => {
@@ -218,6 +224,7 @@ export default function MandalaModal({
                             onStartEdit={() => handleSubStartEdit(sub.goalId)}
                             onContentChange={onContentChange}
                             onCancelEdit={handleSubCancelEdit}
+                            onRemove={removeSubGoalValue}
                             className={cn(
                               "md:min-w-[125px] w-full h-full",
                               getGridClasses(index),
@@ -242,7 +249,7 @@ export default function MandalaModal({
                 </Button>
               </div>
               <p className="w-full h-[18px] flex justify-center text-[10px] leading-[180%] font-semibold text-[#999999]">
-                모두지우기
+                맞춤 목표 모두 지우기
               </p>
             </div>
           )}
@@ -307,19 +314,21 @@ function GuideWritingComponent({
         )}
       >
         <div className="w-full h-[42px] text-[#4C4C4C] flex flex-col align-item justify-center mb-[10px]">
-          <p className="h-[34px] indent-[17px]">세부 목표 작성 가이드</p>
-          <hr className="w-full bg-[#CCCCCC]" />
+          <p className="h-[34px] indent-[17px] font-medium">
+            세부 목표 작성 가이드
+          </p>
+          <hr className="w-full border-[#CCCCCC]" />
         </div>
         <div>
-          <ol className="w-full h-[116px] flex flex-col gap-[10px] text-[#4C4C4C] text-[11px] leading-[20px] list-decimal pl-[20px]">
+          <ol className="w-full h-[116px] flex flex-col gap-[10px] text-[#4C4C4C] text-[11px] list-decimal pl-[20px]">
             <li className="w-full h-[20px]">
               <p>주요 목표를 먼저 입력해주세요.</p>
             </li>
-            <li>
+            <li className="w-full h-[30px]">
               <p>각 세부 목표는 측정 가능하고 구체적으로 작성하세요.</p>
-              <span className="text-[10px] leading-[14px] text-[#999999]">{`ex) 운동하기 -> 주 3회 30분 이상 조깅하기`}</span>
+              <span className="text-[10px] text-[#999999]">{`ex) 운동하기 -> 주 3회 30분 이상 조깅하기`}</span>
             </li>
-            <li>
+            <li className="w-full h-[36px]">
               <p>
                 잘 모르겠다면 '목표 추천받기' 버튼을 눌러보세요. <br />
                 당신에게 맞는 목표를 추천해드릴게요.

@@ -19,17 +19,18 @@ import { useTutorialStore } from "./lib/stores/tutorialStore";
 import OnboardingTutorial from "./feature/tutorial/page";
 import useResize from "./shared/hooks/useResize";
 import AuthComponent from "./feature/auth/components/AuthComponent";
+import HomePage from "./feature/home/pages/HomePage";
 
 const queryClient = new QueryClient();
 
 function App() {
   useResize();
   const { currentTheme, updateCurrentTheme, getCurrentBackground } = useTheme();
-  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
-  const isAuthOpen = useAuthStore((state) => state.isAuthOpen);
-  const authComponentText = useAuthStore((state) => state.authComponentText);
-
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
+  const isAuthOpen = useAuthStore((state) => state.isAuthOpen);
+  const temporaryAuth = useAuthStore((state) => state.temporaryAuth);
+  const authComponentText = useAuthStore((state) => state.authComponentText);
+  const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
 
   useEffect(() => {
     const initApp = async () => {
@@ -63,7 +64,12 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Header currentTheme={currentTheme} onThemeChange={updateCurrentTheme} />
 
-      <MandalaBoard getCurrentBackground={getCurrentBackground} />
+      {temporaryAuth || wasLoggedIn ? (
+        <MandalaBoard getCurrentBackground={getCurrentBackground} />
+      ) : (
+        <HomePage getCurrentBackground={getCurrentBackground} />
+      )}
+
       <Toaster position="top-center" />
       {isOnboardingOpen && <OnboardingTutorial />}
       {isAuthOpen && !wasLoggedIn && (

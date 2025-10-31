@@ -4,12 +4,14 @@ import Button from "../../ui/Button";
 import BackgroundAnimation from "../components/BackgroundAnimation";
 import { useViewportStore } from "@/lib/stores/viewportStore";
 import { useEffect } from "react";
+import { useAuthStore } from "@/lib/stores/authStore";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
 };
 
 export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
+  const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
   const height = useViewportStore((state) => state.height);
   const { mobile, desktop } = getCurrentBackground();
   const isMobile = useViewportStore((state) => state.isMobile);
@@ -55,7 +57,7 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
         <BackgroundAnimation />
 
         {/* 메인 로그인 컨테이너 */}
-        <MainSection />
+        <MainSection onTemporaryLogin={setTemporaryAuth} />
       </div>
 
       {/* 서비스 소개 섹션 */}

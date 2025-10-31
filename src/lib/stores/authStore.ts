@@ -2,9 +2,9 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
 type SocialProvider = "google" | "naver" | null;
-
 type States = {
   accessToken: string | null;
+  temporaryAuth: boolean;
   user: {
     nickname: string;
     email: string;
@@ -16,6 +16,7 @@ type States = {
 type Actions = {
   getAccessToken: () => string | null;
   setAccessToken: (token: string | null) => void;
+  setTemporaryAuth: (state: boolean) => void;
   setWasLoggedIn: (state: boolean) => void;
   setLastProvider: (state: SocialProvider) => void;
   setLastLoginTime: (state: string) => void;
@@ -27,6 +28,7 @@ type Actions = {
 
 type AuthPersistedState = {
   wasLoggedIn: boolean;
+  temporaryAuth: boolean;
   lastProvider: SocialProvider;
   lastLoginTime?: string | null;
   hasSeenReminderSetup: boolean;
@@ -38,6 +40,7 @@ export const useAuthStore = create<States & Actions>()(
   persist(
     (set, get) => ({
       accessToken: null,
+      temporaryAuth: false,
       wasLoggedIn: false,
       lastProvider: null,
       lastLoginTime: "",
@@ -52,6 +55,8 @@ export const useAuthStore = create<States & Actions>()(
       getAccessToken: () => get().accessToken,
       setAccessToken: (token: string | null) =>
         set(() => ({ accessToken: token })),
+      setTemporaryAuth: (state: boolean) =>
+        set(() => ({ temporaryAuth: state })),
       setWasLoggedIn: (state: boolean) => set(() => ({ wasLoggedIn: state })),
       setLastProvider: (state: SocialProvider) =>
         set(() => ({ lastProvider: state })),
@@ -66,11 +71,12 @@ export const useAuthStore = create<States & Actions>()(
       name: AUTH_INFO,
       partialize: (state): AuthPersistedState => ({
         wasLoggedIn: state.wasLoggedIn,
+        temporaryAuth: state.temporaryAuth,
         lastProvider: state.lastProvider,
         lastLoginTime: state.lastLoginTime,
         hasSeenReminderSetup: state.hasSeenReminderSetup,
       }),
-      version: 1,
+      version: 2,
 
       storage: {
         getItem: (name) => {

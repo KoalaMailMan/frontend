@@ -50,6 +50,10 @@ type States = {
 
 type PersistedState = {
   data: MandalaType;
+  modalCellId: string | null;
+  isModalOpen: boolean;
+  isReminderOpen: boolean;
+  isFullOpen: boolean;
 };
 
 type Actions = {
@@ -319,6 +323,10 @@ export const useMandalaStore = create<States & Actions>()(
       name: "mandalart",
       partialize: (state): PersistedState => ({
         data: state.data,
+        modalCellId: state.modalCellId,
+        isModalOpen: state.isModalOpen,
+        isReminderOpen: state.isReminderOpen,
+        isFullOpen: state.isFullOpen,
       }),
       version: 1,
 
@@ -328,22 +336,28 @@ export const useMandalaStore = create<States & Actions>()(
           return value ? JSON.parse(value) : null;
         },
         setItem: (name, value) => {
-          const wasLoggedIn = useAuthStore.getState().wasLoggedIn;
-          const accessToken = useAuthStore.getState().accessToken;
-          if (wasLoggedIn && accessToken) return;
-          else {
-            if (typeof value === "string") {
-              localStorage.setItem(name, value);
-            } else {
-              localStorage.setItem(name, JSON.stringify(value));
-            }
+          const { wasLoggedIn, accessToken } = useAuthStore.getState();
+          if (wasLoggedIn && accessToken && value?.state?.data) {
+            return;
+          }
+          if (typeof value === "string") {
+            localStorage.setItem(name, value);
+          } else {
+            localStorage.setItem(name, JSON.stringify(value));
           }
         },
         removeItem: (name) => {
-          const wasLoggedIn = useAuthStore.getState().wasLoggedIn;
-          const accessToken = useAuthStore.getState().accessToken;
-          if (wasLoggedIn && accessToken)
-            return localStorage.removeItem("mandalart");
+          const { wasLoggedIn, accessToken } = useAuthStore.getState();
+          if (wasLoggedIn && accessToken) {
+            const current = localStorage.getItem(name);
+            if (!current) return;
+            const parsed = JSON.parse(current);
+            if (parsed?.state?.data !== undefined) {
+              delete parsed.state.data;
+              localStorage.setItem(name, JSON.stringify(parsed));
+            }
+            return;
+          }
           localStorage.removeItem(name);
         },
       },
