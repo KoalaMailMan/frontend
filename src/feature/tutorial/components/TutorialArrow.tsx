@@ -6,15 +6,10 @@ import { useViewportStore } from "@/lib/stores/viewportStore";
 type IconProps = {
   targetSelector: string;
   position: "right" | "left" | "top" | "bottom";
-  mobilePosition: "right" | "left" | "top" | "bottom";
   className?: string;
 };
 
-export default function TutorialArrow({
-  targetSelector,
-  position,
-  mobilePosition,
-}: IconProps) {
+export default function TutorialArrow({ targetSelector, position }: IconProps) {
   const isMobile = useViewportStore((state) => state.isMobile);
 
   const onClose = useTutorialStore((state) => state.setOnboardingVisible);
@@ -23,20 +18,18 @@ export default function TutorialArrow({
   useEffect(() => {
     if (!targetSelector) return;
 
-    const updateFn = isMobile ? updateMobilePosition : updatePosition;
-
     // 초기 위치 설정 (약간의 딜레이)
-    const timer = setTimeout(updateFn, 100);
+    const timer = setTimeout(updatePosition, 100);
 
     // 스크롤/리사이즈 시 위치 업데이트
-    window.addEventListener("scroll", updateFn);
-    window.addEventListener("resize", updateFn);
+    window.addEventListener("scroll", updatePosition);
+    window.addEventListener("resize", updatePosition);
 
     return () => {
       clearTimeout(timer);
       setArrowPosition({ top: 105, left: 531 });
-      window.removeEventListener("scroll", updateFn);
-      window.removeEventListener("resize", updateFn);
+      window.removeEventListener("scroll", updatePosition);
+      window.removeEventListener("resize", updatePosition);
     };
   }, [targetSelector, position, isMobile]);
 
@@ -52,7 +45,7 @@ export default function TutorialArrow({
     let top = 0;
     let left = 0;
 
-    const arrowWidth = 211;
+    const arrowWidth = 57;
     const arrowHeight = 50;
     const offset = 20;
 
@@ -106,61 +99,12 @@ export default function TutorialArrow({
 
     setArrowPosition({ top, left });
   };
-  const updateMobilePosition = () => {
-    const element = document.querySelector(targetSelector);
-    if (!element) {
-      onClose(false);
-      return;
-    }
-
-    const rect = element.getBoundingClientRect();
-
-    let top = 0;
-    let left = 0;
-
-    const arrowWidth = 211;
-    const arrowHeight = 50;
-    const offset = isMobile ? 10 : 20;
-    switch (mobilePosition) {
-      case "top":
-        top = rect.top - arrowHeight - offset;
-        left = rect.left + rect.width / 2 - arrowWidth / 2;
-        break;
-      case "right":
-        const rightPosition = rect.right + offset;
-        if (isMobile && rightPosition + arrowWidth > window.innerWidth) {
-          top = rect.bottom + offset;
-          left = rect.left + rect.width / 2 - arrowWidth / 2;
-        } else {
-          top = rect.top + rect.height / 2 - arrowHeight / 2;
-          left = rightPosition;
-        }
-        break;
-      case "bottom":
-        top = rect.bottom + offset;
-        left = rect.left + rect.width / 2 - arrowWidth / 2;
-        break;
-      case "left":
-        const leftPosition = rect.left - arrowWidth - offset;
-        if (isMobile && leftPosition < 0) {
-          top = rect.bottom + offset;
-          left = rect.left + rect.width / 2 - arrowWidth / 2;
-        } else {
-          top = rect.top + rect.height / 2 - arrowHeight / 2;
-          left = leftPosition;
-        }
-        break;
-    }
-
-    setArrowPosition({ top, left });
-  };
 
   return (
     <TutorialArrowComponent
       isMobile={isMobile}
       targetSelector={targetSelector}
       position={position}
-      mobilePosition={mobilePosition}
       arrowPosition={arrowPosition}
     />
   );

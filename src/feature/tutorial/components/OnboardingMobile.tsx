@@ -63,13 +63,17 @@ export default function OnboardingMobile() {
       }
     };
 
-    const timer = setTimeout(applyHighlight, id === "recommend" ? 200 : 80);
+    // 모달이 필요한 경우 렌더링 대기
+    const delay = id === "recommend" ? 200 : 50;
+    const timer = setTimeout(applyHighlight, delay);
     return () => clearTimeout(timer);
   }, [currentTutorial]);
 
   const handleClose = () => {
     resetStage();
     setCurrentStep(0);
+    setModalCellId(null);
+    setModalVisible(false);
     document.querySelectorAll("[data-tutorial]").forEach((el) => {
       el.classList.remove(
         "center-cell",
@@ -97,11 +101,9 @@ export default function OnboardingMobile() {
     !!currentTutorial && currentTutorial.id !== "welcome";
 
   return (
-    <article className="fixed inset-0 z-[9999] pointer-events-none">
+    <article className="fixed inset-0 z-[9999]">
       {/* 배경 오버레이 */}
-      {!isTutorialActive && (
-        <div className="absolute inset-0 bg-black/20 pointer-events-auto" />
-      )}
+      {!isTutorialActive && <div className="absolute inset-0 bg-black/20" />}
 
       {/* 튜토리얼 카드 */}
       <div
@@ -173,8 +175,7 @@ export default function OnboardingMobile() {
       <TutorialArrow
         key={currentStep}
         targetSelector={currentTutorial.targetSelector}
-        position={currentTutorial.position}
-        mobilePosition={currentTutorial.mobilePosition}
+        position={currentTutorial.mobilePosition}
       />
     </article>
   );
