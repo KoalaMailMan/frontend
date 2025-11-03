@@ -39,6 +39,7 @@ export default function useSSERecommendation({
   const [recommendation, setRecommendation] = useState<string[]>([]);
 
   const eventSourceRef = useRef<EventSource | null>(null);
+  const startTimeRef = useRef<number | null>(null);
 
   const startStream = useCallback(
     async (count: number) => {
@@ -84,14 +85,28 @@ export default function useSSERecommendation({
 
       eventSource.onopen = () => {
         console.log("✅ 스트림 연결 성공");
+        startTimeRef.current = performance.now();
         setStreaming(true);
       };
       eventSource.onmessage = (event) => {
         const data = event.data;
         console.log(`📨 데이터 수신: ${data}`);
+        if (startTimeRef.current) {
+          const end = performance.now();
+          console.log(
+            `⏱ 응답 시간: ${(end - startTimeRef.current).toFixed(2)}ms`
+          );
+        }
         // 완료 신호 체크
         if (data.includes("__COMPLETE__")) {
           console.log(`🎉 스트림 완료`);
+          if (startTimeRef.current) {
+            const end = performance.now();
+            console.log(
+              `⏱ 총 소요 시간: ${(end - startTimeRef.current).toFixed(2)}ms`
+            );
+          }
+          startTimeRef.current = null;
           eventSource.close();
           setStreaming(false);
           return;
@@ -102,6 +117,7 @@ export default function useSSERecommendation({
       eventSource.onerror = (error) => {
         console.error(`🚨 SSE 에러: ${error}`);
         const errorMsg = "스트림 연결 오류";
+        startTimeRef.current = null;
         setError(errorMsg);
         setStreaming(false);
         onError?.(errorMsg);
