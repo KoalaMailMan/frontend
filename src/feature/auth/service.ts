@@ -4,7 +4,7 @@ import { getURLQuery } from "./\butils";
 import { ENV } from "@/const";
 import { apiClient } from "@/lib/api/client";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
-import { emptyDummyData, serverToUI } from "../mandala/service";
+import { emptyDummyData } from "../mandala/service";
 
 export const handleGoogleLogin = () => {
   window.location.href = ENV.BACKEND_URL + "/api/auth/login/google";
@@ -23,8 +23,20 @@ export const handleLogin = () => {
     useAuthStore.getState().setAccessToken(token);
     useAuthStore.getState().setWasLoggedIn(true);
     useAuthStore.getState().setLastLoginTime(currentTime);
+    useAuthStore.getState().setTemporaryAuth(false);
+    handleUnknownData();
     handleUserLookup(token);
     window.history.replaceState({}, document.title, window.location.pathname);
+  }
+};
+export const handleUnknownData = () => {
+  const saved = localStorage.getItem("mandalart");
+  if (saved) {
+    const parsed = JSON.parse(saved);
+    if (parsed.state.data) {
+      delete parsed.state.data;
+      localStorage.setItem("mandalart", JSON.stringify(parsed));
+    }
   }
 };
 
@@ -37,7 +49,7 @@ export const handleLogout = () => {
   } finally {
     useAuthStore.getState().setWasLoggedIn(false);
     useAuthStore.getState().setAccessToken(null);
-    useMandalaStore.getState().setData(serverToUI(emptyDummyData.data));
+    useMandalaStore.getState().setData(emptyDummyData.data);
   }
 };
 
