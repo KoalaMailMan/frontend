@@ -16,6 +16,7 @@ import MailIcon from "../components/icon/MailIcon";
 import ActivationBellIcon from "../components/icon/ActivationBellIcon";
 import DisableBellIcon from "../components/icon/DisableBellIcon";
 import FullIcon from "../components/icon/FullIcon";
+import BackgroundAnimation from "@/feature/home/components/BackgroundAnimation";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
@@ -78,6 +79,7 @@ export default function MandalaBoard({
 
   return (
     <div className="relative min-h-screen p-4 pt-[51px] ">
+      <BackgroundAnimation />
       {/* 모바일 배경 이미지 */}
       <div
         className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:hidden"

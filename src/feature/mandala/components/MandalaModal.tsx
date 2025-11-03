@@ -126,8 +126,12 @@ export default function MandalaModal({
     }
   };
 
-  const removeSubGoalValue = (id: SubGoal["goalId"]) => {
-    onRemove(id, "");
+  const removeSubGoalValue = (state: SubGoal["goalId"] | SubGoal[]) => {
+    if (typeof state === "string") {
+      onRemove(state, "");
+    } else if (typeof state === "object") {
+      state.forEach((sub, index) => index !== 0 && onRemove(sub.goalId, ""));
+    }
   };
 
   useEffect(() => {
@@ -248,7 +252,10 @@ export default function MandalaModal({
                   맞춤 목표 찾기
                 </Button>
               </div>
-              <p className="w-full h-[18px] flex justify-center text-[10px] leading-[180%] font-semibold text-[#999999]">
+              <p
+                className="w-full h-[18px] flex justify-center text-[10px] leading-[180%] font-semibold text-[#999999]"
+                onClick={() => removeSubGoalValue(item)}
+              >
                 맞춤 목표 모두 지우기
               </p>
             </div>

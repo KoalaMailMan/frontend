@@ -33,6 +33,7 @@ function App() {
   const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
 
   useEffect(() => {
+    if (temporaryAuth) return;
     const initApp = async () => {
       try {
         // 최초 로그인
@@ -58,7 +59,7 @@ function App() {
       }
     };
     initApp();
-  }, []);
+  }, [temporaryAuth]);
 
   return (
     <QueryClientProvider client={queryClient}>

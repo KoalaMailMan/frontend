@@ -620,3 +620,16 @@ export const uiToServer = (
 
   return result;
 };
+
+export const handlePrefixDuplication = (id: string) => {
+  const parts = id.split("-");
+
+  const deduped = parts.filter((p, i, arr) => {
+    if (i === 0) return true;
+    return !(p === arr[i - 1] && (p === "main" || p === "sub"));
+  });
+
+  // "sub-main-3-0" → ["sub","main","3","0"] → filter → ["sub","3","0"]
+  // "main-main-5"   → ["main","main","5"] → filter → ["main","5"]
+  return deduped.join("-");
+};
