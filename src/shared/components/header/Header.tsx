@@ -24,6 +24,7 @@ export default function Header({
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
   const setAuthText = useAuthStore((state) => state.setAuthText);
+  const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
   const isReminderOpen = useMandalaStore((state) => state.isReminderOpen);
   const setOnboardingVisible = useTutorialStore(
     (state) => state.setOnboardingVisible
@@ -82,6 +83,7 @@ export default function Header({
               onClick={() => {
                 setAuthText("만다라트 대시보드 이용");
                 setAuthOpen(true);
+                setTemporaryAuth(false);
               }}
               className="w-[86px] pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
               dir="ltr"
