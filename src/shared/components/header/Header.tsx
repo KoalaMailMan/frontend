@@ -20,6 +20,7 @@ export default function Header({
   currentTheme,
   onThemeChange,
 }: MandaraChartProps) {
+  const accessToken = useAuthStore((state) => state.accessToken);
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
   const setAuthText = useAuthStore((state) => state.setAuthText);
@@ -62,7 +63,7 @@ export default function Header({
             currentTheme={currentTheme}
             onThemeChange={onThemeChange}
           />
-          {wasLoggedIn ? (
+          {wasLoggedIn && accessToken ? (
             <Button
               variant="outline"
               size="default"
