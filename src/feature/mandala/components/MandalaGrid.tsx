@@ -3,6 +3,8 @@ import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
 import MandalaModal from "./MandalaModal";
 import { getGridClasses } from "../utills/css";
+import useGridTabNavigation from "../hooks/useGridTabNavigation";
+import { getNextCellId } from "../service";
 
 export default function MandalaGrid() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
@@ -16,6 +18,12 @@ export default function MandalaGrid() {
   const setModalCellId = useMandalaStore((state) => state.setModalCellId);
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
+
+  useGridTabNavigation({
+    editingId: editingCellId,
+    setEditingId: setEditingCell,
+    getNextId: getNextCellId,
+  });
 
   const handleContentChange = (goalId: string, value: string) => {
     const index = [0, 0];
