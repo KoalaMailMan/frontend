@@ -15,7 +15,6 @@ export default function useGridTabNavigation({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key !== "Tab") return;
       e.preventDefault();
-      console.log("editingId", editingId);
       if (editingId == undefined) return;
 
       const nextId = getNextId(editingId);
