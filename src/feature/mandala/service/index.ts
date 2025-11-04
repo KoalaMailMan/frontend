@@ -9,6 +9,7 @@ import {
 import { apiClient } from "@/lib/api/client";
 import { createMandalaAPI } from "../api/mandalart/createMandala";
 import { toast } from "sonner";
+import { moveItem } from "../utills/\bindex";
 
 export const handleMandalaData = async () => {
   const accessToken = useAuthStore.getState().accessToken;
@@ -632,4 +633,34 @@ export const handlePrefixDuplication = (id: string) => {
   // "sub-main-3-0" → ["sub","main","3","0"] → filter → ["sub","3","0"]
   // "main-main-5"   → ["main","main","5"] → filter → ["main","5"]
   return deduped.join("-");
+};
+
+export const getNextCellId = (editingCellId: string) => {
+  const data: MainGoal[] = useMandalaStore.getState().data.core.mains;
+  if (editingCellId.startsWith("sub")) {
+    const chunk = editingCellId.split("-");
+    const mainIndex = chunk[1] === "center" ? 0 : parseInt(chunk[1]);
+    const ids = data[mainIndex].subs.map((sub) => sub.goalId);
+    const subIndex = ids.findIndex((id) => id === editingCellId);
+    if (subIndex < 0) return null;
+    if (subIndex === ids.length - 1) {
+      return ids[0];
+    } else if (subIndex >= 0) {
+      return ids[subIndex + 1];
+    }
+  } else {
+    const ids = moveItem(
+      data.map((main) => main.goalId),
+      0,
+      4
+    );
+    const mainIndex = ids.findIndex((id) => id === editingCellId);
+    if (mainIndex < 0) return null;
+    if (mainIndex === ids.length - 1) {
+      return ids[0];
+    } else if (mainIndex >= 0) {
+      return ids[mainIndex + 1];
+    }
+  }
+  return null;
 };
