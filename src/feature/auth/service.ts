@@ -1,10 +1,11 @@
 import { useAuthStore } from "@/lib/stores/authStore";
 import { getUserProfileAPI, logouAPI, refreshTokenAPI } from "./api";
-import { getURLQuery } from "./\butils";
+import { APIWithRetry, getURLQuery } from "./\butils";
 import { ENV } from "@/const";
 import { apiClient } from "@/lib/api/client";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { emptyDummyData } from "../mandala/service";
+import { toast } from "sonner";
 
 export const handleGoogleLogin = () => {
   window.location.href = ENV.BACKEND_URL + "/api/auth/login/google";
@@ -100,4 +101,19 @@ export const handleUserLookup = async (accessToken: string) => {
   if (user) {
     useAuthStore.getState().setUserInfo(user);
   }
+};
+
+export const ensureAccessToken = async () => {
+  const { accessToken } = useAuthStore.getState();
+
+  if (accessToken) return accessToken;
+  if (!shouldAttemptRefresh()) return null;
+
+  const success = await APIWithRetry(reissueWithRefreshToken);
+  if (!success) {
+    handleLogout();
+    toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
+    return null;
+  }
+  return useAuthStore.getState().accessToken;
 };
