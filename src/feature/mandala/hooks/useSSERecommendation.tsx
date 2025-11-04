@@ -74,6 +74,8 @@ export default function useSSERecommendation({
       });
       const RECOMMEND_URL = `${baseURL}/api/recommend/streaming?${params}`;
 
+      // 연결 시작
+      setStreaming(true);
       console.log(`🚀 스트림 연결 시작: ${RECOMMEND_URL}`);
       const eventSource = new EventSource(RECOMMEND_URL, {
         headers: {
@@ -86,7 +88,6 @@ export default function useSSERecommendation({
       eventSource.onopen = () => {
         console.log("✅ 스트림 연결 성공");
         startTimeRef.current = performance.now();
-        setStreaming(true);
       };
       eventSource.onmessage = (event) => {
         const data = event.data;

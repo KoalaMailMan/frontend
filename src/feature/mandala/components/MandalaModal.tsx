@@ -1,6 +1,5 @@
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
-import { Fragment } from "react/jsx-runtime";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import { createPortal } from "react-dom";
@@ -11,12 +10,7 @@ import { toast } from "sonner";
 import useSSERecommendation from "../hooks/useSSERecommendation";
 import X from "@/feature/tutorial/components/icons/X";
 import { useAuthStore } from "@/lib/stores/authStore";
-import {
-  handleLogout,
-  reissueWithRefreshToken,
-  shouldAttemptRefresh,
-} from "@/feature/auth/service";
-import { APIWithRetry } from "@/feature/auth/\butils";
+import { ensureAccessToken } from "@/feature/auth/service";
 import QuestionIcon from "./icon/QuestionIcon";
 import LoadingSpiner from "@/feature/ui/LoadingSpiner";
 
@@ -51,18 +45,7 @@ export default function MandalaModal({
   const [isQuestion, setIsQuestion] = useState(false);
   const centerIndex = 0;
 
-  const getAccessToken = useCallback(async () => {
-    if (accessToken) return accessToken;
-    if (shouldAttemptRefresh()) {
-      const success = await APIWithRetry(reissueWithRefreshToken);
-      if (!success) {
-        handleLogout();
-        toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
-      } else {
-        return accessToken;
-      }
-    }
-  }, [accessToken]);
+  const getAccessToken = useCallback(ensureAccessToken, []);
 
   const { startStream, recommendation, isStreaming } = useSSERecommendation({
     goal: item[0].content,
@@ -96,34 +79,22 @@ export default function MandalaModal({
       setAuthOpen(true);
       return;
     }
-    const emptyCount = emptyValueValidation();
+    const emptyCount = validateEmptyGoals(item);
     if (emptyCount) {
       startStream(emptyCount);
     }
   };
 
-  const returnsEmptyCount = (subs: SubGoal[]) => {
-    let localCount = 0;
-    if (!subs[0] || subs[0].content.trim() === "") {
-      return localCount;
-    }
-    subs.forEach((sub, index) => {
-      if (index < 9 && (!sub.content || sub.content.trim() === "")) {
-        localCount++;
-      }
-    });
-    return localCount;
-  };
+  const getEmptySubGoalCount = (subs: SubGoal[]) =>
+    subs.slice(0, 9).filter((sub) => !sub.content.trim()).length;
 
-  const emptyValueValidation = () => {
-    const hasEmptyGoals = item.some((main) => !main.content.trim());
-    const emptyCount = returnsEmptyCount(item);
+  const validateEmptyGoals = (subs: SubGoal[]) => {
+    const hasEmptyGoals = subs.some((main) => !main.content.trim());
+    const emptyCount = getEmptySubGoalCount(subs);
     if (!emptyCount)
       toast.warning("목표 추천을 위해 주요 목표를 먼저 입력해주세요.");
-    if (emptyCount && hasEmptyGoals) {
-      // 0 & false or 1~8 & true
-      return emptyCount;
-    }
+    // 0 & false or 1~8 & true
+    return emptyCount && hasEmptyGoals ? emptyCount : 0;
   };
 
   const removeSubGoalValue = (state: SubGoal["goalId"] | SubGoal[]) => {
@@ -142,15 +113,13 @@ export default function MandalaModal({
   }, [isStreaming]);
 
   useEffect(() => {
-    const updateWidth = () => {
-      const element = positionRef.current;
-      if (element) {
-        const rect = element.getBoundingClientRect();
-        setWidth(rect.width);
-      }
-    };
-    const timer = setTimeout(updateWidth, 0);
-    window.addEventListener("resize", updateWidth);
+    const element = positionRef.current;
+    const observer = new ResizeObserver(([entry]) => {
+      setWidth(entry.contentRect.width);
+    });
+    if (element) {
+      observer.observe(element);
+    }
 
     if (isModalVisible) {
       document.body.style.overflow = "hidden";
@@ -160,8 +129,7 @@ export default function MandalaModal({
 
     return () => {
       document.body.style.overflow = "unset";
-      clearTimeout(timer);
-      window.removeEventListener("resize", updateWidth);
+      observer.disconnect();
     };
   }, [isModalVisible]);
 
@@ -211,33 +179,32 @@ export default function MandalaModal({
                   <div className="grid grid-cols-3 gap-2 w-full aspect-square relative">
                     {/* 로딩스피너 오버레이(화이트) */}
                     {isStreaming && (
-                      <div className="w-full h-full absolute bg-white opacity-80 z-1" />
+                      <div className="w-full h-full absolute bg-white opacity-80 z-[1]" />
                     )}
                     {item.map((sub, index) => {
                       const isCenter = centerIndex === index;
                       const isEditing = editingSubCellId === sub.goalId;
                       return (
-                        <Fragment key={`sub-${index}-${sub.goalId}`}>
-                          <MandalaContainer
-                            isCenter={isCenter}
-                            item={sub}
-                            isEditing={isEditing}
-                            compact={compact}
-                            disabled={isCenter ? isStreaming : false}
-                            isEmpty={!sub.content || !sub.content.trim()}
-                            onStartEdit={() => handleSubStartEdit(sub.goalId)}
-                            onContentChange={onContentChange}
-                            onCancelEdit={handleSubCancelEdit}
-                            onRemove={removeSubGoalValue}
-                            className={cn(
-                              "md:min-w-[125px] w-full h-full",
-                              getGridClasses(index),
-                              isCenter
-                                ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
-                                : ""
-                            )}
-                          />
-                        </Fragment>
+                        <MandalaContainer
+                          key={`sub-${index}-${sub.goalId}`}
+                          isCenter={isCenter}
+                          item={sub}
+                          isEditing={isEditing}
+                          compact={compact}
+                          disabled={isCenter ? isStreaming : false}
+                          isEmpty={!sub.content || !sub.content.trim()}
+                          onStartEdit={() => handleSubStartEdit(sub.goalId)}
+                          onContentChange={onContentChange}
+                          onCancelEdit={handleSubCancelEdit}
+                          onRemove={removeSubGoalValue}
+                          className={cn(
+                            "md:min-w-[125px] w-full h-full",
+                            getGridClasses(index),
+                            isCenter
+                              ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
+                              : ""
+                          )}
+                        />
                       );
                     })}
                   </div>
