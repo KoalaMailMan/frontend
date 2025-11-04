@@ -12,7 +12,9 @@ export default function useGridTabNavigation({
   getNextId,
 }: UseGridTabNavigationProps) {
   useEffect(() => {
+    let isComposing = false;
     const handleKeyDown = (e: KeyboardEvent) => {
+      if (isComposing) return;
       if (e.key !== "Tab") return;
       e.preventDefault();
       if (editingId == undefined) return;
@@ -20,8 +22,14 @@ export default function useGridTabNavigation({
       const nextId = getNextId(editingId);
       if (nextId) setEditingId(nextId);
     };
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("compositionstart", () => {
+      isComposing = true;
+    });
+    window.addEventListener("compositionend", () => {
+      isComposing = false;
+    });
 
+    window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [editingId, setEditingId, getNextId]);
 }
