@@ -13,6 +13,8 @@ import { useAuthStore } from "@/lib/stores/authStore";
 import { ensureAccessToken } from "@/feature/auth/service";
 import QuestionIcon from "./icon/QuestionIcon";
 import LoadingSpiner from "@/feature/ui/LoadingSpiner";
+import useGridTabNavigation from "../hooks/useGridTabNavigation";
+import { getNextCellId } from "../service";
 
 type Props = {
   isModalVisible: boolean;
@@ -46,6 +48,12 @@ export default function MandalaModal({
   const centerIndex = 0;
 
   const getAccessToken = useCallback(ensureAccessToken, []);
+
+  useGridTabNavigation({
+    editingId: editingSubCellId,
+    setEditingId: setEditingSubCell,
+    getNextId: getNextCellId,
+  });
 
   const { startStream, recommendation, isStreaming } = useSSERecommendation({
     goal: item[0].content,
