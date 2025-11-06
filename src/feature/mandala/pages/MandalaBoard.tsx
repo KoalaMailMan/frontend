@@ -52,7 +52,6 @@ export default function MandalaBoard({
 
   const handleSave = async () => {
     if (!accessToken && !wasLoggedIn) {
-      console.log("ATest");
       setAuthText("만다라트 저장");
       setAuthOpen(true);
       return;
