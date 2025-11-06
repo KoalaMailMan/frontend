@@ -154,7 +154,7 @@ export default function MandalaModal({
         className="relative bg-white rounded-lg shadow-2xl max-w-[500px] w-full max-h-[648px] pb-12 "
         onClick={(e) => e.stopPropagation()} // 모달 내용 클릭 시 이벤트 버블링 방지
       >
-        <div className="h-[46px] flex items-center gap-[424px] py-[10px] pl-[20px] pr-[13px]">
+        <div className="h-[46px] flex items-center justify-between py-[10px] pl-[20px] pr-[13px]">
           <GuideWritingComponent
             parentWidth={width}
             isQuestion={isQuestion}

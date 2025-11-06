@@ -10,7 +10,7 @@ export default function AuthComponent({ children }: any) {
   if (!isAuthOpen) return;
 
   return (
-    <div className="md:w-[562px] h-[325px] bg-white border-1 border-[#B3B3B3] px-[20px] py-[20px] pb-[40px] rounded-lg fixed top-[50%] left-[50%] mt-[-162px] ml-[-281px] z-150">
+    <div className="md:w-[562px] w-[95%] h-[325px] bg-white border-1 border-[#B3B3B3] px-[20px] py-[20px] pb-[40px] rounded-lg fixed top-[50%] left-[50%] md:mt-[-162px] md:ml-[-281px] mt-[-47%] ml-[-47%] z-150">
       <p className="w-full h-[20px] flex justify-end mt-[4px]">
         <span className="w-[20px]" onClick={() => setAuthOpen(false)}>
           <X size={20} strokeColor="#B3B3B3" />
