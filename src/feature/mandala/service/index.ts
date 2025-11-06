@@ -5,6 +5,7 @@ import {
   type DataOption,
   type MainGoal,
   type MandalaType,
+  type SubGoal,
 } from "@/lib/stores/mandalaStore";
 import { apiClient } from "@/lib/api/client";
 import { createMandalaAPI } from "../api/mandalart/createMandala";
@@ -635,12 +636,59 @@ export const handlePrefixDuplication = (id: string) => {
   return deduped.join("-");
 };
 
-export const getNextCellId = (editingCellId: string) => {
-  const data: MainGoal[] = useMandalaStore.getState().data.core.mains;
+export const getNextCellId = (editingCellId: string, data?: any) => {
+  let mandalart: MainGoal[] = useMandalaStore.getState().data.core.mains;
   if (editingCellId.startsWith("sub")) {
     const chunk = editingCellId.split("-");
-    const mainIndex = chunk[1] === "center" ? 0 : parseInt(chunk[1]);
-    const ids = data[mainIndex].subs.map((sub) => sub.goalId);
+    let mainIndex =
+      chunk[1] === "center" ? parseInt(chunk[2]) : parseInt(chunk[1]);
+    if (data !== undefined) {
+      // 전체보기 만다라트
+      const currentList = data[mainIndex];
+      const ids = moveItem(
+        currentList.map((sub: SubGoal) => sub.goalId),
+        0,
+        4
+      );
+      const currentIndex = ids.indexOf(editingCellId);
+      if (currentIndex === -1) return null;
+      if (currentIndex >= 0) {
+        if (currentIndex === ids.length - 1) {
+          if (mainIndex === 4) {
+            const nextMainIndex = 0;
+            const nextList = data[nextMainIndex];
+            return nextList[1]?.goalId ?? null;
+          }
+          if (mainIndex === 0) {
+            const nextMainIndex = 5;
+            const nextList = data[nextMainIndex];
+            if (!nextList) return null;
+
+            return nextList[1]?.goalId ?? null;
+          }
+          if (mainIndex === 8) {
+            const nextMainIndex = 1;
+            const nextList = data[nextMainIndex];
+            if (!nextList) return null;
+
+            return nextList[1]?.goalId ?? null;
+          }
+          const nextMainIndex = parseInt(chunk[1]) + 1;
+          const nextList = data[nextMainIndex];
+          if (!nextList) return null;
+
+          return nextList[1]?.goalId ?? null;
+        }
+        return ids[currentIndex + 1];
+      }
+    }
+
+    const ids = moveItem(
+      mandalart[mainIndex].subs.map((sub) => sub.goalId),
+      0,
+      4
+    );
+
     const subIndex = ids.findIndex((id) => id === editingCellId);
     if (subIndex < 0) return null;
     if (subIndex === ids.length - 1) {
@@ -650,7 +698,7 @@ export const getNextCellId = (editingCellId: string) => {
     }
   } else {
     const ids = moveItem(
-      data.map((main) => main.goalId),
+      mandalart.map((main) => main.goalId),
       0,
       4
     );

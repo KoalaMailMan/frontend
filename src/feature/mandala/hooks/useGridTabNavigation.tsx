@@ -3,13 +3,15 @@ import { useEffect } from "react";
 type UseGridTabNavigationProps = {
   editingId: string | null;
   setEditingId: (id: string | null) => void;
-  getNextId: (id: string) => string | null;
+  getNextId: (id: string, data?: any) => string | null;
+  data?: any;
 };
 
 export default function useGridTabNavigation({
   editingId,
   setEditingId,
   getNextId,
+  data,
 }: UseGridTabNavigationProps) {
   useEffect(() => {
     let isComposing = false;
@@ -19,7 +21,7 @@ export default function useGridTabNavigation({
       e.preventDefault();
       if (editingId == undefined) return;
 
-      const nextId = getNextId(editingId);
+      const nextId = getNextId(editingId, data);
       if (nextId) setEditingId(nextId);
     };
     window.addEventListener("compositionstart", () => {

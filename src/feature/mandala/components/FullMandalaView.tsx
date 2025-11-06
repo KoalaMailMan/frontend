@@ -6,6 +6,8 @@ import MandalaContainer from "./MandalaContainer";
 import { cn } from "@/lib/utils";
 import { captureAndDownload } from "../utills/image";
 import { findbyCSS, getGridClasses, type Type } from "../utills/css";
+import useGridTabNavigation from "../hooks/useGridTabNavigation";
+import { getNextCellId } from "../service";
 
 export default function FullMandalaView() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
@@ -67,6 +69,14 @@ export default function FullMandalaView() {
     }
     return result;
   }, [addPositionProperty, editingFullCellId]);
+
+  useGridTabNavigation({
+    editingId: editingFullCellId,
+    setEditingId: setEditingFullCell,
+    getNextId: getNextCellId,
+    data: grid,
+  });
+
   const handleSubStartEdit = (goalId: string) => {
     setEditingFullCell(goalId);
   };
