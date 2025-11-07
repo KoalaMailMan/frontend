@@ -24,7 +24,7 @@ export const handleLogin = () => {
     useAuthStore.getState().setAccessToken(token);
     useAuthStore.getState().setWasLoggedIn(true);
     useAuthStore.getState().setLastLoginTime(currentTime);
-    useAuthStore.getState().setTemporaryAuth(false);
+    useAuthStore.getState().setTemporaryAuth("loggedIn");
     handleUnknownData();
     handleUserLookup(token);
     window.history.replaceState({}, document.title, window.location.pathname);
@@ -50,6 +50,7 @@ export const handleLogout = () => {
   } finally {
     useAuthStore.getState().setWasLoggedIn(false);
     useAuthStore.getState().setAccessToken(null);
+    useAuthStore.getState().setTemporaryAuth("none");
     useMandalaStore.getState().setData(emptyDummyData.data);
   }
 };
