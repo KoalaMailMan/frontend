@@ -1,4 +1,3 @@
-import X from "@/feature/tutorial/components/icons/X";
 import Button from "@/feature/ui/Button";
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
@@ -33,7 +32,6 @@ export default function MandalaReadOnlyCell({
   tutorialArrowButton = false,
   onCellClick,
   onDetailClick,
-  onRemove,
 }: MandalaReadOnlyCellProps) {
   const [isHovered, setIsHovered] = useState(false);
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
@@ -101,19 +99,6 @@ export default function MandalaReadOnlyCell({
         >
           <ChevronRight className="h-3 w-3" />
         </Button>
-      )}
-      {!isCenter && isModalOpen && (
-        <div
-          className="w-[24px] h-[24px] absolute right-[4px] top-[3.5px]"
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onRemove) {
-              onRemove(id);
-            }
-          }}
-        >
-          <X size={8} className="w-full h-full p-0.5" />
-        </div>
       )}
     </div>
   );
