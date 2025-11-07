@@ -1,10 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
+export type AuthState = "none" | "temporary" | "loggedIn";
 type SocialProvider = "google" | "naver" | null;
 type States = {
   accessToken: string | null;
-  temporaryAuth: boolean;
+  temporaryAuth: AuthState;
   user: {
     nickname: string;
     email: string;
@@ -16,7 +17,7 @@ type States = {
 type Actions = {
   getAccessToken: () => string | null;
   setAccessToken: (token: string | null) => void;
-  setTemporaryAuth: (state: boolean) => void;
+  setTemporaryAuth: (state: AuthState) => void;
   setWasLoggedIn: (state: boolean) => void;
   setLastProvider: (state: SocialProvider) => void;
   setLastLoginTime: (state: string) => void;
@@ -28,7 +29,7 @@ type Actions = {
 
 type AuthPersistedState = {
   wasLoggedIn: boolean;
-  temporaryAuth: boolean;
+  temporaryAuth: AuthState;
   lastProvider: SocialProvider;
   lastLoginTime?: string | null;
   hasSeenReminderSetup: boolean;
@@ -40,7 +41,7 @@ export const useAuthStore = create<States & Actions>()(
   persist(
     (set, get) => ({
       accessToken: null,
-      temporaryAuth: false,
+      temporaryAuth: "none",
       wasLoggedIn: false,
       lastProvider: null,
       lastLoginTime: "",
@@ -55,7 +56,7 @@ export const useAuthStore = create<States & Actions>()(
       getAccessToken: () => get().accessToken,
       setAccessToken: (token: string | null) =>
         set(() => ({ accessToken: token })),
-      setTemporaryAuth: (state: boolean) =>
+      setTemporaryAuth: (state: AuthState) =>
         set(() => ({ temporaryAuth: state })),
       setWasLoggedIn: (state: boolean) => set(() => ({ wasLoggedIn: state })),
       setLastProvider: (state: SocialProvider) =>

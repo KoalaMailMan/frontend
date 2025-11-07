@@ -106,7 +106,7 @@ export default function MandalaBoard({
             isReminder && "h-[96px]"
           )}
         >
-          {!isReminder && <img src={KoalaTextRowLogo} className="w-full" />}
+          <img src={KoalaTextRowLogo} className="w-full" />
         </div>
         <NoticeContainer
           variant={"max"}

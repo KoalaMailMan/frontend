@@ -204,7 +204,6 @@ export default function MandalaModal({
                           onStartEdit={() => handleSubStartEdit(sub.goalId)}
                           onContentChange={onContentChange}
                           onCancelEdit={handleSubCancelEdit}
-                          onRemove={removeSubGoalValue}
                           className={cn(
                             "md:min-w-[125px] w-full h-full",
                             getGridClasses(index),

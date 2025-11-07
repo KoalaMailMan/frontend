@@ -31,9 +31,10 @@ function App() {
   const temporaryAuth = useAuthStore((state) => state.temporaryAuth);
   const authComponentText = useAuthStore((state) => state.authComponentText);
   const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
+  const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
 
   useEffect(() => {
-    if (temporaryAuth) return;
+    if (temporaryAuth === "none") return;
     const initApp = async () => {
       try {
         // 최초 로그인
@@ -52,20 +53,22 @@ function App() {
             toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
             return;
           }
+          setTemporaryAuth("loggedIn");
           await handleMandalaData();
         }
       } catch (error) {
         console.error("Auth initialization failed:", error);
+        setTemporaryAuth("none");
       }
     };
     initApp();
-  }, [temporaryAuth]);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <Header currentTheme={currentTheme} onThemeChange={updateCurrentTheme} />
 
-      {temporaryAuth || wasLoggedIn ? (
+      {temporaryAuth !== "none" || wasLoggedIn ? (
         <MandalaBoard getCurrentBackground={getCurrentBackground} />
       ) : (
         <HomePage getCurrentBackground={getCurrentBackground} />

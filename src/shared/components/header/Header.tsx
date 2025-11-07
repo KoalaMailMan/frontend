@@ -1,5 +1,3 @@
-import HeaderTextLogo from "@/assets/common/header_text_logo.png";
-
 import Button from "@/feature/ui/Button";
 import { LogOut } from "lucide-react";
 import { handleLogout } from "@/feature/auth/service";
@@ -9,7 +7,6 @@ import type { ThemeColor } from "@/data/themes";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import AddressBook from "./icons/AddressBook";
 import { cn } from "@/lib/utils";
-import { useMandalaStore } from "@/lib/stores/mandalaStore";
 
 type MandaraChartProps = {
   currentTheme: ThemeColor;
@@ -24,8 +21,6 @@ export default function Header({
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
   const setAuthText = useAuthStore((state) => state.setAuthText);
-  const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
-  const isReminderOpen = useMandalaStore((state) => state.isReminderOpen);
   const setOnboardingVisible = useTutorialStore(
     (state) => state.setOnboardingVisible
   );
@@ -34,19 +29,9 @@ export default function Header({
     <div className="w-full mb-4 sm:mb-6 lg:mb-8 px-4 p-4 fixed z-[1]">
       <div
         className={cn(
-          "mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4",
-          !isReminderOpen ? "w-full justify-end" : "max-w-4xl justify-between"
+          "mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full justify-end"
         )}
       >
-        <div
-          className={cn("w-[210px] sm:w-[13rem]", !isReminderOpen && "hidden")}
-        >
-          <img
-            src={HeaderTextLogo}
-            alt="날개 달린 코알라 캐릭터가 서있는 모습으로 서비스 메인 로고 이미지입니다."
-            className="w-full pixelated"
-          />
-        </div>
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           <Button
             variant="outline"
@@ -83,7 +68,6 @@ export default function Header({
               onClick={() => {
                 setAuthText("만다라트 대시보드 이용");
                 setAuthOpen(true);
-                setTemporaryAuth(false);
               }}
               className="w-[86px] pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
               dir="ltr"

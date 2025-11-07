@@ -2,9 +2,10 @@ import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png";
 import ScrollAnimation from "./ScrollAnimation";
 import GoogleLoginButton from "@/feature/auth/components/GoogleLoginButton";
 import NaverLoginButton from "@/feature/auth/components/NaverLoginButton";
+import type { AuthState } from "@/lib/stores/authStore";
 
 type Props = {
-  onTemporaryLogin: (state: boolean) => void;
+  onTemporaryLogin: (state: AuthState) => void;
 };
 
 export default function MainSection({ onTemporaryLogin }: Props) {
@@ -29,7 +30,7 @@ export default function MainSection({ onTemporaryLogin }: Props) {
         <GoogleLoginButton />
         <p
           className="h-[46px] flex justify-center items-center underline text-[12px] text-[#191919] font-medium leading-[17.5px]"
-          onClick={() => onTemporaryLogin(true)}
+          onClick={() => onTemporaryLogin("temporary")}
         >
           로그인 없이 이용하기
         </p>

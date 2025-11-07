@@ -18,7 +18,6 @@ type MandalaContainerCellProps = {
   onContentChange: (value: string) => void;
   onCancelEdit: () => void;
   onDetailClick?: () => void;
-  onRemove?: (id: SubGoal["goalId"]) => void;
 };
 
 export default function MandalaContainer({
@@ -36,7 +35,6 @@ export default function MandalaContainer({
   onContentChange,
   onCancelEdit,
   onDetailClick,
-  onRemove,
 }: MandalaContainerCellProps) {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -89,7 +87,6 @@ export default function MandalaContainer({
       tutorialArrowButton={tutorialArrowButton}
       onCellClick={onStartEdit}
       onDetailClick={onDetailClick}
-      onRemove={onRemove}
     />
   );
 }
