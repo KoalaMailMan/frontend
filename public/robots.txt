@@ -6,5 +6,8 @@ Allow: /
 # /api / json 파일 접근 차단
 Disallow: /api/
 Disallow: /*.json$
+Disallow: /auth/
+Disallow: /login
+Disallow: /callback
 
 Sitemap: https://ringdong.kr/sitemap.xml
