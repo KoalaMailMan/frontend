@@ -1,8 +1,13 @@
-import service_info_make_goals from "@/assets/home/service_info/service_info_make_goals.jpg";
-import service_info_regret from "@/assets/home/service_info/service_info_regret.jpg";
-import service_info_ai from "@/assets/home/service_info/service_info_ai.jpg";
-import service_info_mail from "@/assets/home/service_info/service_info_mail.jpg";
-import service_info_success from "@/assets/home/service_info/service_info_success.jpg";
+// @ts-expect-error -- vite-imagetools query import
+import service_info_make_goals from "@/assets/home/service_info/service_info_make_goals.jpg?width=1080&format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import service_info_regret from "@/assets/home/service_info/service_info_regret.jpg?width=1080&format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import service_info_ai from "@/assets/home/service_info/service_info_ai.jpg?width=1080&format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import service_info_mail from "@/assets/home/service_info/service_info_mail.jpg?width=1080&format=webp";
+// @ts-expect-error -- vite-imagetools query import
+import service_info_success from "@/assets/home/service_info/service_info_success.jpg?width=1080&format=webp";
 
 export const SERVICE_GUIDE_STEPS = [
   {

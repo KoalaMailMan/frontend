@@ -1,5 +1,5 @@
-import KoalaTextRowLogo from "@/assets/common/header_text_logo.png";
-
+// @ts-expect-error -- vite-imagetools query import
+import KoalaTextRowLogo from "@/assets/common/header_text_logo.png?width=476;952;1428&as=srcset&format=webp";
 import MandalaGrid from "../components/MandalaGrid";
 import { CardContent } from "@/feature/ui/Card";
 import { cn } from "@/lib/utils";
@@ -106,7 +106,17 @@ export default function MandalaBoard({
             isReminder && "h-[96px]"
           )}
         >
-          <img src={KoalaTextRowLogo} className="w-full" />
+          <img
+            src={KoalaTextRowLogo}
+            className="w-full"
+            loading="lazy"
+            decoding="async"
+            srcSet={KoalaTextRowLogo}
+            sizes="(max-width: 768px) 90vw, 476px"
+            width={476}
+            height={96}
+            style={{ maxWidth: "100%", height: "auto" }}
+          />
         </div>
         <NoticeContainer
           variant={"max"}
