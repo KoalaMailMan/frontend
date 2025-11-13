@@ -1,4 +1,5 @@
-import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png";
+// @ts-expect-error -- vite-imagetools query import
+import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png?width=470;940;1410&format=webp";
 import ScrollAnimation from "./ScrollAnimation";
 import GoogleLoginButton from "@/feature/auth/components/GoogleLoginButton";
 import NaverLoginButton from "@/feature/auth/components/NaverLoginButton";
@@ -21,7 +22,16 @@ export default function MainSection({ onTemporaryLogin }: Props) {
           src={koalaTextLogoImage}
           alt="코알라 우체부"
           className="w-full pixelated drop-shadow-2xl max-w-xl mx-auto"
-          style={{ filter: "drop-shadow(4px 4px 8px rgba(0,0,0,0.5))" }}
+          style={{
+            height: "auto",
+            filter: "drop-shadow(4px 4px 8px rgba(0,0,0,0.5))",
+          }}
+          loading="lazy"
+          decoding="async"
+          srcSet={koalaTextLogoImage}
+          sizes="(max-width: 768px) 90vw, 470px"
+          width={470}
+          height={470}
         />
       </div>
       <div className="space-y-4 max-w-sm mx-auto">

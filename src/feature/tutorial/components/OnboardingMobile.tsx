@@ -1,4 +1,6 @@
-import tutorialKoala from "@/assets/tutorial/tutorial_koala.png";
+// @ts-expect-error -- vite-imagetools query import
+import TutorialKoala from "@/assets/tutorial/tutorial_koala.png?width=150;300;450&as=srcset&format=webp";
+
 import { tutorialSteps } from "@/data/tutorial";
 import { useEffect, useRef, useState } from "react";
 import Button from "../../ui/Button";
@@ -115,9 +117,16 @@ export default function OnboardingMobile() {
       >
         <div className="w-[30vw] max-w-[120px] flex-shrink-0 mx-auto">
           <img
-            src={tutorialKoala}
+            src={TutorialKoala}
             alt="코알라"
             className="w-full h-auto object-contain"
+            loading="lazy"
+            decoding="async"
+            srcSet={TutorialKoala}
+            sizes="(max-width: 768px) 90vw, 150px"
+            width={150}
+            height={150}
+            style={{ maxWidth: "100%", height: "auto" }}
           />
         </div>
 

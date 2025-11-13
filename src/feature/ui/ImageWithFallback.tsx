@@ -25,6 +25,10 @@ export function ImageWithFallback(
           alt="Error loading image"
           {...rest}
           data-original-url={src}
+          loading="lazy"
+          decoding="async"
+          width={props.width}
+          height={props.height}
         />
       </div>
     </div>
@@ -36,6 +40,10 @@ export function ImageWithFallback(
       style={style}
       {...rest}
       onError={handleError}
+      loading="lazy"
+      decoding="async"
+      width={props.width}
+      height={props.height}
     />
   );
 }
