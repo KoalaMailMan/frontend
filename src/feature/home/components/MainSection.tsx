@@ -1,5 +1,5 @@
 // @ts-expect-error -- vite-imagetools query import
-import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png?width=470;940;1410&format=webp";
+import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png?width=470;940;1410&as=srcset&format=webp";
 import ScrollAnimation from "./ScrollAnimation";
 import GoogleLoginButton from "@/feature/auth/components/GoogleLoginButton";
 import NaverLoginButton from "@/feature/auth/components/NaverLoginButton";
