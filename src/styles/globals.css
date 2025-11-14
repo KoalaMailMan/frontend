@@ -3,6 +3,14 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900; /* Variable Font는 범위로 지정 */
+  font-display: swap;
+  src: url("/fonts/Inter-VariableFont_opsz,wght.woff2") format("woff2");
+}
+
 :root {
   --font-size: 14px;
 
@@ -157,7 +165,6 @@
   --sidebar-ring: var(--current-theme);
 
   /* Pixel-inspired font stack */
-  --font-pixel: "Press Start 2P", "Courier New", monospace;
   --font-body: "Inter", -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
