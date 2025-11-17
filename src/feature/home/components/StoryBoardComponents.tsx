@@ -1,6 +1,6 @@
 import { SERVICE_GUIDE_STEPS } from "@/data/step_guide";
-import { ImageWithFallback } from "@/feature/ui/ImageWithFallback";
 import { cn } from "@/lib/utils";
+import { ImageWithFallback } from "@/shared/\bcomponents/ImageWithFallback";
 
 type Props = {
   isMobile: boolean;
@@ -28,6 +28,7 @@ export default function StoryBoardComponents({ isMobile }: Props) {
                 <ImageWithFallback
                   src={step.image}
                   alt={step.title}
+                  loading="lazy"
                   className="w-full h-full object-cover"
                 />
                 {/* 이모지 오버레이 */}
