@@ -1,13 +1,13 @@
 // @ts-expect-error -- vite-imagetools query import
-import service_info_make_goals from "@/assets/home/service_info/service_info_make_goals.jpg?width=313;626;939&format=webp";
+import service_info_make_goals from "@/assets/home/service_info/service_info_make_goals.jpg?width=313;626;939&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import service_info_regret from "@/assets/home/service_info/service_info_regret.jpg?width=313;626;939&format=webp";
+import service_info_regret from "@/assets/home/service_info/service_info_regret.jpg?width=313;626;939&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import service_info_ai from "@/assets/home/service_info/service_info_ai.jpg?width=471;942;1413&format=webp";
+import service_info_ai from "@/assets/home/service_info/service_info_ai.jpg?width=471;942;1413&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import service_info_mail from "@/assets/home/service_info/service_info_mail.jpg?width=313;626;939&format=webp";
+import service_info_mail from "@/assets/home/service_info/service_info_mail.jpg?width=313;626;939&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import service_info_success from "@/assets/home/service_info/service_info_success.jpg?width=313;626;939&format=webp";
+import service_info_success from "@/assets/home/service_info/service_info_success.jpg?width=313;626;939&format=webp&as=srcset";
 
 export const SERVICE_GUIDE_STEPS = [
   {
