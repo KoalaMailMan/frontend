@@ -22,10 +22,10 @@ export function ImageWithFallback(
       <div className="flex items-center justify-center w-full h-full">
         <img
           src={ERROR_IMG_SRC}
+          srcSet={ERROR_IMG_SRC}
           alt="Error loading image"
           {...rest}
           data-original-url={src}
-          loading="lazy"
           decoding="async"
           width={props.width}
           height={props.height}
@@ -35,12 +35,12 @@ export function ImageWithFallback(
   ) : (
     <img
       src={src}
+      srcSet={src}
       alt={alt}
       className={className}
       style={style}
       {...rest}
       onError={handleError}
-      loading="lazy"
       decoding="async"
       width={props.width}
       height={props.height}
