@@ -31,28 +31,30 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
       {/* 메인 로그인 섹션 */}
       <div className="min-h-screen flex flex-col items-center justify-center px-4 relative">
         {/* 모바일 배경 이미지 */}
-        <div
-          className="absolute inset-0 z-[-1000] pointer-events-none md:hidden"
-          style={{
-            backgroundImage: `url(${mobile})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundAttachment: "scroll",
-            height: "var(--real-vh)",
-          }}
-        />
+        <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]">
+          <picture>
+            <source srcSet={mobile} media="(min-width: 768px)" />
+            <img
+              className="fixed inset-0 w-full h-full object-cover -z-10"
+              srcSet={mobile}
+              src={mobile}
+              alt="테마 배경 이미지"
+            />
+          </picture>
+        </div>
         {/* 데스크탑 배경 이미지 */}
-        <div
-          className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:block"
-          style={{
-            backgroundImage: `url(${desktop})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundAttachment: "fixed",
-          }}
-        />
+        <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-fixed">
+          <picture>
+            <source srcSet={desktop} media="(min-width: 1200px)" />
+            <img
+              className="fixed inset-0 w-full h-full object-cover -z-10"
+              src={desktop}
+              srcSet={desktop}
+              alt="테마 배경 이미지"
+            />
+          </picture>
+        </div>
+
         {/* 날아가는 코알라 애니메이션 */}
         <BackgroundAnimation />
 
@@ -62,30 +64,6 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
 
       {/* 서비스 소개 섹션 */}
       <div className="py-20 px-4 relative">
-        {/* 모바일 배경 이미지 */}
-        <div
-          className="absolute inset-0 z-[-1000] pointer-events-none md:hidden"
-          style={{
-            backgroundImage: `url(${mobile})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundAttachment: "scroll",
-            height: "var(--real-vh)",
-          }}
-        />
-        {/* 데스크탑 배경 이미지 */}
-        <div
-          className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:block"
-          style={{
-            backgroundImage: `url(${desktop})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-            backgroundAttachment: "fixed",
-          }}
-        />
-
         {/* 불투명 오버레이 */}
         <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
         <div className="relative z-10">

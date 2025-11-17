@@ -80,25 +80,29 @@ export default function MandalaBoard({
     <div className="relative min-h-screen p-4 pt-[51px] ">
       <BackgroundAnimation />
       {/* 모바일 배경 이미지 */}
-      <div
-        className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:hidden"
-        style={{
-          backgroundImage: `url(${mobile})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
+      <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat">
+        <picture>
+          <source srcSet={mobile} media="(min-width: 768px)" />
+          <img
+            className="fixed inset-0 w-full h-full object-cover -z-10"
+            srcSet={mobile}
+            src={mobile}
+            alt="테마 배경 이미지"
+          />
+        </picture>
+      </div>
       {/* 데스크탑 배경 이미지 */}
-      <div
-        className="absolute inset-0  min-h-screen z-[-1000] pointer-events-none md:block"
-        style={{
-          backgroundImage: `url(${desktop})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-        }}
-      />
+      <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat">
+        <picture>
+          <source srcSet={desktop} media="(min-width: 1200px)" />
+          <img
+            className="fixed inset-0 w-full h-full object-cover -z-10"
+            src={desktop}
+            srcSet={desktop}
+            alt="테마 배경 이미지"
+          />
+        </picture>
+      </div>
       <div className="max-w-2xl mx-auto">
         <div
           className={cn(
