@@ -135,6 +135,7 @@ export default function OnboardingMobile() {
           <Button
             onClick={handleClose}
             className="absolute top-2 right-2 w-4 h-4 bg-inherit hover:bg-inherit shadow-none z-10"
+            aria-label="튜토리얼 닫기"
           >
             <X className="h-4 w-4 text-gray-400" />
           </Button>

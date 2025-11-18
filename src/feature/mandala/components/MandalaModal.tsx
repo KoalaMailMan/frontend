@@ -166,6 +166,7 @@ export default function MandalaModal({
             size="icon"
             className="w-[20px] h-[20px]"
             onClick={handleModalClose}
+            aria-label="세부 목표 설정창 닫기"
           >
             <X size={20} strokeColor="#B3B3B3" stroke={1} />
           </Button>

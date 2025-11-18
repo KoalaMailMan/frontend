@@ -33,6 +33,7 @@ export default function ThemeSelector({
           variant="outline"
           size="default"
           className={cn("pixel-button gap-2", className)}
+          aria-label="테마 선택기 열기"
         >
           <div
             className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
