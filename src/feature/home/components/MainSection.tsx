@@ -26,7 +26,7 @@ export default function MainSection({ onTemporaryLogin }: Props) {
             height: "auto",
             filter: "drop-shadow(4px 4px 8px rgba(0,0,0,0.5))",
           }}
-          loading="lazy"
+          loading="eager"
           decoding="async"
           srcSet={koalaTextLogoImage}
           sizes="(max-width: 768px) 90vw, 470px"
@@ -35,9 +35,13 @@ export default function MainSection({ onTemporaryLogin }: Props) {
         />
       </div>
       <div className="space-y-4 max-w-sm mx-auto">
-        <NaverLoginButton />
+        {typeof window === "undefined" && (
+          <>
+            <NaverLoginButton />
 
-        <GoogleLoginButton />
+            <GoogleLoginButton />
+          </>
+        )}
         <p
           className="h-[46px] flex justify-center items-center underline text-[12px] text-[#191919] font-medium leading-[17.5px]"
           onClick={() => onTemporaryLogin("temporary")}
