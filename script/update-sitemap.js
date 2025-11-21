@@ -2,7 +2,7 @@ import path from "path";
 import fs from "fs";
 
 function updateSitemap() {
-  const sitemapPath = path.resolve("/public", "sitemap.xml");
+  const sitemapPath = path.resolve("public", "sitemap.xml");
 
   if (!fs.existsSync(sitemapPath)) {
     console.error("sitemap.xml not found at:", sitemapPath);
@@ -23,19 +23,20 @@ function updateSitemap() {
 
   if (sitemap === updatedSitemap) {
     console.log("Sitemap already up to date:", oldDate);
-    process.exit(0);
+    return;
   }
+
   fs.writeFileSync(sitemapPath, updatedSitemap);
 
   console.log("Sitemap updated");
   console.log(`   ${oldDate} → ${today}`);
+}
 
-  if (process.env.CI === "true") {
-    updateSitemap();
-  } else {
-    console.log("Skipping sitemap update (not in CI)");
-    console.log("   Use CI=true npm run update-sitemap to force");
-  }
+if (process.env.CI === "true") {
+  updateSitemap();
+} else {
+  console.log("Skipping sitemap update (not in CI)");
+  console.log("   Use CI=true npm run update-sitemap to force");
 }
 
 export { updateSitemap };
