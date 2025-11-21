@@ -3,6 +3,8 @@ name: Frontend → S3 → CloudFront
 on:
   push:
     branches: ["main"] # main 브랜치에 push될 때 실행
+    paths-ignore:
+      - "**.md" # README 같은 문서 무시
   workflow_dispatch: # 수동 실행도 가능하게
 
 concurrency:
@@ -10,6 +12,35 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    outputs:
+      sitemap_updated: ${{ steps.commit.outputs.updated }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+
+      - run: npm run update-sitemap
+        env:
+          CI: true
+      - id: commit
+        run: |
+          if git diff --quiet public/sitemap.xml; then
+            echo "updated=false" >> $GITHUB_OUTPUT
+          else
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add public/sitemap.xml
+            git commit -m "chore: update sitemap [skip ci]"
+            git push
+            echo "updated=true" >> $GITHUB_OUTPUT
+          fi
+
   build-deploy:
     runs-on: ubuntu-latest
     permissions:
