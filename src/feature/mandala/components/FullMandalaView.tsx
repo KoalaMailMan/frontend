@@ -142,6 +142,7 @@ export default function FullMandalaView() {
               size="icon"
               onClick={() => onClose(false)}
               className="pixel-button"
+              aria-label="전체보기 닫기"
             >
               <X className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>

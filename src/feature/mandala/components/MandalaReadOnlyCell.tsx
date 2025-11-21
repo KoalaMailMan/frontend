@@ -96,6 +96,7 @@ export default function MandalaReadOnlyCell({
           data-tutorial={
             tutorialArrowButton ? "tutorial-arrow-button" : undefined
           }
+          aria-label="세부 목표 설정창 열기"
         >
           <ChevronRight className="h-3 w-3" />
         </Button>

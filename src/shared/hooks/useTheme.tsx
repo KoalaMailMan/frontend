@@ -2,31 +2,31 @@ import { useEffect, useState } from "react";
 
 // 모바일 이미지 최적화
 // @ts-expect-error -- vite-imagetools query import
-import RED_MO_BG from "@/assets/background/background_red.jpg?width=1080&format=webp";
+import RED_MO_BG from "@/assets/background/background_red.jpg?width=320;640;768;1200&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import PURPLE_MO_BG from "@/assets/background/background_purple.jpg?width=1080&format=webp";
+import PURPLE_MO_BG from "@/assets/background/background_purple.jpg?width=320;640;768;1200&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import BLUE_MO_BG from "@/assets/background/background_blue.jpg?width=1080&format=webp";
+import BLUE_MO_BG from "@/assets/background/background_blue.jpg?width=320;640;768;1200&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import GREEN_MO_BG from "@/assets/background/background_green.jpg?width=1080&format=webp";
+import GREEN_MO_BG from "@/assets/background/background_green.jpg?width=320;640;768;1200&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import YELLOW_MO_BG from "@/assets/background/background_yellow.jpg?width=1080&format=webp";
+import YELLOW_MO_BG from "@/assets/background/background_yellow.jpg?width=320;640;768;1200&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import PINK_MO_BG from "@/assets/background/background_pink.jpg?width=1080&format=webp";
+import PINK_MO_BG from "@/assets/background/background_pink.jpg?width=320;640;768;1200&format=webp&as=srcset";
 
 // 데스크탑 이미지 최적화
 // @ts-expect-error -- vite-imagetools query import
-import RED_BG from "@/assets/background/background_red.jpg?width=1920&format=webp";
+import RED_BG from "@/assets/background/background_red.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import PURPLE_BG from "@/assets/background/background_purple.jpg?format=webp";
+import PURPLE_BG from "@/assets/background/background_purple.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import BLUE_BG from "@/assets/background/background_blue.jpg?format=webp";
+import BLUE_BG from "@/assets/background/background_blue.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import GREEN_BG from "@/assets/background/background_green.jpg?format=webp";
+import GREEN_BG from "@/assets/background/background_green.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import YELLOW_BG from "@/assets/background/background_yellow.jpg?format=webp";
+import YELLOW_BG from "@/assets/background/background_yellow.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
-import PINK_BG from "@/assets/background/background_pink.jpg?format=webp";
+import PINK_BG from "@/assets/background/background_pink.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
 
 export type ThemeColor =
   | "purple"
