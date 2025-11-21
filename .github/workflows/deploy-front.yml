@@ -1,4 +1,4 @@
-name: Frontend → S3 → CloudFront
+name: deploy-frontend-and-update-sitemap
 
 on:
   push:
