@@ -35,12 +35,9 @@ export default function MainSection({ onTemporaryLogin }: Props) {
         />
       </div>
       <div className="space-y-4 max-w-sm mx-auto">
-        {typeof window !== "undefined" && (
-          <>
-            <NaverLoginButton />
-            <GoogleLoginButton />
-          </>
-        )}
+        <NaverLoginButton />
+        <GoogleLoginButton />
+
         <p
           className="h-[46px] flex justify-center items-center underline text-[12px] text-[#191919] font-medium leading-[17.5px]"
           onClick={() => onTemporaryLogin("temporary")}

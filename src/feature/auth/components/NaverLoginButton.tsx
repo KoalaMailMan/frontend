@@ -15,6 +15,7 @@ export default function NaverLoginButton({ className, svgClassName }: Props) {
         "w-full bg-[#0AA372] active:bg-[#077351] text-white h-14 pixel-login-button text-lg shadow-2xl border-1 border-[#077351] active:border-[#04432F] shadow-[4px_4px_0_0_rgba(0,0,0,0.3)] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)] transition-shadow duration-200",
         className
       )}
+      rel="nofollow"
     >
       <svg
         className={cn("w-6 h-6 mr-3", svgClassName)}
