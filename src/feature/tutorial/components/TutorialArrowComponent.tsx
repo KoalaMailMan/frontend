@@ -4,8 +4,9 @@ import { cn } from "@/lib/utils";
 type IconProps = {
   isMobile: boolean;
   targetSelector: string;
+  position: "right" | "left" | "top" | "bottom";
+  mobilePosition: "right" | "left" | "top" | "bottom";
   arrowPosition: { top: number; left: number };
-  position?: "right" | "left" | "top" | "bottom";
   className?: string;
 };
 
@@ -13,6 +14,7 @@ export default function TutorialArrowComponent({
   isMobile = false,
   targetSelector,
   position,
+  mobilePosition,
   arrowPosition,
   className,
 }: IconProps) {
@@ -33,26 +35,25 @@ export default function TutorialArrowComponent({
         transition: "all 0.3s ease",
       }}
     >
-      <DesktopArrow position={position} />
+      <ArrowComponent position={isMobile ? mobilePosition : position} />
     </div>
   );
 }
 
-function DesktopArrow({
-  position = "top",
+/* 공용 화살표 */
+function ArrowComponent({
+  position,
 }: {
-  position?: "right" | "left" | "top" | "bottom";
+  position: "right" | "left" | "top" | "bottom";
 }) {
   return (
     <>
       {position === "left" && (
-        <>
-          <FingerArrow
-            width={57}
-            height={50}
-            className="h-full p-[10px] pb-[5px] -scale-x-100"
-          />
-        </>
+        <FingerArrow
+          width={57}
+          height={50}
+          className="h-full p-[10px] pb-[5px] -scale-x-100"
+        />
       )}
       {position === "right" && (
         <>
@@ -64,22 +65,18 @@ function DesktopArrow({
         </>
       )}
       {position === "top" && (
-        <div className="flex flex-col justify-center">
-          <FingerArrow
-            width={57}
-            height={50}
-            className="p-[10px] pb-[5px] mx-auto rotate-270"
-          />
-        </div>
+        <FingerArrow
+          width={57}
+          height={50}
+          className="p-[10px] pb-[5px] mx-auto rotate-270"
+        />
       )}
       {position === "bottom" && (
-        <>
-          <FingerArrow
-            width={57}
-            height={50}
-            className="h-full p-[10px] pb-[5px]"
-          />
-        </>
+        <FingerArrow
+          width={57}
+          height={50}
+          className="h-full p-[10px] pb-[5px]"
+        />
       )}
     </>
   );

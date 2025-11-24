@@ -213,6 +213,7 @@ export default function OnboardingDesktop({ isMobile }: { isMobile: boolean }) {
         key={currentStep}
         targetSelector={currentTutorial.targetSelector}
         position={currentTutorial.position}
+        mobilePosition={currentTutorial.mobilePosition}
       />
     </article>
   );
