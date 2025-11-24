@@ -6,6 +6,9 @@ on:
     paths-ignore:
       - "**.md" # README 같은 문서 무시
   workflow_dispatch: # 수동 실행도 가능하게
+  
+permissions:
+  contents: write
 
 concurrency:
   group: frontend-prod # 같은 그룹 배포가 겹치면 이전 작업 취소

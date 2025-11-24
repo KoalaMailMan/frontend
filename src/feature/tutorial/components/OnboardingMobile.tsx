@@ -186,6 +186,7 @@ export default function OnboardingMobile() {
         key={currentStep}
         targetSelector={currentTutorial.targetSelector}
         position={currentTutorial.mobilePosition}
+        mobilePosition={currentTutorial.mobilePosition}
       />
     </article>
   );
