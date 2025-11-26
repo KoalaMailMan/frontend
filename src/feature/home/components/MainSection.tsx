@@ -26,6 +26,7 @@ export default function MainSection({ onTemporaryLogin }: Props) {
             height: "auto",
             filter: "drop-shadow(4px 4px 8px rgba(0,0,0,0.5))",
           }}
+          fetchPriority="high"
           loading="eager"
           decoding="async"
           srcSet={koalaTextLogoImage}
