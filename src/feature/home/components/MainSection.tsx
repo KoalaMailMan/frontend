@@ -18,22 +18,27 @@ export default function MainSection({ onTemporaryLogin }: Props) {
       }}
     >
       <div className="w-full">
-        <img
-          src={koalaTextLogoImage}
-          alt="코알라 우체부"
-          className="w-full pixelated drop-shadow-2xl max-w-xl mx-auto"
-          style={{
-            height: "auto",
-            filter: "drop-shadow(4px 4px 8px rgba(0,0,0,0.5))",
-          }}
-          fetchPriority="high"
-          loading="eager"
-          decoding="async"
-          srcSet={koalaTextLogoImage}
-          sizes="(max-width: 768px) 90vw, 470px"
-          width={470}
-          height={470}
-        />
+        <h1>
+          <img
+            src={koalaTextLogoImage}
+            alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
+            className="w-full pixelated drop-shadow-2xl max-w-xl mx-auto"
+            style={{
+              height: "auto",
+              filter: "drop-shadow(4px 4px 8px rgba(0,0,0,0.5))",
+            }}
+            fetchPriority="high"
+            loading="eager"
+            decoding="async"
+            srcSet={koalaTextLogoImage}
+            sizes="(max-width: 768px) 90vw, 470px"
+            width={470}
+            height={470}
+          />
+          <span className="sr-only">
+            만다라트 목표 작성 & 리마인드 | 코알라 우체부
+          </span>
+        </h1>
       </div>
       <div className="space-y-4 max-w-sm mx-auto">
         <NaverLoginButton />
