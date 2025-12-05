@@ -19,7 +19,7 @@ export default ({ mode }: { mode: string }) => {
       },
     },
     esbuild: {
-      drop: ["console", "debugger"], // 프로덕션에서 console, debugger 제거
+      drop: mode === "production" ? ["console", "debugger"] : [], // 프로덕션에서 console, debugger 제거
     },
     plugins: [
       react(),
@@ -58,7 +58,7 @@ export default ({ mode }: { mode: string }) => {
       },
       host: true,
       port: 3000,
-      // allowedHosts: [".ngrok-free.app"],
+      allowedHosts: [".ngrok-free.app"],
     },
   });
 };
