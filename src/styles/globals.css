@@ -8,7 +8,20 @@
   font-style: normal;
   font-weight: 100 900; /* Variable Font는 범위로 지정 */
   font-display: swap;
-  src: url("/fonts/Inter-VariableFont_opsz,wght.woff2") format("woff2");
+  src: url("/fonts/Inter-VariableFont_opsz,wght.ttf") format("truetype");
+}
+
+/* 숨김 처리 */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 
 :root {
