@@ -20,6 +20,7 @@ import OnboardingTutorial from "./feature/tutorial/page";
 import useResize from "./shared/hooks/useResize";
 import AuthComponent from "./feature/auth/components/AuthComponent";
 import HomePage from "./feature/home/pages/HomePage";
+import { useMandalaStore } from "./lib/stores/mandalaStore";
 
 const queryClient = new QueryClient();
 
@@ -34,7 +35,6 @@ function App() {
   const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
 
   useEffect(() => {
-    if (temporaryAuth === "none") return;
     const initApp = async () => {
       try {
         // 최초 로그인
