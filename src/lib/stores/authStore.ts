@@ -3,6 +3,8 @@ import { persist } from "zustand/middleware";
 
 export type AuthState = "none" | "temporary" | "loggedIn";
 type SocialProvider = "google" | "naver" | null;
+
+export type AuthModalText = { title: string; description: string };
 type States = {
   accessToken: string | null;
   temporaryAuth: AuthState;
@@ -11,7 +13,7 @@ type States = {
     email: string;
   };
   isAuthOpen: boolean;
-  authComponentText: string;
+  authComponentText: AuthModalText;
 } & AuthPersistedState;
 
 type Actions = {
@@ -24,7 +26,7 @@ type Actions = {
   setUserInfo: (state: States["user"]) => void;
   setSeenReminder: (state: boolean) => void;
   setAuthOpen: (state: boolean) => void;
-  setAuthText: (state: string) => void;
+  setAuthText: (state: AuthModalText) => void;
 };
 
 type AuthPersistedState = {
@@ -51,7 +53,10 @@ export const useAuthStore = create<States & Actions>()(
       },
       hasSeenReminderSetup: false,
       isAuthOpen: false,
-      authComponentText: "",
+      authComponentText: {
+        title: "",
+        description: "",
+      },
 
       getAccessToken: () => get().accessToken,
       setAccessToken: (token: string | null) =>
@@ -66,7 +71,13 @@ export const useAuthStore = create<States & Actions>()(
       setUserInfo: (state) => set(() => ({ user: state })),
       setSeenReminder: (state) => set(() => ({ hasSeenReminderSetup: state })),
       setAuthOpen: (state) => set(() => ({ isAuthOpen: state })),
-      setAuthText: (state) => set(() => ({ authComponentText: state })),
+      setAuthText: (state) =>
+        set(() => ({
+          authComponentText: {
+            title: state.title,
+            description: state.description,
+          },
+        })),
     }),
     {
       name: AUTH_INFO,
