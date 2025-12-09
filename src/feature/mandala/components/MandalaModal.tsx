@@ -38,6 +38,7 @@ export default function MandalaModal({
   // modal 컴포넌트 상태 관리
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const setAuthText = useAuthStore((state) => state.setAuthText);
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
 
   const positionRef = useRef<HTMLDivElement | null>(null);
@@ -84,6 +85,11 @@ export default function MandalaModal({
 
   const handleRecommend = () => {
     if (!wasLoggedIn && !accessToken) {
+      setAuthText({
+        title: "맞춤 목표 추천을 위해 로그인해주세요",
+        description:
+          "로그인하고 나만의 목표를 만나보세요. \nAI가 당신에게 꼭 맞는 방향을 제안해드릴게요.",
+      });
       setAuthOpen(true);
       return;
     }
