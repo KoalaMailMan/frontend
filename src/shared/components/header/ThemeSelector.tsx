@@ -8,7 +8,6 @@ import {
   DialogTrigger,
 } from "@/feature/ui/Dialog";
 import { cn } from "@/lib/utils";
-import { Check } from "lucide-react";
 import { useState } from "react";
 import Palette from "./icons/Palette";
 
@@ -26,6 +25,7 @@ export default function ThemeSelector({
   const [visible, setVisible] = useState(false);
 
   const currentThemeData = themes.find((item) => item.id === currentTheme);
+
   return (
     <Dialog open={visible} onOpenChange={setVisible}>
       <DialogTrigger asChild>
@@ -37,64 +37,69 @@ export default function ThemeSelector({
         >
           <div
             className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
-            style={{ backgroundColor: currentThemeData?.color }}
+            style={{ backgroundColor: currentThemeData?.borderColor }}
           />
           <Palette />
           <span className="hidden sm:inline">테마</span>
         </Button>
       </DialogTrigger>
 
-      <DialogContent className="pixel-card sm:max-w-md">
+      <DialogContent className="pixel-card max-w-[427px]">
         <DialogHeader className="h-[40px]">
           <DialogTitle className="pixel-subtitle flex items-center gap-2">
             🎨 테마 선택
           </DialogTitle>
         </DialogHeader>
-        <div className="grid grid-cols-2 gap-3 p-4">
+        <div className="grid grid-cols-2">
           {themes.map((theme) => (
             <button
               key={theme.id}
               onClick={() => onThemeChange(theme.id)}
               className={`
-                relative p-4 rounded-lg border-2 transition-all pixel-button
+                w-[180px] h-[140px] relative rounded-[10px] border-1 transition-all mb-[20px]
                 ${
                   currentTheme === theme.id
-                    ? "border-current shadow-lg transform scale-105"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? `border-[${theme.borderColor}]`
+                    : "border-[#CCCCCC]"
                 }
               `}
               style={{
                 backgroundColor:
-                  currentTheme === theme.id ? `${theme.color}10` : "white",
+                  currentTheme === theme.id ? `${theme.color}` : "white",
                 borderColor:
-                  currentTheme === theme.id ? theme.color : undefined,
+                  currentTheme === theme.id ? theme.borderColor : "#CCCCCC",
               }}
             >
               <div className="flex flex-col items-center gap-2">
                 <div
-                  className="w-8 h-8 rounded-full border-2 border-white shadow-md"
-                  style={{ backgroundColor: theme.color }}
+                  className="w-[156px] h-[104px] rounded-[6px]"
+                  style={{
+                    backgroundImage: `url(${theme.img})`,
+                    backgroundSize: "cover",
+                    backgroundPosition: "center",
+                    backgroundColor: theme.color,
+                  }}
                 />
                 <div className="text-center">
-                  <div
+                  {/* <div
                     className="font-medium text-sm"
                     style={{ color: theme.color }}
                   >
                     {theme.name}
-                  </div>
+                  </div> */}
                   <div className="text-xs text-gray-500">
                     {theme.description}
                   </div>
                 </div>
 
-                {currentTheme === theme.id && (
+                {/* {currentTheme === theme.id && (
                   <div
                     className="absolute top-1 right-1 w-5 h-5 rounded-full flex items-center justify-center"
                     style={{ backgroundColor: theme.color }}
                   >
                     <Check className="w-3 h-3 text-white" />
                   </div>
-                )}
+                )} */}
               </div>
             </button>
           ))}
