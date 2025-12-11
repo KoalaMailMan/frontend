@@ -129,11 +129,11 @@ const themeMOBackgrounds = {
 
 export default function useTheme() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    if (!window) return "red";
+    if (!window) return "winter";
     const saveColor = window.localStorage.getItem(
       THEME_STORAGE_KEY
     ) as ThemeColor;
-    return saveColor && themeColors[saveColor] ? saveColor : "red";
+    return saveColor && themeColors[saveColor] ? saveColor : "winter";
   });
 
   useEffect(() => {
@@ -144,16 +144,18 @@ export default function useTheme() {
     if (typeof window === "undefined") return;
     if (!theme) return;
     const root = document.documentElement;
-    const color = themeColors[theme] ? themeColors[theme] : themeColors["red"];
+    const color = themeColors[theme]
+      ? themeColors[theme]
+      : themeColors["winter"];
     const modalColor = modalThemeColors[theme]
       ? modalThemeColors[theme]
-      : modalThemeColors["red"];
+      : modalThemeColors["winter"];
     const modalBorderColor = modalBorderThemeColors[theme]
       ? modalBorderThemeColors[theme]
-      : modalBorderThemeColors["red"];
+      : modalBorderThemeColors["winter"];
     const recommendBtnColor = recommendButtonThemeColors[theme]
       ? recommendButtonThemeColors[theme]
-      : recommendButtonThemeColors["red"];
+      : recommendButtonThemeColors["winter"];
 
     root.style.setProperty("--current-theme", color);
 
@@ -232,7 +234,7 @@ export default function useTheme() {
   const updateCurrentTheme = (theme: ThemeColor) => {
     if (typeof window === "undefined") return;
     if (!theme) return;
-    const color = themeColors[theme] ? theme : "red";
+    const color = themeColors[theme] ? theme : "winter";
     setCurrentTheme(color);
     updateCSSVar(theme);
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);
