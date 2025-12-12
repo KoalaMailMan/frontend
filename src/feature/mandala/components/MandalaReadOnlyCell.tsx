@@ -1,8 +1,16 @@
+import koalaSeal from "@/assets/mandalart/koala_ seal.png";
+
 import Button from "@/feature/ui/Button";
-import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
+import {
+  useMandalaStore,
+  type Status,
+  type SubGoal,
+} from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import { useState } from "react";
+import CheckIcon from "./icon/CheckIcon";
+import { toast } from "sonner";
 
 type MandalaReadOnlyCellProps = {
   className?: string;
@@ -10,6 +18,7 @@ type MandalaReadOnlyCellProps = {
   id: string;
   isCenter: boolean;
   content: string;
+  status: Status;
   compact: boolean;
   disabled: boolean;
   isEmpty: boolean;
@@ -25,6 +34,7 @@ export default function MandalaReadOnlyCell({
   id,
   isCenter,
   content,
+  status,
   compact,
   disabled,
   isEmpty,
@@ -34,6 +44,7 @@ export default function MandalaReadOnlyCell({
   onDetailClick,
 }: MandalaReadOnlyCellProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const toggleGoalStatus = useMandalaStore((state) => state.toggleGoalStatus);
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
   const display = compact
     ? ""
@@ -100,6 +111,31 @@ export default function MandalaReadOnlyCell({
         >
           <ChevronRight className="h-3 w-3" />
         </Button>
+      )}
+      {!isCenter && !compact && isModalOpen && (
+        <Button
+          variant="none"
+          size="none"
+          className={cn(
+            "z-1 absolute top-[5.5px] right-[7px] size-[22px] rounded-[1px]",
+            status === "DONE" ? "" : "bg-[#FAFAFA]"
+          )}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!content) return toast("세부 목표를 입력해주세요!");
+            toggleGoalStatus(id);
+          }}
+        >
+          <CheckIcon fill={status === "DONE" ? "#3A3A3A" : "#E3E3E3"} />
+        </Button>
+      )}
+      {!isCenter && !compact && isModalOpen && status === "DONE" && (
+        <div
+          className="absolute w-full h-full p-1 shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.05)] "
+          style={{ backgroundColor: "rgba(219, 219, 219, 0.6)" }}
+        >
+          <img src={koalaSeal} alt="해당 목표 완료했습니다." />
+        </div>
       )}
     </div>
   );

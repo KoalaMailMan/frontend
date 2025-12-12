@@ -1,4 +1,4 @@
-import { useMandalaStore } from "@/lib/stores/mandalaStore";
+import { useMandalaStore, type Status } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
 import { forwardRef } from "react";
 
@@ -6,6 +6,7 @@ type MandalaEditableCellProps = {
   isCenter: boolean;
   compact: boolean;
   content: string;
+  status: Status;
   disabled: boolean;
   onContentChange: (value: string) => void;
   onCancel: () => void;
@@ -15,12 +16,14 @@ function MandalaEditableCell(
     compact,
     isCenter,
     content,
+    status,
     disabled,
     onContentChange,
     onCancel,
   }: MandalaEditableCellProps,
   ref: React.Ref<HTMLTextAreaElement>
 ) {
+  if (status === "DONE") return;
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {

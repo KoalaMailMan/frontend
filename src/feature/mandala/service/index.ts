@@ -6,6 +6,7 @@ import {
   type MainGoal,
   type MandalaType,
   type SubGoal,
+  type Status,
 } from "@/lib/stores/mandalaStore";
 import { apiClient } from "@/lib/api/client";
 import { createMandalaAPI } from "../api/mandalart/createMandala";
@@ -109,14 +110,17 @@ export const emptyDummyData = {
     core: {
       goalId: 0,
       content: "",
+      status: "UNDONE" as Status,
       mains: Array.from({ length: 8 }, (_, i) => ({
         goalId: 0,
         position: i + 1,
         content: "",
+        status: "UNDONE" as Status,
         subs: Array.from({ length: 8 }, (_, j) => ({
           goalId: 0,
           position: j + 1,
           content: "",
+          status: "UNDONE" as Status,
         })),
       })),
     },
@@ -129,6 +133,7 @@ export type ServerMandalaType = {
     core: {
       goalId: number;
       content: string;
+      status: "DONE" | "UNDONE";
       mains: ServerMainGoal[];
     };
     mandalartId?: number;
@@ -140,6 +145,7 @@ export type ServerMainGoal = {
   goalId: number;
   position: number;
   content: string;
+  status: "DONE" | "UNDONE";
   subs: ServerSubGoal[];
 };
 
@@ -147,6 +153,7 @@ export type ServerSubGoal = {
   goalId: number;
   position: number;
   content: string;
+  status: "DONE" | "UNDONE";
 };
 /**
  * 서버 데이터를 UI 데이터로 변환
@@ -176,6 +183,7 @@ export const serverToUI = (
     originalId: getOriginalId(serverData.core?.goalId),
     position: 0,
     content: serverData.core?.content || "",
+    status: serverData.core.status || "UNDONE",
     subs: [],
   };
 
@@ -186,6 +194,7 @@ export const serverToUI = (
     originalId: getOriginalId(serverData.core?.goalId),
     position: 0,
     content: serverData.core?.content || "",
+    status: serverData.core.status || "UNDONE",
   };
 
   serverData.core.mains?.forEach((main) => {
@@ -196,6 +205,7 @@ export const serverToUI = (
         originalId: getOriginalId(main.goalId),
         position: main.position,
         content: main.content || "",
+        status: main.status || "UNDONE",
       };
     }
   });
@@ -208,6 +218,7 @@ export const serverToUI = (
         originalId: undefined, // 빈 데이터는 originalId 없음
         position: i,
         content: "",
+        status: "UNDONE",
       };
     }
   }
@@ -227,6 +238,7 @@ export const serverToUI = (
         originalId: getOriginalId(main.goalId),
         position: targetPosition,
         content: main.content || "",
+        status: main.status || "UNDONE",
         subs: [],
       };
 
@@ -238,6 +250,7 @@ export const serverToUI = (
         originalId: getOriginalId(main.goalId),
         position: 0,
         content: main.content || "",
+        status: main.status || "UNDONE",
       };
 
       // subs를 position 기준 배치
@@ -253,6 +266,7 @@ export const serverToUI = (
             originalId: getOriginalId(sub.goalId),
             position: subTargetPosition,
             content: sub.content || "",
+            status: sub.status || "UNDONE",
           };
         }
       });
@@ -265,6 +279,7 @@ export const serverToUI = (
             originalId: undefined, // 빈 데이터는 originalId 없음
             position: j,
             content: "",
+            status: "UNDONE",
           };
         }
       }
@@ -282,6 +297,7 @@ export const serverToUI = (
         originalId: undefined, // 빈 데이터는 originalId 없음
         position: k,
         content: "",
+        status: "UNDONE",
         subs: [],
       };
 
@@ -291,6 +307,7 @@ export const serverToUI = (
         originalId: undefined, // 빈 데이터는 originalId 없음
         position: idx,
         content: "",
+        status: "UNDONE" as const,
       }));
 
       uiMain.subs = subsArray;
@@ -303,6 +320,7 @@ export const serverToUI = (
       goalId: coreAsMain.goalId,
       content: coreAsMain.content,
       mains: uiMainsArray,
+      status: coreAsMain.status,
     },
   };
 };
