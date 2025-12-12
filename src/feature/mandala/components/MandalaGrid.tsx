@@ -121,7 +121,7 @@ export default function MandalaGrid() {
       {isModalOpen && (
         <MandalaModal
           isModalVisible={isModalOpen}
-          item={
+          items={
             getData(findByIdWithGoalIndex(modalCellId as string)) as SubGoal[]
           }
           compact={false}
