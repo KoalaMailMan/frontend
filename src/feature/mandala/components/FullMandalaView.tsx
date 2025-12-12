@@ -44,9 +44,17 @@ export default function FullMandalaView() {
           content: contentSub,
           goalId: goalIdSub,
           position: positionSub,
+          status: item.status,
         };
       });
-      return { type, content, goalId, position, subs: newSubs };
+      return {
+        type,
+        content,
+        goalId,
+        position,
+        status: item.status,
+        subs: newSubs,
+      };
     });
   }, [mandalaList]);
 

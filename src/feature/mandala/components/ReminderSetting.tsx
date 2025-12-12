@@ -107,7 +107,11 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
 
   const handleSave = async () => {
     if (!accessToken) {
-      setAuthText("리마인드 설정");
+      setAuthText({
+        title: "리마인드를 설정하려면 로그인이 필요해요.",
+        description:
+          "로그인하고 목표를 잊지 않도록 정기 알림을 받아보세요. \nAI 맞춤 목표 제안도 받을 수 있어요",
+      });
       setAuthOpen(true);
       return;
     }

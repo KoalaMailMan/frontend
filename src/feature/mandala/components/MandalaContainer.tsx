@@ -66,6 +66,7 @@ export default function MandalaContainer({
         isCenter={isCenter}
         compact={compact}
         content={item.content}
+        status={item.status}
         disabled={disabled}
         onContentChange={handleContentChange}
         onCancel={onCancelEdit}
@@ -81,6 +82,7 @@ export default function MandalaContainer({
       isCenter={isCenter}
       compact={compact}
       content={item.content}
+      status={item.status}
       disabled={disabled}
       isEmpty={isEmpty}
       data-tutorial={dataTutorial}

@@ -52,7 +52,11 @@ export default function MandalaBoard({
 
   const handleSave = async () => {
     if (!accessToken && !wasLoggedIn) {
-      setAuthText("만다라트 저장");
+      setAuthText({
+        title: "저장하려면 로그인이 필요해요",
+        description:
+          "로그인 시 만다라트 저장은 물론, AI가 방향을 제안해주고 \n리마인드 메일로 꾸준함까지 도와드려요.",
+      });
       setAuthOpen(true);
       return;
     }

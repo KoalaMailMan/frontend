@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { ThemeColor } from "@/data/themes";
 
 // 모바일 이미지 최적화
 // @ts-expect-error -- vite-imagetools query import
@@ -28,13 +29,25 @@ import YELLOW_BG from "@/assets/background/background_yellow.jpg?width=800;1200;
 // @ts-expect-error -- vite-imagetools query import
 import PINK_BG from "@/assets/background/background_pink.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
 
-export type ThemeColor =
-  | "purple"
-  | "red"
-  | "blue"
-  | "green"
-  | "yellow"
-  | "pink";
+// 모바일 이미지 최적화
+// @ts-expect-error -- vite-imagetools query import
+import SPRING_MO_BG from "@/assets/background/background_spring.png?width=320;640;768;1200&format=webp&as=srcset";
+// @ts-expect-error -- vite-imagetools query import
+import SUMMER_MO_BG from "@/assets/background/background_summer.png?width=320;640;768;1200&format=webp&as=srcset";
+// @ts-expect-error -- vite-imagetools query import
+import AUTUMN_MO_BG from "@/assets/background/background_autumn.png?width=320;640;768;1200&format=webp&as=srcset";
+// @ts-expect-error -- vite-imagetools query import
+import WINTER_MO_BG from "@/assets/background/background_winter.png?width=320;640;768;1200&format=webp&as=srcset";
+
+// 데스크탑 이미지 최적화
+// @ts-expect-error -- vite-imagetools query import
+import SPRING_BG from "@/assets/background/background_spring.png?width=800;1200;1600;1920&format=webp&as=srcset";
+// @ts-expect-error -- vite-imagetools query import
+import SUMMER_BG from "@/assets/background/background_summer.png?width=800;1200;1600;1920&format=webp&as=srcset";
+// @ts-expect-error -- vite-imagetools query import
+import AUTUMN_BG from "@/assets/background/background_autumn.png?width=800;1200;1600;1920&format=webp&as=srcset";
+// @ts-expect-error -- vite-imagetools query import
+import WINTER_BG from "@/assets/background/background_winter.png?width=800;1200;1600;1920&format=webp&as=srcset";
 
 const THEME_STORAGE_KEY = "koalart_theme";
 
@@ -45,6 +58,10 @@ const themeColors = {
   green: "#3aab63",
   yellow: "#ffe849",
   pink: "#e17aaa",
+  spring: "#FF99A9",
+  summer: "#02C2FE",
+  autumn: "#FA7018",
+  winter: "#3085BA",
 };
 const modalThemeColors = {
   purple: "#86569d",
@@ -53,6 +70,10 @@ const modalThemeColors = {
   green: "#3aab63",
   yellow: "#ffe849",
   pink: "#e17aaa",
+  spring: "#FF99A9",
+  summer: "#02C2FE",
+  autumn: "#FA7018",
+  winter: "#3085BA",
 };
 const modalBorderThemeColors = {
   red: "#a80d00",
@@ -61,6 +82,10 @@ const modalBorderThemeColors = {
   green: "#3aab63",
   yellow: "#ffe849",
   pink: "#e17aaa",
+  spring: "#FF99A9",
+  summer: "#02C2FE",
+  autumn: "#FA7018",
+  winter: "#3085BA",
 };
 const recommendButtonThemeColors = {
   red: "#ff7f75",
@@ -69,6 +94,10 @@ const recommendButtonThemeColors = {
   green: "#3aab63",
   yellow: "#ffe849",
   pink: "#e17aaa",
+  spring: "#FF99A9",
+  summer: "#02C2FE",
+  autumn: "#FA7018",
+  winter: "#3085BA",
 };
 
 const themeBackgrounds = {
@@ -78,6 +107,11 @@ const themeBackgrounds = {
   green: GREEN_BG,
   yellow: YELLOW_BG,
   pink: PINK_BG,
+
+  spring: SPRING_BG,
+  summer: SUMMER_BG,
+  autumn: AUTUMN_BG,
+  winter: WINTER_BG,
 };
 const themeMOBackgrounds = {
   purple: PURPLE_MO_BG,
@@ -86,37 +120,42 @@ const themeMOBackgrounds = {
   green: GREEN_MO_BG,
   yellow: YELLOW_MO_BG,
   pink: PINK_MO_BG,
+
+  spring: SPRING_BG,
+  summer: SUMMER_BG,
+  autumn: AUTUMN_BG,
+  winter: WINTER_BG,
 };
 
 export default function useTheme() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    if (!window) return "red";
+    if (!window) return "winter";
     const saveColor = window.localStorage.getItem(
       THEME_STORAGE_KEY
     ) as ThemeColor;
-    return saveColor && themeColors[saveColor] ? saveColor : "red";
+    return saveColor && themeColors[saveColor] ? saveColor : "winter";
   });
 
   useEffect(() => {
-    // if()
     updateCurrentTheme(currentTheme);
   }, [currentTheme]);
 
   const updateCSSVar = (theme: ThemeColor) => {
     if (typeof window === "undefined") return;
     if (!theme) return;
-
     const root = document.documentElement;
-    const color = themeColors[theme] ? themeColors[theme] : themeColors["red"];
+    const color = themeColors[theme]
+      ? themeColors[theme]
+      : themeColors["winter"];
     const modalColor = modalThemeColors[theme]
       ? modalThemeColors[theme]
-      : modalThemeColors["red"];
+      : modalThemeColors["winter"];
     const modalBorderColor = modalBorderThemeColors[theme]
       ? modalBorderThemeColors[theme]
-      : modalBorderThemeColors["red"];
+      : modalBorderThemeColors["winter"];
     const recommendBtnColor = recommendButtonThemeColors[theme]
       ? recommendButtonThemeColors[theme]
-      : recommendButtonThemeColors["red"];
+      : recommendButtonThemeColors["winter"];
 
     root.style.setProperty("--current-theme", color);
 
@@ -195,8 +234,7 @@ export default function useTheme() {
   const updateCurrentTheme = (theme: ThemeColor) => {
     if (typeof window === "undefined") return;
     if (!theme) return;
-
-    const color = themeColors[theme] ? theme : "red";
+    const color = themeColors[theme] ? theme : "winter";
     setCurrentTheme(color);
     updateCSSVar(theme);
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);

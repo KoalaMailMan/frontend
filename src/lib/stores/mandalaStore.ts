@@ -4,25 +4,23 @@ import { findKeyByValue } from "@/feature/mandala/utills/\bindex";
 import { persist } from "zustand/middleware";
 import { useAuthStore } from "./authStore";
 
+export type Status = "DONE" | "UNDONE";
+
 export type MandalaType<T = string> = {
   core: {
     goalId: T;
     content: string;
     originalId?: number | undefined;
+    status: Status;
     mains: MainGoal<T>[];
   };
-};
-
-export type DataOption = {
-  reminderEnabled: boolean;
-  remindInterval: string;
-  remindScheduledAt: string | null;
 };
 export type MainGoal<T = string> = {
   goalId: T;
   originalId?: number | undefined; // 서버 원본 ID
   position: number;
   content: string;
+  status: Status;
   subs: SubGoal<T>[];
 };
 
@@ -31,6 +29,13 @@ export type SubGoal<T = string> = {
   originalId?: number | undefined; // 서버 원본 ID
   position: number;
   content: string;
+  status: Status;
+};
+
+export type DataOption = {
+  reminderEnabled: boolean;
+  remindInterval: string;
+  remindScheduledAt: string | null;
 };
 type States = {
   data: MandalaType;
@@ -60,6 +65,7 @@ type Actions = {
   setData: (newData: any) => void;
   getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
   setMandalartId: (id: number) => void;
+  toggleGoalStatus: (id: string) => void;
   handleCellChange: (cellId: string, value: string, index?: any) => void;
   updateSubsCell: (subs: SubGoal[], data: string[]) => void;
   setReminderOption: (options: DataOption) => void;
@@ -123,6 +129,53 @@ export const useMandalaStore = create<States & Actions>()(
             remindInterval: interval,
           },
         })),
+      toggleGoalStatus: (id: string) =>
+        set((state) => {
+          const newState = state.data.core.mains.map((main: MainGoal) => {
+            if (main.goalId === id) {
+              console.log(main);
+              return {
+                ...main,
+                status:
+                  main.status === "DONE"
+                    ? ("UNDONE" as Status)
+                    : ("DONE" as Status),
+              };
+            } else {
+              const updatedSubs = main.subs.map((sub) => {
+                if (sub.goalId === id) {
+                  console.log(sub);
+                  return {
+                    ...sub,
+                    status:
+                      sub.status === "DONE"
+                        ? ("UNDONE" as Status)
+                        : ("DONE" as Status),
+                  };
+                }
+                return sub;
+              });
+              return {
+                ...main,
+                subs: updatedSubs,
+              };
+            }
+          });
+          console.log(newState);
+
+          return {
+            ...state,
+            data: {
+              ...state.data,
+              core: {
+                ...state.data.core,
+                mains: newState,
+              },
+            },
+            changedCells: new Set(state.changedCells).add(id),
+            isDirty: true,
+          };
+        }),
 
       handleCellChange: (cellId, value, index) =>
         set((state) => {
@@ -154,7 +207,7 @@ export const useMandalaStore = create<States & Actions>()(
             let mainIndex = dataList.findIndex(
               (item) => item.goalId === mainId
             );
-            let subIndex;
+            let subIndex: number;
             if (mainIndex === -1) return state;
             if (cellId.includes("center") || ids[1] === "0") {
               // sub-0-{subIndex} |  sub-center-{0}

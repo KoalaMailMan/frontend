@@ -18,7 +18,7 @@ import { getNextCellId } from "../service";
 
 type Props = {
   isModalVisible: boolean;
-  item: SubGoal[];
+  items: SubGoal[];
   compact: boolean;
   onContentChange: (value: string) => void;
   onRemove: (id: string, value: string) => void;
@@ -27,7 +27,7 @@ type Props = {
 
 export default function MandalaModal({
   isModalVisible,
-  item,
+  items,
   compact,
   onContentChange,
   onRemove,
@@ -38,11 +38,13 @@ export default function MandalaModal({
   // modal 컴포넌트 상태 관리
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const accessToken = useAuthStore((state) => state.accessToken);
+  const setAuthText = useAuthStore((state) => state.setAuthText);
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
 
   const positionRef = useRef<HTMLDivElement | null>(null);
   const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
+
   const [width, setWidth] = useState(0);
   const [isQuestion, setIsQuestion] = useState(false);
   const centerIndex = 0;
@@ -56,7 +58,7 @@ export default function MandalaModal({
   });
 
   const { startStream, recommendation, isStreaming } = useSSERecommendation({
-    goal: item[0].content,
+    goal: items[0].content,
     getAccessToken,
     onComplete: (items) => {
       console.log("완료! 총", items.length, "개");
@@ -70,6 +72,8 @@ export default function MandalaModal({
 
   // 상태 관리 함수들
   const handleSubStartEdit = (goalId: string) => {
+    const sub = items.find((sub) => sub.goalId === goalId);
+    if (sub?.status === "DONE") return;
     setEditingSubCell(goalId);
   };
 
@@ -84,10 +88,15 @@ export default function MandalaModal({
 
   const handleRecommend = () => {
     if (!wasLoggedIn && !accessToken) {
+      setAuthText({
+        title: "맞춤 목표 추천을 위해 로그인해주세요",
+        description:
+          "로그인하고 나만의 목표를 만나보세요. \nAI가 당신에게 꼭 맞는 방향을 제안해드릴게요.",
+      });
       setAuthOpen(true);
       return;
     }
-    const emptyCount = validateEmptyGoals(item);
+    const emptyCount = validateEmptyGoals(items);
     if (emptyCount) {
       startStream(emptyCount);
     }
@@ -115,7 +124,7 @@ export default function MandalaModal({
 
   useEffect(() => {
     if (!isStreaming && recommendation) {
-      updateSubsCell(item, recommendation);
+      updateSubsCell(items, recommendation);
     }
     return () => {};
   }, [isStreaming]);
@@ -176,8 +185,8 @@ export default function MandalaModal({
             세부 목표 설정
           </p>
           <p className="w-full h-[26px] flex justify-center items-center text-[10px] font-normal leading-[17.5px] text-[#666666]">
-            <span> {item[centerIndex]?.content || "주요 목표"}</span>를 달성하기
-            위한 구체적인 세부 목표을 세워보세요
+            <span> {items[centerIndex]?.content || "주요 목표"}</span>를
+            달성하기 위한 구체적인 세부 목표을 세워보세요
           </p>
         </div>
         <div>
@@ -190,7 +199,7 @@ export default function MandalaModal({
                     {isStreaming && (
                       <div className="w-full h-full absolute bg-white opacity-80 z-[1]" />
                     )}
-                    {item.map((sub, index) => {
+                    {items.map((sub, index) => {
                       const isCenter = centerIndex === index;
                       const isEditing = editingSubCellId === sub.goalId;
                       return (
@@ -229,7 +238,7 @@ export default function MandalaModal({
               </div>
               <p
                 className="w-full h-[18px] flex justify-center text-[10px] leading-[180%] font-semibold text-[#999999]"
-                onClick={() => removeSubGoalValue(item)}
+                onClick={() => removeSubGoalValue(items)}
               >
                 맞춤 목표 모두 지우기
               </p>
