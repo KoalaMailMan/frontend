@@ -25,6 +25,7 @@ import useUserInfo from "@/feature/auth/hooks/useUserInfo";
 import { toast } from "sonner";
 import RemindeIcon from "./icon/RemindeIcon";
 import X from "@/feature/tutorial/components/icons/X";
+import { cn } from "@/lib/utils";
 
 type PropsType = {
   openTree: "reminder" | "save";
@@ -186,35 +187,41 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
             />
           </div>
 
-          {reminderEnabled && (
-            <>
-              <div className="space-y-3">
-                <Input
-                  type="email"
-                  value={user?.email || "이메일을 찾을 수 없습니다."}
-                  readOnly
-                  className="bg-white border-1 border-[#CCCCCC] text-[#B3B3B3] cursor-not-allowed"
-                  placeholder="user@example.com"
-                />
-                <Select
-                  value={remindInterval}
-                  onValueChange={setRemindInterval}
-                >
-                  <SelectTrigger className="w-full border-1 border-[#CCCCCC] text-[#666666]">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="border-1 border-[#CCCCCC]">
-                    <SelectItem value="1week">1주</SelectItem>
-                    <SelectItem value="2week">2주</SelectItem>
-                    <SelectItem value="1month">1달</SelectItem>
-                    <SelectItem value="2month">2달</SelectItem>
-                    <SelectItem value="3month">3달</SelectItem>
-                    <SelectItem value="6month">6달</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          )}
+          <div className="space-y-3">
+            <Input
+              type="email"
+              value={user?.email || "알림 받을 이메일을 입력해주세요"}
+              readOnly
+              className={cn(
+                "bg-white border-1 border-[#CCCCCC] text-[#B3B3B3] cursor-not-allowed",
+                !reminderEnabled && "bg-[#E6E6E6] !opacity-100 text-[#CACACA]"
+              )}
+              placeholder="user@example.com"
+              disabled={!reminderEnabled}
+            />
+            <Select
+              value={remindInterval}
+              onValueChange={setRemindInterval}
+              disabled={!reminderEnabled}
+            >
+              <SelectTrigger
+                className={cn(
+                  "w-full border-1 border-[#CCCCCC] text-[#666666]",
+                  !reminderEnabled && "bg-[#E6E6E6] !opacity-100 text-[#CACACA]"
+                )}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="border-1 border-[#CCCCCC]">
+                <SelectItem value="1week">1주</SelectItem>
+                <SelectItem value="2week">2주</SelectItem>
+                <SelectItem value="1month">1달</SelectItem>
+                <SelectItem value="2month">2달</SelectItem>
+                <SelectItem value="3month">3달</SelectItem>
+                <SelectItem value="6month">6달</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="w-full h-[70px] flex items-center justify-center">
             <Button
