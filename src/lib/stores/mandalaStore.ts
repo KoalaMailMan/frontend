@@ -1,5 +1,9 @@
 import { create } from "zustand";
-import { emptyDummyData, serverToUI } from "@/feature/mandala/service";
+import {
+  emptyDummyData,
+  serverToUI,
+  toggleStatus,
+} from "@/feature/mandala/service";
 import { findIdIndex, findKeyByValue } from "@/feature/mandala/utills/\bindex";
 import { persist } from "zustand/middleware";
 import { useAuthStore } from "./authStore";
@@ -134,20 +138,18 @@ export const useMandalaStore = create<States & Actions>()(
         set((state) => {
           const mains = state.data.core.mains;
           const { mainIndex } = findIdIndex(mains, id);
+
           if (mainIndex !== -1) {
             const isSubsComplete = mains[mainIndex].subs
               .slice(1)
               .every((item) => item.status === "DONE");
 
             if (isSubsComplete) {
-              const mainId = mains[mainIndex].goalId;
-              const newMain = mains.map((main) => {
-                if (main.goalId === mainId) {
-                  main.status = "DONE";
-                  main.subs[0].status = "DONE";
-                }
-                return main;
-              });
+              const { mainId, newMain } = toggleStatus(
+                "DONE",
+                mains,
+                mainIndex
+              );
 
               return {
                 ...state,
@@ -162,14 +164,11 @@ export const useMandalaStore = create<States & Actions>()(
                 isDirty: true,
               };
             } else {
-              const mainId = mains[mainIndex].goalId;
-              const newMain = mains.map((main) => {
-                if (main.goalId === mainId) {
-                  main.status = "UNDONE";
-                  main.subs[0].status = "UNDONE";
-                }
-                return main;
-              });
+              const { mainId, newMain } = toggleStatus(
+                "UNDONE",
+                mains,
+                mainIndex
+              );
 
               return {
                 ...state,
