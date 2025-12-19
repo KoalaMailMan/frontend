@@ -32,15 +32,20 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
       <div className="min-h-screen flex flex-col items-center justify-center px-4 relative">
         {/* 모바일 배경 이미지 */}
         <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]">
-          <picture>
-            <source srcSet={mobile} media="(min-width: 768px)" />
-            <img
-              className="fixed inset-0 w-full h-full object-cover -z-10"
-              srcSet={mobile}
-              src={mobile}
-              alt="테마 배경 이미지"
-            />
-          </picture>
+          <h1>
+            <picture>
+              <source srcSet={mobile} media="(min-width: 768px)" />
+              <img
+                className="fixed inset-0 w-full h-full object-cover -z-10"
+                srcSet={mobile}
+                src={mobile}
+                alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
+              />
+            </picture>
+            <span className="sr-only">
+              만다라트 목표 작성 & 리마인드 | 코알라 우체부
+            </span>
+          </h1>
         </div>
         {/* 데스크탑 배경 이미지 */}
         <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-fixed">
