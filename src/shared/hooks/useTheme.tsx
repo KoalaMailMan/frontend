@@ -48,6 +48,7 @@ import SUMMER_BG from "@/assets/background/background_summer.png?width=800;1200;
 import AUTUMN_BG from "@/assets/background/background_autumn.png?width=800;1200;1600;1920&format=webp&as=srcset";
 // @ts-expect-error -- vite-imagetools query import
 import WINTER_BG from "@/assets/background/background_winter.png?width=800;1200;1600;1920&format=webp&as=srcset";
+import { findInTheFourSeasons } from "../utils/weather";
 
 const THEME_STORAGE_KEY = "koalart_theme";
 
@@ -129,11 +130,13 @@ const themeMOBackgrounds = {
 
 export default function useTheme() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    if (!window) return "winter";
+    if (!window) return findInTheFourSeasons();
     const saveColor = window.localStorage.getItem(
       THEME_STORAGE_KEY
     ) as ThemeColor;
-    return saveColor && themeColors[saveColor] ? saveColor : "winter";
+    return saveColor && themeColors[saveColor]
+      ? saveColor
+      : findInTheFourSeasons();
   });
 
   useEffect(() => {
@@ -146,16 +149,16 @@ export default function useTheme() {
     const root = document.documentElement;
     const color = themeColors[theme]
       ? themeColors[theme]
-      : themeColors["winter"];
+      : themeColors[findInTheFourSeasons()];
     const modalColor = modalThemeColors[theme]
       ? modalThemeColors[theme]
-      : modalThemeColors["winter"];
+      : modalThemeColors[findInTheFourSeasons()];
     const modalBorderColor = modalBorderThemeColors[theme]
       ? modalBorderThemeColors[theme]
-      : modalBorderThemeColors["winter"];
+      : modalBorderThemeColors[findInTheFourSeasons()];
     const recommendBtnColor = recommendButtonThemeColors[theme]
       ? recommendButtonThemeColors[theme]
-      : recommendButtonThemeColors["winter"];
+      : recommendButtonThemeColors[findInTheFourSeasons()];
 
     root.style.setProperty("--current-theme", color);
 
@@ -234,7 +237,7 @@ export default function useTheme() {
   const updateCurrentTheme = (theme: ThemeColor) => {
     if (typeof window === "undefined") return;
     if (!theme) return;
-    const color = themeColors[theme] ? theme : "winter";
+    const color = themeColors[theme] ? theme : findInTheFourSeasons();
     setCurrentTheme(color);
     updateCSSVar(theme);
     window.localStorage.setItem(THEME_STORAGE_KEY, theme);

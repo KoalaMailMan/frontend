@@ -49,6 +49,8 @@ export default function MandalaGrid() {
   };
 
   const handleStartEdit = (goalId: string) => {
+    const main = mandalaList.find((main) => main.goalId === goalId);
+    if (main?.status === "DONE") return;
     setEditingCell(goalId);
   };
 

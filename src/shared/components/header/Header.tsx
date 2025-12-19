@@ -19,6 +19,7 @@ export default function Header({
 }: MandaraChartProps) {
   const accessToken = useAuthStore((state) => state.accessToken);
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
+  const temporaryAuth = useAuthStore((state) => state.temporaryAuth);
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
   const setAuthText = useAuthStore((state) => state.setAuthText);
   const setOnboardingVisible = useTutorialStore(
@@ -33,18 +34,20 @@ export default function Header({
         )}
       >
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
-          <Button
-            variant="outline"
-            size="default"
-            onClick={() => setOnboardingVisible(true)}
-            className="flex items-center gap-1 sm:gap-2 pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4 "
-            dir="ltr"
-          >
-            <AddressBook />
+          {temporaryAuth !== "none" && (
+            <Button
+              variant="outline"
+              size="default"
+              onClick={() => setOnboardingVisible(true)}
+              className="flex items-center gap-1 sm:gap-2 pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4 "
+              dir="ltr"
+            >
+              <AddressBook />
 
-            <span className="hidden sm:inline">튜토리얼</span>
-            <span className="sm:hidden">?</span>
-          </Button>
+              <span className="hidden sm:inline">튜토리얼</span>
+              <span className="sm:hidden">?</span>
+            </Button>
+          )}
           <ThemeSelector
             currentTheme={currentTheme}
             onThemeChange={onThemeChange}

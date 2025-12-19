@@ -1,6 +1,10 @@
 import { create } from "zustand";
-import { emptyDummyData, serverToUI } from "@/feature/mandala/service";
-import { findKeyByValue } from "@/feature/mandala/utills/\bindex";
+import {
+  emptyDummyData,
+  serverToUI,
+  toggleStatus,
+} from "@/feature/mandala/service";
+import { findIdIndex, findKeyByValue } from "@/feature/mandala/utills/\bindex";
 import { persist } from "zustand/middleware";
 import { useAuthStore } from "./authStore";
 
@@ -65,6 +69,7 @@ type Actions = {
   setData: (newData: any) => void;
   getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
   setMandalartId: (id: number) => void;
+  allGoalComplete: (id: string) => void;
   toggleGoalStatus: (id: string) => void;
   handleCellChange: (cellId: string, value: string, index?: any) => void;
   updateSubsCell: (subs: SubGoal[], data: string[]) => void;
@@ -129,11 +134,62 @@ export const useMandalaStore = create<States & Actions>()(
             remindInterval: interval,
           },
         })),
+      allGoalComplete: (id: string) =>
+        set((state) => {
+          const mains = state.data.core.mains;
+          const { mainIndex } = findIdIndex(mains, id);
+
+          if (mainIndex !== -1) {
+            const isSubsComplete = mains[mainIndex].subs
+              .slice(1)
+              .every((item) => item.status === "DONE");
+
+            if (isSubsComplete) {
+              const { mainId, newMain } = toggleStatus(
+                "DONE",
+                mains,
+                mainIndex
+              );
+
+              return {
+                ...state,
+                data: {
+                  ...state.data,
+                  core: {
+                    ...state.data.core,
+                    mains: newMain,
+                  },
+                },
+                changedCells: new Set(state.changedCells).add(mainId),
+                isDirty: true,
+              };
+            } else {
+              const { mainId, newMain } = toggleStatus(
+                "UNDONE",
+                mains,
+                mainIndex
+              );
+
+              return {
+                ...state,
+                data: {
+                  ...state.data,
+                  core: {
+                    ...state.data.core,
+                    mains: newMain,
+                  },
+                },
+                changedCells: new Set(state.changedCells).add(mainId),
+                isDirty: true,
+              };
+            }
+          }
+          return state;
+        }),
       toggleGoalStatus: (id: string) =>
         set((state) => {
           const newState = state.data.core.mains.map((main: MainGoal) => {
             if (main.goalId === id) {
-              console.log(main);
               return {
                 ...main,
                 status:
@@ -144,7 +200,6 @@ export const useMandalaStore = create<States & Actions>()(
             } else {
               const updatedSubs = main.subs.map((sub) => {
                 if (sub.goalId === id) {
-                  console.log(sub);
                   return {
                     ...sub,
                     status:
@@ -161,7 +216,6 @@ export const useMandalaStore = create<States & Actions>()(
               };
             }
           });
-          console.log(newState);
 
           return {
             ...state,

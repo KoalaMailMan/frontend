@@ -45,6 +45,7 @@ export default function MandalaReadOnlyCell({
 }: MandalaReadOnlyCellProps) {
   const [isHovered, setIsHovered] = useState(false);
   const toggleGoalStatus = useMandalaStore((state) => state.toggleGoalStatus);
+  const allGoalComplete = useMandalaStore((state) => state.allGoalComplete);
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
   const display = compact
     ? ""
@@ -95,7 +96,7 @@ export default function MandalaReadOnlyCell({
           variant="ghost"
           size="sm"
           className={cn(
-            "absolute top-1 right-1 w-6 h-6 p-0 transition-all pixel-button rounded-sm ",
+            "z-9 absolute top-1 right-1 w-6 h-6 p-0 transition-all pixel-button rounded-sm ",
             isHovered ? "opacity-100 bg-primary/20" : "opacity-60 "
           )}
           onClick={(e) => {
@@ -124,12 +125,13 @@ export default function MandalaReadOnlyCell({
             e.stopPropagation();
             if (!content) return toast("세부 목표를 입력해주세요!");
             toggleGoalStatus(id);
+            allGoalComplete(id);
           }}
         >
           <CheckIcon fill={status === "DONE" ? "#3A3A3A" : "#E3E3E3"} />
         </Button>
       )}
-      {!isCenter && !compact && isModalOpen && status === "DONE" && (
+      {!compact && status === "DONE" && (
         <div
           className="absolute w-full h-full p-1 shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.05)] "
           style={{ backgroundColor: "rgba(219, 219, 219, 0.6)" }}

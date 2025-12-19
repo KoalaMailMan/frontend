@@ -730,3 +730,19 @@ export const getNextCellId = (editingCellId: string, data?: any) => {
   }
   return null;
 };
+
+export const toggleStatus = (
+  status: Status,
+  mains: MainGoal[],
+  mainIndex: number
+) => {
+  const mainId = mains[mainIndex].goalId;
+  const newMain = mains.map((main) => {
+    if (main.goalId === mainId) {
+      main.status = status;
+      main.subs[0].status = status;
+    }
+    return main;
+  });
+  return { mainId, newMain };
+};
