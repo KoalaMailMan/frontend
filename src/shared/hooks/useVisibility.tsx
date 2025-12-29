@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 
 export default function useVisibility() {
-  const [visible, setVisible] = useState(true);
+  const [inactiveTab, setInactiveTab] = useState(false);
   useEffect(() => {
     const handleVisibility = () => {
       if (document.hidden) {
         // 애니메이션 OFF
-        setVisible(false);
+        setInactiveTab(true);
       }
-      setVisible(true);
+      setInactiveTab(false);
     };
 
     document.addEventListener("visibilitychange", handleVisibility);
@@ -17,5 +17,5 @@ export default function useVisibility() {
       document.removeEventListener("visibilitychange", handleVisibility);
   }, []);
 
-  return visible;
+  return inactiveTab;
 }
