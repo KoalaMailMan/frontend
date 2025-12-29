@@ -18,6 +18,7 @@ import DisableBellIcon from "../components/icon/DisableBellIcon";
 import FullIcon from "../components/icon/FullIcon";
 import BackgroundAnimation from "@/feature/home/components/BackgroundAnimation";
 import useAccessibility from "@/shared/hooks/useAccessibility";
+import useVisibility from "@/shared/hooks/useVisibility";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
@@ -27,7 +28,8 @@ export default function MandalaBoard({
   getCurrentBackground,
 }: MandaraChartProps) {
   const { mobile, desktop } = getCurrentBackground();
-  const reduced = useAccessibility();
+  const reduced = useAccessibility(); // default: false
+  const inactiveTab = useVisibility(); // default: false
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
@@ -84,7 +86,7 @@ export default function MandalaBoard({
 
   return (
     <div className="relative min-h-screen p-4 pt-[51px] ">
-      {!reduced && <BackgroundAnimation />}
+      {!reduced && !inactiveTab && <BackgroundAnimation />}
       {/* 모바일 배경 이미지 */}
       <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat">
         <picture>
