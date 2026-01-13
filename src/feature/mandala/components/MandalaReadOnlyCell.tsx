@@ -1,5 +1,3 @@
-import koalaSeal from "@/assets/mandalart/koala_ seal.png";
-
 import Button from "@/feature/ui/Button";
 import {
   useMandalaStore,
@@ -11,6 +9,7 @@ import { ChevronRight } from "lucide-react";
 import { useState } from "react";
 import CheckIcon from "./icon/CheckIcon";
 import { toast } from "sonner";
+import { koalaSeal } from "../const/url";
 
 type MandalaReadOnlyCellProps = {
   className?: string;
@@ -136,7 +135,7 @@ export default function MandalaReadOnlyCell({
           className="absolute w-full h-full p-1 shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.05)] "
           style={{ backgroundColor: "rgba(219, 219, 219, 0.6)" }}
         >
-          <img src={koalaSeal} alt="해당 목표 완료했습니다." />
+          <img src={koalaSeal[0]} alt="해당 목표 완료했습니다." />
         </div>
       )}
     </div>
