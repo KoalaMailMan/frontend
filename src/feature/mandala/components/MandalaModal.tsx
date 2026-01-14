@@ -66,7 +66,9 @@ export default function MandalaModal({
     },
     onError: (error) => {
       console.error("에러 발생:", error);
-      toast.error(error);
+      toast.error(
+        "목표 추천 기능에 문제가 발생했습니다. 나중에 다시 시도해주세요."
+      );
     },
   });
 
