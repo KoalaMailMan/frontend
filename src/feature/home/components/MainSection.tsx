@@ -1,5 +1,3 @@
-// @ts-expect-error -- vite-imagetools query import
-import koalaTextLogoImage from "@/assets/common/koala_mailman_text_logo.png?width=470;940;1410&as=srcset&format=webp";
 import ScrollAnimation from "./ScrollAnimation";
 import GoogleLoginButton from "@/feature/auth/components/GoogleLoginButton";
 import NaverLoginButton from "@/feature/auth/components/NaverLoginButton";
@@ -11,29 +9,24 @@ type Props = {
 
 export default function MainSection({ onTemporaryLogin }: Props) {
   return (
-    <section
-      className="relative z-20 text-center"
-      style={{
-        transform: `translateY(${Math.min(scrollY * 0.1, 20)}px)`,
-      }}
-    >
+    <section className="relative z-20 text-center">
       <div className="w-full">
         <h1>
           <img
-            src={koalaTextLogoImage}
+            src={"/images/koala_mailman_text_logo_940.webp"}
+            sizes="(max-width: 600px) 90vw, 940px"
             alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
-            className="w-full pixelated drop-shadow-2xl max-w-xl mx-auto"
-            style={{
-              height: "auto",
-              filter: "drop-shadow(4px 4px 8px rgba(0,0,0,0.5))",
-            }}
+            className="w-full max-w-xl mx-auto"
+            width={576}
+            height={444}
             fetchPriority="high"
             loading="eager"
             decoding="async"
-            srcSet={koalaTextLogoImage}
-            sizes="(max-width: 768px) 90vw, 470px"
-            width={470}
-            height={470}
+            style={{
+              height: "auto",
+              aspectRatio: "1753 / 1351",
+              imageRendering: "pixelated",
+            }}
           />
           <span className="sr-only">
             만다라트 목표 작성 & 리마인드 | 코알라 우체부
