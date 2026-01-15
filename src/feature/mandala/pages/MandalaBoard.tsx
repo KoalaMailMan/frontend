@@ -1,5 +1,3 @@
-// @ts-expect-error -- vite-imagetools query import
-import KoalaTextRowLogo from "@/assets/common/header_text_logo.png?width=476;952;1428&as=srcset&format=webp";
 import MandalaGrid from "../components/MandalaGrid";
 import { CardContent } from "@/feature/ui/Card";
 import { cn } from "@/lib/utils";
@@ -19,6 +17,7 @@ import FullIcon from "../components/icon/FullIcon";
 import BackgroundAnimation from "@/feature/home/components/BackgroundAnimation";
 import useAccessibility from "@/shared/hooks/useAccessibility";
 import useVisibility from "@/shared/hooks/useVisibility";
+import { KoalaTextLogo, KoalaTextLogoSrcSet } from "../const/url";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
@@ -27,7 +26,7 @@ type MandaraChartProps = {
 export default function MandalaBoard({
   getCurrentBackground,
 }: MandaraChartProps) {
-  const { mobile, desktop } = getCurrentBackground();
+  const { backgroundImage, srcSet } = getCurrentBackground();
   const reduced = useAccessibility(); // default: false
   const inactiveTab = useVisibility(); // default: false
 
@@ -87,30 +86,22 @@ export default function MandalaBoard({
   return (
     <div className="relative min-h-screen p-4 pt-[51px] ">
       {!reduced && !inactiveTab && <BackgroundAnimation />}
-      {/* 모바일 배경 이미지 */}
-      <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat">
+      {/* 배경 이미지 */}
+      <div
+        aria-hidden="true"
+        role="presentation"
+        className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]"
+      >
         <picture>
-          <source srcSet={mobile} media="(min-width: 768px)" />
+          <source srcSet={srcSet} />
           <img
             className="fixed inset-0 w-full h-full object-cover -z-10"
-            srcSet={mobile}
-            src={mobile}
-            alt="테마 배경 이미지"
+            src={backgroundImage[3]}
+            alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
           />
         </picture>
       </div>
-      {/* 데스크탑 배경 이미지 */}
-      <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat">
-        <picture>
-          <source srcSet={desktop} media="(min-width: 1200px)" />
-          <img
-            className="fixed inset-0 w-full h-full object-cover -z-10"
-            src={desktop}
-            srcSet={desktop}
-            alt="테마 배경 이미지"
-          />
-        </picture>
-      </div>
+
       <div className="max-w-2xl mx-auto">
         <div
           className={cn(
@@ -119,11 +110,11 @@ export default function MandalaBoard({
           )}
         >
           <img
-            src={KoalaTextRowLogo}
+            src={KoalaTextLogo[0]}
             className="w-full"
             loading="lazy"
             decoding="async"
-            srcSet={KoalaTextRowLogo}
+            srcSet={KoalaTextLogoSrcSet}
             sizes="(max-width: 768px) 90vw, 476px"
             width={476}
             height={96}

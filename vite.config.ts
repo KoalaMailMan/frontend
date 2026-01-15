@@ -27,6 +27,9 @@ export default ({ mode }: { mode: string }) => {
       imagetools({
         defaultDirectives: (url) => {
           const format = url.searchParams.get("format");
+          if (!url.searchParams.has("format")) {
+            url.searchParams.set("format", "webp");
+          }
 
           // quality가 명시되지 않은 경우만 자동 적용
           if (!url.searchParams.has("quality")) {

@@ -1,14 +1,6 @@
-export type ThemeColor =
-  | "purple"
-  | "red"
-  | "blue"
-  | "green"
-  | "yellow"
-  | "pink"
-  | "spring"
-  | "summer"
-  | "autumn"
-  | "winter";
+// type colorType = "purple" | "red" | "blue" | "green" | "yellow" | "pink";
+
+export type ThemeColor = "spring" | "summer" | "autumn" | "winter";
 
 export const themes = [
   {

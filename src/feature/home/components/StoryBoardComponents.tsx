@@ -27,8 +27,10 @@ export default function StoryBoardComponents({ isMobile }: Props) {
               <div className="h-42 md:h-full relative">
                 <ImageWithFallback
                   src={step.image}
+                  srcSet={step.srcSet}
                   alt={step.title}
                   loading="lazy"
+                  fetchPriority="low"
                   className="w-full h-full object-cover"
                 />
                 {/* 이모지 오버레이 */}

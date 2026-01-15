@@ -1,132 +1,17 @@
 import { useEffect, useState } from "react";
 import type { ThemeColor } from "@/data/themes";
 
-// 모바일 이미지 최적화
-// @ts-expect-error -- vite-imagetools query import
-import RED_MO_BG from "@/assets/background/background_red.jpg?width=320;640;768;1200&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import PURPLE_MO_BG from "@/assets/background/background_purple.jpg?width=320;640;768;1200&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import BLUE_MO_BG from "@/assets/background/background_blue.jpg?width=320;640;768;1200&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import GREEN_MO_BG from "@/assets/background/background_green.jpg?width=320;640;768;1200&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import YELLOW_MO_BG from "@/assets/background/background_yellow.jpg?width=320;640;768;1200&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import PINK_MO_BG from "@/assets/background/background_pink.jpg?width=320;640;768;1200&format=webp&as=srcset";
-
-// 데스크탑 이미지 최적화
-// @ts-expect-error -- vite-imagetools query import
-import RED_BG from "@/assets/background/background_red.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import PURPLE_BG from "@/assets/background/background_purple.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import BLUE_BG from "@/assets/background/background_blue.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import GREEN_BG from "@/assets/background/background_green.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import YELLOW_BG from "@/assets/background/background_yellow.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import PINK_BG from "@/assets/background/background_pink.jpg?width=800;1200;1600;1920&format=webp&as=srcset";
-
-// 모바일 이미지 최적화
-// @ts-expect-error -- vite-imagetools query import
-import SPRING_MO_BG from "@/assets/background/background_spring.png?width=320;640;768;1200&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import SUMMER_MO_BG from "@/assets/background/background_summer.png?width=320;640;768;1200&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import AUTUMN_MO_BG from "@/assets/background/background_autumn.png?width=320;640;768;1200&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import WINTER_MO_BG from "@/assets/background/background_winter.png?width=320;640;768;1200&format=webp&as=srcset";
-
-// 데스크탑 이미지 최적화
-// @ts-expect-error -- vite-imagetools query import
-import SPRING_BG from "@/assets/background/background_spring.png?width=800;1200;1600;1920&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import SUMMER_BG from "@/assets/background/background_summer.png?width=800;1200;1600;1920&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import AUTUMN_BG from "@/assets/background/background_autumn.png?width=800;1200;1600;1920&format=webp&as=srcset";
-// @ts-expect-error -- vite-imagetools query import
-import WINTER_BG from "@/assets/background/background_winter.png?width=800;1200;1600;1920&format=webp&as=srcset";
 import { findInTheFourSeasons } from "../utils/weather";
+import {
+  modalBorderThemeColors,
+  modalThemeColors,
+  recommendButtonThemeColors,
+  themeBackgrounds,
+  themeBackgroundsSrcSet,
+  themeColors,
+} from "./const/theme";
 
 const THEME_STORAGE_KEY = "koalart_theme";
-
-const themeColors = {
-  purple: "#86569d",
-  red: "#ff5042",
-  blue: "#40bbed",
-  green: "#3aab63",
-  yellow: "#ffe849",
-  pink: "#e17aaa",
-  spring: "#FF99A9",
-  summer: "#02C2FE",
-  autumn: "#FA7018",
-  winter: "#3085BA",
-};
-const modalThemeColors = {
-  purple: "#86569d",
-  red: "#df6556",
-  blue: "#40bbed",
-  green: "#3aab63",
-  yellow: "#ffe849",
-  pink: "#e17aaa",
-  spring: "#FF99A9",
-  summer: "#02C2FE",
-  autumn: "#FA7018",
-  winter: "#3085BA",
-};
-const modalBorderThemeColors = {
-  red: "#a80d00",
-  purple: "#86569d",
-  blue: "#40bbed",
-  green: "#3aab63",
-  yellow: "#ffe849",
-  pink: "#e17aaa",
-  spring: "#FF99A9",
-  summer: "#02C2FE",
-  autumn: "#FA7018",
-  winter: "#3085BA",
-};
-const recommendButtonThemeColors = {
-  red: "#ff7f75",
-  purple: "#86569d",
-  blue: "#40bbed",
-  green: "#3aab63",
-  yellow: "#ffe849",
-  pink: "#e17aaa",
-  spring: "#FF99A9",
-  summer: "#02C2FE",
-  autumn: "#FA7018",
-  winter: "#3085BA",
-};
-
-const themeBackgrounds = {
-  purple: PURPLE_BG,
-  red: RED_BG,
-  blue: BLUE_BG,
-  green: GREEN_BG,
-  yellow: YELLOW_BG,
-  pink: PINK_BG,
-
-  spring: SPRING_BG,
-  summer: SUMMER_BG,
-  autumn: AUTUMN_BG,
-  winter: WINTER_BG,
-};
-const themeMOBackgrounds = {
-  purple: PURPLE_MO_BG,
-  red: RED_MO_BG,
-  blue: BLUE_MO_BG,
-  green: GREEN_MO_BG,
-  yellow: YELLOW_MO_BG,
-  pink: PINK_MO_BG,
-
-  spring: SPRING_BG,
-  summer: SUMMER_BG,
-  autumn: AUTUMN_BG,
-  winter: WINTER_BG,
-};
 
 export default function useTheme() {
   const [currentTheme, setCurrentTheme] = useState(() => {
@@ -245,8 +130,8 @@ export default function useTheme() {
 
   const getCurrentBackground = () => {
     return {
-      mobile: themeMOBackgrounds[currentTheme],
-      desktop: themeBackgrounds[currentTheme],
+      backgroundImage: themeBackgrounds[currentTheme],
+      srcSet: themeBackgroundsSrcSet[currentTheme],
     };
   };
 
