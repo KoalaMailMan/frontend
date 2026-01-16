@@ -5,6 +5,7 @@ export default function useResize() {
   const setViewport = useViewportStore((state) => state.setViewport);
 
   useEffect(() => {
+    if (typeof window === "undefined") return;
     const handleResize = () => {
       const width = window.innerWidth;
       const height = window.innerHeight;
