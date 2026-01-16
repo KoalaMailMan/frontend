@@ -27,7 +27,7 @@ export default function Header({
   );
 
   return (
-    <div className="w-full mb-4 sm:mb-6 lg:mb-8 px-4 p-4 fixed z-[1]">
+    <div className="w-full mb-4 sm:mb-6 lg:mb-8 px-4 p-4 fixed z-[999]">
       <div
         className={cn(
           "mx-auto flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full justify-end"
