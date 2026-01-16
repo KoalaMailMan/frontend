@@ -1,6 +1,7 @@
 import path from "path";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import vike from "vike/plugin";
 import { defineConfig, loadEnv } from "vite";
 import { imagetools } from "vite-imagetools";
 
@@ -8,21 +9,12 @@ import { imagetools } from "vite-imagetools";
 export default ({ mode }: { mode: string }) => {
   const env = loadEnv(mode, process.cwd(), "");
   return defineConfig({
-    build: {
-      minify: "esbuild",
-      rollupOptions: {
-        output: {
-          manualChunks: {
-            "react-vendor": ["react", "react-dom"],
-          },
-        },
-      },
-    },
     esbuild: {
       drop: mode === "production" ? ["console", "debugger"] : [], // 프로덕션에서 console, debugger 제거
     },
     plugins: [
       react(),
+      vike(),
       tailwindcss(),
       imagetools({
         defaultDirectives: (url) => {
