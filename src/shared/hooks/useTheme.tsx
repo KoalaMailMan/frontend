@@ -15,7 +15,7 @@ const THEME_STORAGE_KEY = "koalart_theme";
 
 export default function useTheme() {
   const [currentTheme, setCurrentTheme] = useState(() => {
-    if (typeof window === "undefined") return findInTheFourSeasons();
+    if (!window) return findInTheFourSeasons();
     const saveColor = window.localStorage.getItem(
       THEME_STORAGE_KEY
     ) as ThemeColor;
@@ -25,7 +25,6 @@ export default function useTheme() {
   });
 
   useEffect(() => {
-    if (typeof window === "undefined") return;
     updateCurrentTheme(currentTheme);
   }, [currentTheme]);
 

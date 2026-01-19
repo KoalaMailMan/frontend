@@ -44,10 +44,7 @@ export const useAuthStore = create<States & Actions>()(
     (set, get) => ({
       accessToken: null,
       temporaryAuth: "none",
-      wasLoggedIn:
-        typeof window !== "undefined"
-          ? localStorage.getItem("wasLoggedIn") === "true"
-          : false,
+      wasLoggedIn: false,
       lastProvider: null,
       lastLoginTime: "",
       user: {
