@@ -15,7 +15,7 @@ type MandaraChartProps = {
 export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
   const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
   const height = useViewportStore((state) => state.height);
-  const { mobile, desktop } = getCurrentBackground();
+  const { backgroundImage, srcSet } = getCurrentBackground();
   const reduced = useAccessibility(); // default: false
   const inactiveTab = useVisibility(); // default: false
   const isMobile = useViewportStore((state) => state.isMobile);
@@ -38,11 +38,10 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
         <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]">
           <h1>
             <picture>
-              <source srcSet={mobile} media="(min-width: 768px)" />
+              <source srcSet={srcSet} media="(min-width: 768px)" />
               <img
                 className="fixed inset-0 w-full h-full object-cover -z-10"
-                srcSet={mobile}
-                src={mobile}
+                src={backgroundImage[3]}
                 alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
               />
             </picture>
@@ -50,18 +49,6 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
               만다라트 목표 작성 & 리마인드 | 코알라 우체부
             </span>
           </h1>
-        </div>
-        {/* 데스크탑 배경 이미지 */}
-        <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-fixed">
-          <picture>
-            <source srcSet={desktop} media="(min-width: 1200px)" />
-            <img
-              className="fixed inset-0 w-full h-full object-cover -z-10"
-              src={desktop}
-              srcSet={desktop}
-              alt="테마 배경 이미지"
-            />
-          </picture>
         </div>
 
         {/* 날아가는 코알라 애니메이션 */}
