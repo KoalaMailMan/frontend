@@ -143,8 +143,8 @@ export const useMandalaStore = create<States & Actions>()(
             const isSubsComplete = mains[mainIndex].subs
               .slice(1)
               .every((item) => item.status === "DONE");
-
-            if (isSubsComplete) {
+            const isCenterTextWritten = mains[mainIndex].subs[0].content !== "";
+            if (isSubsComplete && isCenterTextWritten) {
               const { mainId, newMain } = toggleStatus(
                 "DONE",
                 mains,
