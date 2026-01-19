@@ -3,7 +3,7 @@ import StoryBoardComponents from "../components/StoryBoardComponents";
 import Button from "../../ui/Button";
 import BackgroundAnimation from "../components/BackgroundAnimation";
 import { useViewportStore } from "@/lib/stores/viewportStore";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
 import useAccessibility from "@/shared/hooks/useAccessibility";
 import useVisibility from "@/shared/hooks/useVisibility";
@@ -13,10 +13,9 @@ type MandaraChartProps = {
 };
 
 export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
-  const [lcpDone, setLcpDone] = useState(false);
   const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
   const height = useViewportStore((state) => state.height);
-  const { backgroundImage, srcSet } = getCurrentBackground();
+  const { mobile, desktop } = getCurrentBackground();
   const reduced = useAccessibility(); // default: false
   const inactiveTab = useVisibility(); // default: false
   const isMobile = useViewportStore((state) => state.isMobile);
@@ -31,35 +30,45 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
     document.documentElement.style.setProperty("--real-vh", `${height}`);
   }, [height]);
 
-  useEffect(() => {
-    requestIdleCallback(() => setLcpDone(true));
-  }, []);
-
   return (
     <div className="min-h-screen relative overflow-hidden">
       {/* 메인 로그인 섹션 */}
       <div className="min-h-screen flex flex-col items-center justify-center px-4 relative">
-        {/* 배경 이미지 */}
-        <div
-          aria-hidden="true"
-          role="presentation"
-          className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]"
-        >
+        {/* 모바일 배경 이미지 */}
+        <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]">
+          <h1>
+            <picture>
+              <source srcSet={mobile} media="(min-width: 768px)" />
+              <img
+                className="fixed inset-0 w-full h-full object-cover -z-10"
+                srcSet={mobile}
+                src={mobile}
+                alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
+              />
+            </picture>
+            <span className="sr-only">
+              만다라트 목표 작성 & 리마인드 | 코알라 우체부
+            </span>
+          </h1>
+        </div>
+        {/* 데스크탑 배경 이미지 */}
+        <div className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-fixed">
           <picture>
-            <source srcSet={srcSet} />
+            <source srcSet={desktop} media="(min-width: 1200px)" />
             <img
               className="fixed inset-0 w-full h-full object-cover -z-10"
-              src={backgroundImage[0]}
-              alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
+              src={desktop}
+              srcSet={desktop}
+              alt="테마 배경 이미지"
             />
           </picture>
         </div>
 
+        {/* 날아가는 코알라 애니메이션 */}
+        {!reduced && !inactiveTab && <BackgroundAnimation />}
+
         {/* 메인 로그인 컨테이너 */}
         <MainSection onTemporaryLogin={setTemporaryAuth} />
-
-        {/* 날아가는 코알라 애니메이션 */}
-        {lcpDone && !reduced && !inactiveTab && <BackgroundAnimation />}
       </div>
 
       {/* 서비스 소개 섹션 */}

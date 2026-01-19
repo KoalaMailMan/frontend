@@ -135,7 +135,7 @@ export default function MandalaReadOnlyCell({
           className="absolute w-full h-full p-1 shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.05)] "
           style={{ backgroundColor: "rgba(219, 219, 219, 0.6)" }}
         >
-          {koalaSeal && <img src={koalaSeal} alt="해당 목표 완료했습니다." />}
+          <img src={koalaSeal[0]} alt="해당 목표 완료했습니다." />
         </div>
       )}
     </div>
