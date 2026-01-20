@@ -1,12 +1,19 @@
 // type colorType = "purple" | "red" | "blue" | "green" | "yellow" | "pink";
 
+import {
+  spring_theme,
+  summer_theme,
+  autumn_theme,
+  winter_theme,
+} from "@/shared/hooks/const/url";
+
 export type ThemeColor = "spring" | "summer" | "autumn" | "winter";
 
 export const themes = [
   {
     id: "spring" as ThemeColor,
     name: "봄",
-    img: "/src/assets/background/background_spring.png",
+    img: spring_theme.url[0],
     color: "#FFEDF091",
     borderColor: "#FF99A9",
     description: "봄",
@@ -14,7 +21,7 @@ export const themes = [
   {
     id: "summer" as ThemeColor,
     name: "여름",
-    img: "/src/assets/background/background_summer.png",
+    img: summer_theme.url[0],
     color: "#32F9FF26",
     borderColor: "#02C2FE",
     description: "여름",
@@ -22,7 +29,7 @@ export const themes = [
   {
     id: "autumn" as ThemeColor,
     name: "가을",
-    img: "/src/assets/background/background_autumn.png",
+    img: autumn_theme.url[0],
     color: "#F8E6CBB5",
     borderColor: "#FA7018",
     description: "가을",
@@ -30,7 +37,7 @@ export const themes = [
   {
     id: "winter" as ThemeColor,
     name: "겨울",
-    img: "/src/assets/background/background_winter.png",
+    img: winter_theme.url[0],
     color: "#C2E4FC73",
     borderColor: "#3085BA",
     description: "겨울",
