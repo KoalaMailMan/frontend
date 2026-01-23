@@ -1,16 +1,18 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EventSourcePolyfill } from "event-source-polyfill";
+import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 
 type UseSSERecommendationOptions = {
   goal: string;
+  subs: SubGoal[];
   getAccessToken: () => Promise<string | undefined | null>;
-  onComplete?: (items: string[]) => void;
+  onComplete?: (items?: string[] | number) => void;
   onError?: (error: string) => void;
 };
 
 const EventSource = EventSourcePolyfill;
 
-const parseSSEChunks = (rawData: string[]) => {
+export const parseSSEChunks = (rawData: string[]) => {
   return rawData
     .join("")
     .split(/\s*,\s*/g)
@@ -30,16 +32,67 @@ const baseURL = import.meta.env.VITE_BACKEND_URL;
 
 export default function useSSERecommendation({
   goal,
+  subs,
   onComplete,
   onError,
   getAccessToken,
 }: UseSSERecommendationOptions) {
   const [error, setError] = useState<string | null>(null);
   const [isStreaming, setStreaming] = useState(false);
-  const [recommendation, setRecommendation] = useState<string[]>([]);
+  const [rawChunks, setRawChunks] = useState<string[]>([]);
+
+  const Queue = useRef<string[]>([]);
+  const MaximumQueue = useRef(100);
+  const isProcessing = useRef(false);
+
+  const timer = useRef<NodeJS.Timeout | null>(null);
+
+  const processQueue = useCallback(() => {
+    if (Queue.current.length === 0) return (isProcessing.current = false);
+
+    isProcessing.current = true;
+
+    const delay = Queue.current.length >= 20 ? 50 : 120;
+
+    const chunk = Queue.current.shift();
+    if (chunk) {
+      applyRecommendationChunk(subs, chunk);
+    }
+
+    timer.current = setTimeout(() => {
+      processQueue();
+    }, delay);
+  }, [subs]);
+
+  const clearQueue = useCallback(() => {
+    Queue.current = [];
+    isProcessing.current = false;
+    if (timer.current) {
+      clearTimeout(timer.current);
+      timer.current = null;
+    }
+  }, []);
+
+  const initRecommendationTargets = useMandalaStore(
+    (state) => state.initRecommendationTargets
+  );
+  const applyRecommendationChunk = useMandalaStore(
+    (state) => state.applyRecommendationChunk
+  );
+  const resetRecommendationText = useMandalaStore(
+    (state) => state.resetRecommendationText
+  );
 
   const eventSourceRef = useRef<EventSource | null>(null);
   const startTimeRef = useRef<number | null>(null);
+
+  const cleanupStream = useCallback(() => {
+    console.log("스트림 정리");
+    eventSourceRef.current?.close();
+    eventSourceRef.current = null;
+    setStreaming(false);
+    startTimeRef.current = null;
+  }, []);
 
   const startStream = useCallback(
     async (count: number) => {
@@ -62,12 +115,14 @@ export default function useSSERecommendation({
       }
 
       // 이전 연결 종료
-      if (eventSourceRef.current != null) {
-        eventSourceRef.current?.close();
-      }
+      cleanupStream();
+      resetRecommendationText();
+
       // 초기화
       setError(null);
-      setRecommendation([]);
+      setRawChunks([]);
+      initRecommendationTargets(subs);
+
       const params = encodingURI({
         parentGoal: goal,
         recommendationCount: count.toString(),
@@ -89,6 +144,7 @@ export default function useSSERecommendation({
         console.log("✅ 스트림 연결 성공");
         startTimeRef.current = performance.now();
       };
+
       eventSource.onmessage = (event) => {
         const data = event.data;
         console.log(`📨 데이터 수신: ${data}`);
@@ -97,6 +153,20 @@ export default function useSSERecommendation({
           console.log(
             `⏱ 응답 시간: ${(end - startTimeRef.current).toFixed(2)}ms`
           );
+        }
+        if (data.includes("[ERROR]")) {
+          console.log(`스트림 error 발생`);
+          if (startTimeRef.current) {
+            const end = performance.now();
+            console.log(
+              `⏱ 총 소요 시간: ${(end - startTimeRef.current).toFixed(2)}ms`
+            );
+          }
+          cleanupStream();
+          setRawChunks([]);
+          setError("스트림 서버 에러 발생");
+          onError?.("스트림 서버 에러 발생");
+          return;
         }
         // 완료 신호 체크
         if (data.includes("__COMPLETE__")) {
@@ -107,51 +177,68 @@ export default function useSSERecommendation({
               `⏱ 총 소요 시간: ${(end - startTimeRef.current).toFixed(2)}ms`
             );
           }
-          startTimeRef.current = null;
-          eventSource.close();
-          setStreaming(false);
+          onComplete?.(count);
+          cleanupStream();
           return;
         }
-        setRecommendation((prev) => [...prev, data]);
+
+        Queue.current.push(data);
+
+        if (Queue.current.length > MaximumQueue.current) {
+          console.warn("큐가 너무 쌓임, 초기화");
+          clearQueue();
+          onError?.("메시지 처리 속도 초과");
+        }
+        if (!isProcessing.current) {
+          processQueue();
+        }
       };
 
       eventSource.onerror = (error) => {
         console.error(`🚨 SSE 에러: ${error}`);
         const errorMsg = "스트림 연결 오류";
-        startTimeRef.current = null;
-        setError(errorMsg);
-        setStreaming(false);
+        cleanupStream();
+        clearQueue();
         onError?.(errorMsg);
         eventSource.close();
       };
     },
-    [goal]
+    [
+      goal,
+      subs,
+      cleanupStream,
+      resetRecommendationText,
+      initRecommendationTargets,
+      applyRecommendationChunk,
+      onError,
+    ]
   );
 
   const stopStream = useCallback(() => {
     console.log("❌ SSE 연결 중지");
-    setStreaming(false);
-    eventSourceRef.current?.close();
+    cleanupStream();
+    clearQueue();
   }, []);
+
+  const parsed = useMemo(() => parseSSEChunks(rawChunks), [rawChunks]);
 
   useEffect(() => {
     return () => {
-      setStreaming(false);
-      eventSourceRef.current?.close();
+      cleanupStream();
     };
-  }, []);
+  }, [cleanupStream]);
 
   useEffect(() => {
-    if (!isStreaming && !error && recommendation.length > 0) {
-      onComplete?.(parseSSEChunks(recommendation));
+    if (!isStreaming && !error && parsed.length > 0) {
+      onComplete?.(parsed);
     }
-  }, [isStreaming, error, recommendation]);
+  }, [isStreaming, error, parsed, onComplete]);
 
   return {
     startStream,
     stopStream,
     error,
     isStreaming,
-    recommendation: parseSSEChunks(recommendation),
+    recommendation: parsed,
   };
 }

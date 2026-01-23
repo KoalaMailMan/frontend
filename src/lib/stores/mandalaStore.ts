@@ -55,6 +55,9 @@ type States = {
   isReminderOpen: boolean;
   isFullOpen: boolean;
   isEmpty: boolean;
+  emptySubIndexes: number[];
+  recommendationCursor: number;
+  currentRecommendationText: string;
 } & PersistedState;
 
 type PersistedState = {
@@ -72,7 +75,9 @@ type Actions = {
   allGoalComplete: (id: string) => void;
   toggleGoalStatus: (id: string) => void;
   handleCellChange: (cellId: string, value: string, index?: any) => void;
-  updateSubsCell: (subs: SubGoal[], data: string[]) => void;
+  initRecommendationTargets: (subs: SubGoal[]) => void;
+  resetRecommendationText: () => void;
+  applyRecommendationChunk: (subs: SubGoal[], value: string) => void;
   setReminderOption: (options: DataOption) => void;
   setReminderEnabled: (enabled: boolean) => void;
   setRemindInterval: (interval: string) => void;
@@ -107,6 +112,9 @@ export const useMandalaStore = create<States & Actions>()(
       isReminderOpen: false,
       isFullOpen: false,
       isEmpty: true,
+      emptySubIndexes: [],
+      recommendationCursor: 0,
+      currentRecommendationText: "",
 
       getData: (index) => {
         if (index != null) {
@@ -368,48 +376,101 @@ export const useMandalaStore = create<States & Actions>()(
             isDirty: true,
           };
         }),
-      updateSubsCell: (subs, data) =>
+      initRecommendationTargets: (subs) =>
         set((state) => {
-          if (!subs || !data) return state;
           const mainId = subs[0].goalId.split("-")[1];
           const mainIndex = state.data.core.mains.findIndex(
             (sub) => sub.goalId === `main-${mainId}`
           );
           if (mainIndex === -1) return state;
-          const newSubs = [...state.data.core.mains[mainIndex].subs];
-          let dataIndex = 0;
+          const subsArr = state.data.core.mains[mainIndex].subs;
 
-          const updateSubs = newSubs.map((item) => {
-            if (item.position === 0 || item.content) {
-              return item;
-            }
+          const emptyIndexes = subsArr
+            .map((sub, index) =>
+              sub.position !== 0 && !sub.content.trim() ? index : null
+            )
+            .filter((v): v is number => v !== null);
 
-            if (dataIndex < data.length) {
-              const newItem = { ...item, content: data[dataIndex] };
-              dataIndex++;
-              return newItem;
-            }
-
-            return item;
-          });
-
-          const cellIds = updateSubs
-            .filter((item, i) => item.content && i !== 0 && item.goalId)
-            .map((item) => item.goalId);
           return {
             ...state,
-            data: {
-              ...state.data,
-              core: {
-                ...state.data.core,
-                mains: state.data.core.mains.map((main, index) =>
-                  index === mainIndex ? { ...main, subs: updateSubs } : main
-                ),
-              },
-            },
-            changedCells: new Set([...state.changedCells, ...cellIds]),
-            isDirty: true,
+            emptySubIndexes: emptyIndexes,
+            recommendationCursor: 0,
           };
+        }),
+      resetRecommendationText: () =>
+        set(() => ({
+          currentRecommendationText: "",
+        })),
+      applyRecommendationChunk: (subs, chunk) =>
+        set((state) => {
+          const cursor = state.recommendationCursor;
+          const targetIndex = state.emptySubIndexes[cursor];
+
+          if (targetIndex == null) return state;
+
+          const mainId = subs[0].goalId.split("-")[1];
+          const mainIndex = state.data.core.mains.findIndex(
+            (sub) => sub.goalId === `main-${mainId}`
+          );
+          if (mainIndex === -1) return state;
+
+          const subsArr = state.data.core.mains[mainIndex].subs;
+          const target = subsArr[targetIndex];
+
+          const hasComma = chunk.includes(",");
+          let newText = state.currentRecommendationText;
+          let newCursor = cursor;
+
+          if (hasComma) {
+            const parts = chunk.split(",");
+            console.log(parts);
+            const beforeComma = parts[0];
+            const afterComma = parts[1].replace(/^\s+/, "");
+
+            newText = state.currentRecommendationText + beforeComma;
+
+            newCursor = cursor + 1;
+
+            const newSubs = [...subsArr];
+            newSubs[targetIndex] = { ...target, content: newText };
+
+            return {
+              ...state,
+              data: {
+                ...state.data,
+                core: {
+                  ...state.data.core,
+                  mains: state.data.core.mains.map((main, index) =>
+                    index === mainIndex ? { ...main, subs: newSubs } : main
+                  ),
+                },
+              },
+              recommendationCursor: newCursor,
+              currentRecommendationText: afterComma,
+              changedCells: new Set([...state.changedCells, target.goalId]),
+              isDirty: true,
+            };
+          } else {
+            newText = state.currentRecommendationText + chunk;
+            const newSubs = [...subsArr];
+            newSubs[targetIndex] = { ...target, content: newText };
+
+            return {
+              ...state,
+              data: {
+                ...state.data,
+                core: {
+                  ...state.data.core,
+                  mains: state.data.core.mains.map((main, index) =>
+                    index === mainIndex ? { ...main, subs: newSubs } : main
+                  ),
+                },
+              },
+              currentRecommendationText: newText,
+              changedCells: new Set([...state.changedCells, target.goalId]),
+              isDirty: true,
+            };
+          }
         }),
 
       setEditingCell: (cellId) => set(() => ({ editingCellId: cellId })),

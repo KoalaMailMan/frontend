@@ -37,6 +37,11 @@ function App() {
     const initApp = async () => {
       try {
         // 최초 로그인
+        const errorFromUrl = getURLQuery("error");
+        if (errorFromUrl) {
+          toast.error("로그인에 실패했습니다. 다시 시도해주세요.");
+          return;
+        }
         const tokenFromURL = getURLQuery("access_token");
         if (tokenFromURL) {
           handleLogin();

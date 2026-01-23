@@ -739,8 +739,10 @@ export const toggleStatus = (
   const mainId = mains[mainIndex].goalId;
   const newMain = mains.map((main) => {
     if (main.goalId === mainId) {
-      main.status = status;
-      main.subs[0].status = status;
+      if (main.content) {
+        main.status = status;
+        main.subs[0].status = status;
+      }
     }
     return main;
   });
