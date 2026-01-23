@@ -59,9 +59,6 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
 
         {/* 날아가는 코알라 애니메이션 */}
         {lcpDone && !reduced && !inactiveTab && <BackgroundAnimation />}
-
-        {/* 메인 로그인 컨테이너 */}
-        <MainSection onTemporaryLogin={setTemporaryAuth} />
       </div>
 
       {/* 서비스 소개 섹션 */}
