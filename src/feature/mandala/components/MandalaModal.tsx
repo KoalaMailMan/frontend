@@ -33,8 +33,6 @@ export default function MandalaModal({
   onRemove,
   onCancelEdit,
 }: Props) {
-  const updateSubsCell = useMandalaStore((state) => state.updateSubsCell);
-
   // modal 컴포넌트 상태 관리
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -57,11 +55,16 @@ export default function MandalaModal({
     getNextId: getNextCellId,
   });
 
-  const { startStream, recommendation, isStreaming } = useSSERecommendation({
+  const { startStream, isStreaming } = useSSERecommendation({
     goal: items[0].content,
+    subs: items,
     getAccessToken,
     onComplete: (items) => {
-      console.log("완료! 총", items.length, "개");
+      if (Array.isArray(items)) {
+        console.log("완료! 총", items.length, "개");
+      } else {
+        console.log("완료! 총", items, "개");
+      }
       toast.success(`목표 추천 완료되었습니다!`);
     },
     onError: (error) => {
@@ -98,6 +101,7 @@ export default function MandalaModal({
       setAuthOpen(true);
       return;
     }
+
     const emptyCount = validateEmptyGoals(items);
     if (emptyCount) {
       startStream(emptyCount);
@@ -124,12 +128,20 @@ export default function MandalaModal({
     }
   };
 
-  useEffect(() => {
-    if (!isStreaming && recommendation) {
-      updateSubsCell(items, recommendation);
-    }
-    return () => {};
-  }, [isStreaming]);
+  // useEffect(() => {
+  //   if (!isStreaming) return;
+
+  //   if (recommendation.length === 0) return;
+
+  //   const last = recommendation[recommendation.length - 1];
+  //   if (last.includes("[ERROR]")) return;
+  //   const latest = recommendation.at(-1);
+  //   if (latest) {
+  //     applyRecommendationChunk(items, latest);
+  //   }
+
+  //   return () => {};
+  // }, [recommendation, isStreaming, items]);
 
   useEffect(() => {
     const element = positionRef.current;
