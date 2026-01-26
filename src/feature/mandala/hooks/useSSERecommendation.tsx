@@ -87,7 +87,6 @@ export default function useSSERecommendation({
   const startTimeRef = useRef<number | null>(null);
 
   const cleanupStream = useCallback(() => {
-    console.log("스트림 정리");
     eventSourceRef.current?.close();
     eventSourceRef.current = null;
     setStreaming(false);

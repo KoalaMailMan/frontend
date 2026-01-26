@@ -40,6 +40,11 @@ function App() {
         const errorFromUrl = getURLQuery("error");
         if (errorFromUrl) {
           toast.error("로그인에 실패했습니다. 다시 시도해주세요.");
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname
+          );
           return;
         }
         const tokenFromURL = getURLQuery("access_token");
