@@ -5,6 +5,7 @@ import MandalaModal from "./MandalaModal";
 import { getGridClasses } from "../utills/css";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
 import { getNextCellId } from "../service";
+import { useEffect, useRef } from "react";
 
 export default function MandalaGrid() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
@@ -18,6 +19,10 @@ export default function MandalaGrid() {
   const setModalCellId = useMandalaStore((state) => state.setModalCellId);
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
+  const toggleGoalStatus = useMandalaStore((state) => state.toggleGoalStatus);
+  const allGoalComplete = useMandalaStore((state) => state.allGoalComplete);
+
+  const timer = useRef<NodeJS.Timeout | null>(null);
 
   useGridTabNavigation({
     editingId: editingCellId,
@@ -72,6 +77,15 @@ export default function MandalaGrid() {
   const handleSubContentChange = (value: string) => {
     if (modalCellId) {
       const mainIndex = findByIdWithGoalIndex(modalCellId);
+      if (editingSubCellId?.includes("0")) {
+        timer.current = setTimeout(() => {
+          if (value) {
+            toggleGoalStatus(editingSubCellId);
+            allGoalComplete(editingSubCellId);
+            setEditingSubCell(null);
+          }
+        }, 300);
+      }
       handleCellChange(editingSubCellId as string, value, mainIndex);
     }
   };
@@ -80,6 +94,15 @@ export default function MandalaGrid() {
     const index = mandalaList.findIndex((item) => item.goalId === id);
     return index === -1 ? 0 : index;
   };
+
+  useEffect(() => {
+    return () => {
+      if (timer.current) {
+        clearTimeout(timer.current);
+        timer.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div className="grid grid-cols-3 gap-1 max-w-lg mx-auto aspect-square">
