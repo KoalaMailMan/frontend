@@ -153,11 +153,7 @@ export const useMandalaStore = create<States & Actions>()(
               .every((item) => item.status === "DONE");
 
             if (isSubsComplete) {
-              const { mainId, newMain } = toggleStatus(
-                "DONE",
-                mains,
-                mainIndex
-              );
+              const { newMain } = toggleStatus("DONE", mains, mainIndex);
 
               return {
                 ...state,
@@ -168,15 +164,11 @@ export const useMandalaStore = create<States & Actions>()(
                     mains: newMain,
                   },
                 },
-                changedCells: new Set(state.changedCells).add(mainId),
+                changedCells: new Set(state.changedCells).add(id),
                 isDirty: true,
               };
             } else {
-              const { mainId, newMain } = toggleStatus(
-                "UNDONE",
-                mains,
-                mainIndex
-              );
+              const { newMain } = toggleStatus("UNDONE", mains, mainIndex);
 
               return {
                 ...state,
@@ -187,7 +179,7 @@ export const useMandalaStore = create<States & Actions>()(
                     mains: newMain,
                   },
                 },
-                changedCells: new Set(state.changedCells).add(mainId),
+                changedCells: new Set(state.changedCells).add(id),
                 isDirty: true,
               };
             }
@@ -360,6 +352,23 @@ export const useMandalaStore = create<States & Actions>()(
               subs: dataList[0].subs.map((sub, i) =>
                 i === 0 ? { ...sub, content: value } : sub
               ),
+            };
+          }
+
+          if (!value) {
+            const nextChangedCells = new Set(state.changedCells);
+            nextChangedCells.delete(cellId);
+            return {
+              ...state,
+              data: {
+                ...state.data,
+                core: {
+                  ...state.data.core,
+                  mains: dataList,
+                },
+              },
+              changedCells: nextChangedCells,
+              isDirty: false,
             };
           }
 
