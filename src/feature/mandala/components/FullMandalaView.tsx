@@ -7,7 +7,8 @@ import { cn } from "@/lib/utils";
 import { captureAndDownload } from "../utills/image";
 import { findbyCSS, getGridClasses, type Type } from "../utills/css";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId } from "../service";
+import { getNextCellId, serverToUI } from "../service";
+import useMandalaData from "../hooks/useMandalaData";
 
 export default function FullMandalaView() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
@@ -19,6 +20,8 @@ export default function FullMandalaView() {
   );
   const onClose = useMandalaStore((state) => state.setFullVisible);
   const mandaraGridRef = useRef<HTMLDivElement | null>(null);
+
+  const { data } = useMandalaData();
 
   const addPositionProperty = useMemo(() => {
     return mandalaList.map((item, idx) => {
@@ -115,8 +118,11 @@ export default function FullMandalaView() {
     if (isFullOpen && editingFullCellId) {
       const index = findByIdWithGoalIndex(id);
       console.log("Editing:", id, "at index:", index, "value:", value);
-
-      handleCellChange(id, value);
+      if (data) {
+        handleCellChange(id, value, serverToUI(data));
+      } else {
+        handleCellChange(id, value);
+      }
     }
   };
 
