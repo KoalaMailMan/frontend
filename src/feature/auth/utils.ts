@@ -5,7 +5,7 @@ export const getURLQuery = (query: string) => {
   return result;
 };
 
-export const clearQuery = () => {
+export const clearURLQuery = () => {
   window.history.replaceState({}, document.title, window.location.pathname);
 };
 
