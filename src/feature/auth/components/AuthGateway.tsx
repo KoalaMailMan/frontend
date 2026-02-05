@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/lib/stores/authStore";
-import useAuth from "../hooks/useAuth";
+import useRefresh from "../hooks/useRefresh";
 import { useEffect } from "react";
 import { handleLogout } from "../service";
 import { toast } from "sonner";
@@ -25,7 +25,7 @@ export default function AuthEntry({ getCurrentBackground }: Props) {
     isSuccess: isTokenReady,
     isError,
     error: refreshError,
-  } = useAuth();
+  } = useRefresh();
 
   const { data: userInfo, isSuccess: isUserReady } = useUserInfo();
 
@@ -34,7 +34,7 @@ export default function AuthEntry({ getCurrentBackground }: Props) {
       setAccessToken(token);
     }
     if (isError) {
-      console.log(refreshError);
+      console.error(refreshError);
       handleLogout();
       toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
     }
