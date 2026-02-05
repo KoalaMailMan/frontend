@@ -15,6 +15,7 @@ import QuestionIcon from "./icon/QuestionIcon";
 import LoadingSpiner from "@/feature/ui/LoadingSpiner";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
 import { getNextCellId } from "../service";
+import UseSubsGoalNavigation from "../hooks/ueSubsGoalNavigation";
 
 type Props = {
   isModalVisible: boolean;
@@ -54,6 +55,7 @@ export default function MandalaModal({
     setEditingId: setEditingSubCell,
     getNextId: getNextCellId,
   });
+  UseSubsGoalNavigation();
 
   const { startStream, isStreaming } = useSSERecommendation({
     goal: items[0].content,
