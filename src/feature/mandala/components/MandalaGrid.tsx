@@ -4,8 +4,9 @@ import MandalaContainer from "./MandalaContainer";
 import MandalaModal from "./MandalaModal";
 import { getGridClasses } from "../utills/css";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId } from "../service";
+import { getNextCellId, serverToUI } from "../service";
 import { useEffect, useRef } from "react";
+import useMandalaData from "../hooks/useMandalaData";
 
 export default function MandalaGrid() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
@@ -19,8 +20,6 @@ export default function MandalaGrid() {
   const setModalCellId = useMandalaStore((state) => state.setModalCellId);
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
-  const toggleGoalStatus = useMandalaStore((state) => state.toggleGoalStatus);
-  const allGoalComplete = useMandalaStore((state) => state.allGoalComplete);
 
   const timer = useRef<NodeJS.Timeout | null>(null);
 
@@ -30,27 +29,14 @@ export default function MandalaGrid() {
     getNextId: getNextCellId,
   });
 
-  const handleContentChange = (goalId: string, value: string) => {
-    const index = [0, 0];
-    mandalaList.forEach((item, i) => {
-      if (!item.subs) return;
-      item.subs.forEach((sub, j) => {
-        if (sub.goalId === goalId) {
-          index[0] = i;
-          index[1] = j;
-          return;
-        }
-      });
+  const { data } = useMandalaData();
 
-      if (item.goalId === goalId) {
-        index[0] = i;
-        return;
-      }
-    });
-    if (index[1] === 0) {
+  const handleContentChange = (goalId: string, value: string) => {
+    if (data) {
+      handleCellChange(goalId, value, serverToUI(data));
+    } else {
       handleCellChange(goalId, value);
     }
-    handleCellChange(goalId, value, index[0]);
   };
 
   const handleStartEdit = (goalId: string) => {
@@ -76,17 +62,11 @@ export default function MandalaGrid() {
 
   const handleSubContentChange = (value: string) => {
     if (modalCellId) {
-      const mainIndex = findByIdWithGoalIndex(modalCellId);
-      if (editingSubCellId?.includes("0")) {
-        timer.current = setTimeout(() => {
-          if (value) {
-            toggleGoalStatus(editingSubCellId);
-            allGoalComplete(editingSubCellId);
-            setEditingSubCell(null);
-          }
-        }, 300);
+      if (data) {
+        handleCellChange(editingSubCellId as string, value, serverToUI(data));
+      } else {
+        handleCellChange(editingSubCellId as string, value);
       }
-      handleCellChange(editingSubCellId as string, value, mainIndex);
     }
   };
 
