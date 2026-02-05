@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useAuthStore } from "./lib/stores/authStore";
 import useTheme from "./shared/hooks/useTheme";
-import { clearQuery, getURLQuery } from "./feature/auth/\butils";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { clearURLQuery, getURLQuery } from "./feature/auth/\butils";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { Toaster } from "./feature/ui/Sonner";
 import { toast } from "sonner";
@@ -11,9 +11,8 @@ import { useTutorialStore } from "./lib/stores/tutorialStore";
 import OnboardingTutorial from "./feature/tutorial/page";
 import useResize from "./shared/hooks/useResize";
 import AuthComponent from "./feature/auth/components/AuthComponent";
-import AuthEntry from "./feature/auth/components/\bAuthGateway";
-
-const queryClient = new QueryClient();
+import AuthEntry from "./feature/auth/components/AuthGateway";
+import { queryClient } from "./lib/utils";
 
 function App() {
   useResize();
@@ -34,12 +33,12 @@ function App() {
         const errorFromUrl = getURLQuery("error");
         if (errorFromUrl) {
           toast.error("로그인에 실패했습니다. 다시 시도해주세요.");
-          clearQuery();
+          clearURLQuery();
           return;
         }
         if (token) {
           setAccessToken(token);
-          clearQuery();
+          clearURLQuery();
           return;
         }
       } catch (error) {
