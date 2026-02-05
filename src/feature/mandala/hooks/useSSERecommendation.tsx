@@ -42,7 +42,6 @@ export default function useSSERecommendation({
   const [rawChunks, setRawChunks] = useState<string[]>([]);
 
   const Queue = useRef<string[]>([]);
-  const MaximumQueue = useRef(100);
   const isProcessing = useRef(false);
 
   const timer = useRef<NodeJS.Timeout | null>(null);
@@ -115,6 +114,7 @@ export default function useSSERecommendation({
 
       // 이전 연결 종료
       cleanupStream();
+      clearQueue();
       resetRecommendationText();
 
       // 초기화
@@ -143,6 +143,19 @@ export default function useSSERecommendation({
         console.log("✅ 스트림 연결 성공");
         startTimeRef.current = performance.now();
       };
+      // 완료 신호 체크
+      eventSource.addEventListener("complete", (event) => {
+        console.log(`🎉 스트림 완료`);
+        if (startTimeRef.current) {
+          const end = performance.now();
+          console.log(
+            `⏱ 총 소요 시간: ${(end - startTimeRef.current).toFixed(2)}ms`
+          );
+        }
+        onComplete?.(count);
+        cleanupStream();
+        return;
+      });
 
       eventSource.onmessage = (event) => {
         const data = event.data;
@@ -153,51 +166,29 @@ export default function useSSERecommendation({
             `⏱ 응답 시간: ${(end - startTimeRef.current).toFixed(2)}ms`
           );
         }
-        if (data.includes("[ERROR]")) {
-          console.log(`스트림 error 발생`);
-          if (startTimeRef.current) {
-            const end = performance.now();
-            console.log(
-              `⏱ 총 소요 시간: ${(end - startTimeRef.current).toFixed(2)}ms`
-            );
-          }
-          cleanupStream();
-          setRawChunks([]);
-          setError("스트림 서버 에러 발생");
-          onError?.("스트림 서버 에러 발생");
-          return;
-        }
-        // 완료 신호 체크
-        if (data.includes("__COMPLETE__")) {
-          console.log(`🎉 스트림 완료`);
-          if (startTimeRef.current) {
-            const end = performance.now();
-            console.log(
-              `⏱ 총 소요 시간: ${(end - startTimeRef.current).toFixed(2)}ms`
-            );
-          }
-          onComplete?.(count);
-          cleanupStream();
-          return;
-        }
 
-        Queue.current.push(data);
+        const chars = data.split("");
 
-        if (Queue.current.length > MaximumQueue.current) {
-          console.warn("큐가 너무 쌓임, 초기화");
-          clearQueue();
-          onError?.("메시지 처리 속도 초과");
-        }
+        chars.forEach((char: string) => {
+          Queue.current.push(char);
+        });
+        Queue.current.push(",");
+
         if (!isProcessing.current) {
           processQueue();
         }
       };
 
       eventSource.onerror = (error) => {
-        console.error(`🚨 SSE 에러: ${error}`);
+        console.error(`🚨 SSE 에러 상세:`, {
+          error,
+          readyState: eventSource.readyState,
+          type: error.type,
+          target: error.target,
+        });
         const errorMsg = "스트림 연결 오류";
         cleanupStream();
-        clearQueue();
+        // clearQueue();
         onError?.(errorMsg);
         eventSource.close();
       };
@@ -226,6 +217,11 @@ export default function useSSERecommendation({
       cleanupStream();
     };
   }, [cleanupStream]);
+
+  useEffect(() => {
+    if (isProcessing) return;
+    clearQueue();
+  }, [isProcessing]);
 
   useEffect(() => {
     if (!isStreaming && !error && parsed.length > 0) {
