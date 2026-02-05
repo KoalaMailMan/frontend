@@ -6,6 +6,7 @@ import { apiClient } from "@/lib/api/client";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { emptyDummyData } from "../mandala/service";
 import { toast } from "sonner";
+import { cleanQuery } from "@/shared/utils/query";
 
 export const handleGoogleLogin = () => {
   window.location.href = ENV.BACKEND_URL + "/api/auth/login/google";
@@ -47,11 +48,6 @@ export const handleLogout = () => {
     logouAPI();
   } catch (error) {
     console.error("Logout failed:", error);
-  } finally {
-    useAuthStore.getState().setWasLoggedIn(false);
-    useAuthStore.getState().setAccessToken(null);
-    useAuthStore.getState().setTemporaryAuth("none");
-    useMandalaStore.getState().setData(emptyDummyData.data);
   }
 };
 
@@ -60,11 +56,30 @@ export const logoutMiddleWare = () => {
     onSuccess: async (res: Response) => {
       if (res.status === 204) {
         console.log("로그아웃 성공");
+        cleanQuery();
+        clearAuth();
+        clearMandalart();
         return;
       }
       return await res.json();
     },
   });
+};
+
+export const clearAuth = () => {
+  useAuthStore.getState().setWasLoggedIn(false);
+  useAuthStore.getState().setAccessToken(null);
+  useAuthStore.getState().setTemporaryAuth("none");
+  useAuthStore.getState().setUserInfo({ nickname: "", email: "" });
+};
+
+export const clearMandalart = () => {
+  useMandalaStore.getState().setReminderOption({
+    reminderEnabled: true,
+    remindInterval: "3month",
+    remindScheduledAt: null,
+  });
+  useMandalaStore.getState().setData(emptyDummyData.data);
 };
 
 let refreshInProgress: Promise<string | null> | null = null;
