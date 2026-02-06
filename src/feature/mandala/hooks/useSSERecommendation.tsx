@@ -144,7 +144,7 @@ export default function useSSERecommendation({
         startTimeRef.current = performance.now();
       };
       // 완료 신호 체크
-      eventSource.addEventListener("complete", (event) => {
+      eventSource.addEventListener("complete", () => {
         console.log(`🎉 스트림 완료`);
         if (startTimeRef.current) {
           const end = performance.now();
