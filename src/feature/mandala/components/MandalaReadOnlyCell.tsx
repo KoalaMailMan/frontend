@@ -79,7 +79,7 @@ export default function MandalaReadOnlyCell({
     >
       <span
         className={cn(
-          "leading-tight break-all word-break-break-all inline-block w-full",
+          "leading-tight whitespace-pre-wrap wrap-break-word inline-block w-full",
           compact ? "text-xs" : isModalOpen ? "text-[10px]" : "text-[13px]",
           isCenter && type !== "main-center" && type !== "sub"
             ? "font-semibold text-primary"
