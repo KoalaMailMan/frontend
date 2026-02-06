@@ -1,6 +1,8 @@
 import { create } from "zustand";
 import {
   emptyDummyData,
+  getDataById,
+  isEqual,
   serverToUI,
   toggleStatus,
 } from "@/feature/mandala/service";
@@ -74,7 +76,11 @@ type Actions = {
   setMandalartId: (id: number) => void;
   allGoalComplete: (id: string) => void;
   toggleGoalStatus: (id: string) => void;
-  handleCellChange: (cellId: string, value: string, index?: any) => void;
+  handleCellChange: (
+    cellId: string,
+    value: string,
+    queryData?: MandalaType
+  ) => void;
   initRecommendationTargets: (subs: SubGoal[]) => void;
   resetRecommendationText: () => void;
   applyRecommendationChunk: (subs: SubGoal[], value: string) => void;
@@ -153,11 +159,7 @@ export const useMandalaStore = create<States & Actions>()(
               .every((item) => item.status === "DONE");
 
             if (isSubsComplete) {
-              const { mainId, newMain } = toggleStatus(
-                "DONE",
-                mains,
-                mainIndex
-              );
+              const { newMain } = toggleStatus("DONE", mains, mainIndex);
 
               return {
                 ...state,
@@ -168,15 +170,11 @@ export const useMandalaStore = create<States & Actions>()(
                     mains: newMain,
                   },
                 },
-                changedCells: new Set(state.changedCells).add(mainId),
+                changedCells: new Set(state.changedCells).add(id),
                 isDirty: true,
               };
             } else {
-              const { mainId, newMain } = toggleStatus(
-                "UNDONE",
-                mains,
-                mainIndex
-              );
+              const { newMain } = toggleStatus("UNDONE", mains, mainIndex);
 
               return {
                 ...state,
@@ -187,7 +185,7 @@ export const useMandalaStore = create<States & Actions>()(
                     mains: newMain,
                   },
                 },
-                changedCells: new Set(state.changedCells).add(mainId),
+                changedCells: new Set(state.changedCells).add(id),
                 isDirty: true,
               };
             }
@@ -239,9 +237,9 @@ export const useMandalaStore = create<States & Actions>()(
           };
         }),
 
-      handleCellChange: (cellId, value, index) =>
+      handleCellChange: (cellId, value, queryData) =>
         set((state) => {
-          console.log("Store handleCellChange:", cellId, value, index);
+          console.log("Store handleCellChange:", cellId, value, queryData);
           if (!state.data) return state;
           if (!state.data.core.mains) return state;
           const dataList = [...state.data.core.mains];
@@ -363,6 +361,46 @@ export const useMandalaStore = create<States & Actions>()(
             };
           }
 
+          if (queryData) {
+            const original =
+              getDataById(queryData.core.mains, cellId) ?? queryData.core;
+
+            const next = getDataById(dataList, cellId)! ?? dataList[0];
+
+            const isChanged = !isEqual(original, next);
+
+            const nextChangedCells = new Set(state.changedCells);
+            let dirty = false;
+            if (isChanged) {
+              if (isSubGoal && cellId === "sub-center-0") {
+                nextChangedCells.add("core-0");
+              } else {
+                nextChangedCells.add(cellId);
+              }
+              dirty = true;
+            } else {
+              if (isSubGoal && cellId === "sub-center-0") {
+                nextChangedCells.delete("core-0");
+              } else {
+                nextChangedCells.delete(cellId);
+              }
+              dirty = false;
+            }
+
+            return {
+              ...state,
+              data: {
+                ...state.data,
+                core: {
+                  ...state.data.core,
+                  mains: dataList,
+                },
+              },
+              changedCells: nextChangedCells,
+              isDirty: dirty,
+            };
+          }
+
           return {
             ...state,
             data: {
@@ -372,8 +410,6 @@ export const useMandalaStore = create<States & Actions>()(
                 mains: dataList,
               },
             },
-            changedCells: new Set(state.changedCells).add(cellId),
-            isDirty: true,
           };
         }),
       initRecommendationTargets: (subs) =>
@@ -419,36 +455,12 @@ export const useMandalaStore = create<States & Actions>()(
 
           const hasComma = chunk.includes(",");
           let newText = state.currentRecommendationText;
-          let newCursor = cursor;
 
           if (hasComma) {
-            const parts = chunk.split(",");
-            console.log(parts);
-            const beforeComma = parts[0];
-            const afterComma = parts[1].replace(/^\s+/, "");
-
-            newText = state.currentRecommendationText + beforeComma;
-
-            newCursor = cursor + 1;
-
-            const newSubs = [...subsArr];
-            newSubs[targetIndex] = { ...target, content: newText };
-
             return {
               ...state,
-              data: {
-                ...state.data,
-                core: {
-                  ...state.data.core,
-                  mains: state.data.core.mains.map((main, index) =>
-                    index === mainIndex ? { ...main, subs: newSubs } : main
-                  ),
-                },
-              },
-              recommendationCursor: newCursor,
-              currentRecommendationText: afterComma,
-              changedCells: new Set([...state.changedCells, target.goalId]),
-              isDirty: true,
+              recommendationCursor: cursor + 1,
+              currentRecommendationText: "",
             };
           } else {
             newText = state.currentRecommendationText + chunk;

@@ -1,14 +1,14 @@
 import MandalaGrid from "../components/MandalaGrid";
 import { CardContent } from "@/feature/ui/Card";
-import { cn } from "@/lib/utils";
+import { cn, queryClient } from "@/lib/utils";
 import NoticeContainer from "@/feature/ui/NoticeContainer";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import Button from "@/feature/ui/Button";
 import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
-import { handleUpdateMandala, type ServerMandalaType } from "../service";
+import { serverToUI, uiToServer, type ServerMandalaType } from "../service";
 import { toast } from "sonner";
 import MailIcon from "../components/icon/MailIcon";
 import ActivationBellIcon from "../components/icon/ActivationBellIcon";
@@ -18,6 +18,10 @@ import BackgroundAnimation from "@/feature/home/components/BackgroundAnimation";
 import useAccessibility from "@/shared/hooks/useAccessibility";
 import useVisibility from "@/shared/hooks/useVisibility";
 import { KoalaTextLogo, KoalaTextLogoSrcSet } from "../const/url";
+import useMandalaData from "../hooks/useMandalaData";
+import { useMutation } from "@tanstack/react-query";
+import { createMandalaAPI } from "../api/mandalart/createMandala";
+import { handleLogout } from "@/feature/auth/service";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
@@ -38,20 +42,64 @@ export default function MandalaBoard({
     (state) => state.hasSeenReminderSetup
   );
   const mandalartId = useMandalaStore((state) => state.mandalartId);
-  const setMandalartId = useMandalaStore((state) => state.setMandalartId);
   const data = useMandalaStore((state) => state.data);
   const changedCells = useMandalaStore((state) => state.changedCells);
+  const setMandalartId = useMandalaStore((state) => state.setMandalartId);
   const setData = useMandalaStore((state) => state.setData);
+  const resetChangedCells = useMandalaStore((state) => state.resetChangedCells);
 
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
   const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
   const setFullVisible = useMandalaStore((state) => state.setFullVisible);
+  const setReminderOption = useMandalaStore((state) => state.setReminderOption);
 
   const typeRef = useRef<"save" | "reminder">("save");
   const reminderEnabled = useMandalaStore(
     (state) => state.reminderOption.reminderEnabled
   );
+  const { data: mandalartData, isSuccess, isError } = useMandalaData();
+
+  useEffect(() => {
+    if (!isSuccess || !mandalartData) return;
+
+    // 서버 → UI 변환
+    setData(mandalartData);
+    if (mandalartData.mandalartId && mandalartData.reminderOption) {
+      setMandalartId(mandalartData.mandalartId);
+      setReminderOption(mandalartData.reminderOption);
+    }
+  }, [mandalartData, isSuccess]);
+
+  useEffect(() => {
+    if (!isError) return;
+    toast.warning(
+      "만다라트 대시보드를 가져오는 것에 실패했습니다. 재로그인 해주세요."
+    );
+    handleLogout();
+  }, [isError]);
+
+  const saveMadalart = useMutation({
+    mutationKey: ["mandalart-save"],
+    mutationFn: ({
+      accessToken,
+      mandalartData,
+    }: {
+      accessToken: string;
+      mandalartData: ServerMandalaType;
+    }) => createMandalaAPI(accessToken, mandalartData),
+    onSuccess: (mandalartRes) => {
+      resetChangedCells();
+      setMandalartId(mandalartRes?.data?.mandalartId);
+      setData(mandalartRes.data);
+      queryClient.setQueryData(["mandalart"], serverToUI(mandalartRes.data));
+      toast.success("만다라트가 저장되었습니다!");
+    },
+    onError: (error) => {
+      console.log(error);
+      toast.warning("만다라트 저장에 실패했습니다. 다시 시도해주세요!");
+    },
+  });
 
   const handleSave = async () => {
     if (!accessToken && !wasLoggedIn) {
@@ -71,15 +119,9 @@ export default function MandalaBoard({
         toast("변경된 목표가 없습니다!");
         return;
       }
-      const mandalartRes: ServerMandalaType = await handleUpdateMandala(
-        data,
-        changedCells
-      );
-      if (mandalartRes.data.mandalartId != undefined) {
-        setMandalartId(mandalartRes?.data?.mandalartId);
-        setData(mandalartRes.data);
-        toast.success("만다라트가 저장되었습니다!");
-      }
+      if (!accessToken) throw new Error("토큰이 없습니다!");
+      const mandalartData = uiToServer(data, changedCells, mandalartId);
+      saveMadalart.mutate({ accessToken, mandalartData });
     }
   };
 

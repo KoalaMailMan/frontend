@@ -4,7 +4,9 @@ import MandalaContainer from "./MandalaContainer";
 import MandalaModal from "./MandalaModal";
 import { getGridClasses } from "../utills/css";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId } from "../service";
+import { getNextCellId, serverToUI } from "../service";
+import { useEffect, useRef } from "react";
+import useMandalaData from "../hooks/useMandalaData";
 
 export default function MandalaGrid() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
@@ -19,33 +21,22 @@ export default function MandalaGrid() {
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
 
+  const timer = useRef<NodeJS.Timeout | null>(null);
+
   useGridTabNavigation({
     editingId: editingCellId,
     setEditingId: setEditingCell,
     getNextId: getNextCellId,
   });
 
-  const handleContentChange = (goalId: string, value: string) => {
-    const index = [0, 0];
-    mandalaList.forEach((item, i) => {
-      if (!item.subs) return;
-      item.subs.forEach((sub, j) => {
-        if (sub.goalId === goalId) {
-          index[0] = i;
-          index[1] = j;
-          return;
-        }
-      });
+  const { data } = useMandalaData();
 
-      if (item.goalId === goalId) {
-        index[0] = i;
-        return;
-      }
-    });
-    if (index[1] === 0) {
+  const handleContentChange = (goalId: string, value: string) => {
+    if (data) {
+      handleCellChange(goalId, value, serverToUI(data));
+    } else {
       handleCellChange(goalId, value);
     }
-    handleCellChange(goalId, value, index[0]);
   };
 
   const handleStartEdit = (goalId: string) => {
@@ -71,8 +62,11 @@ export default function MandalaGrid() {
 
   const handleSubContentChange = (value: string) => {
     if (modalCellId) {
-      const mainIndex = findByIdWithGoalIndex(modalCellId);
-      handleCellChange(editingSubCellId as string, value, mainIndex);
+      if (data) {
+        handleCellChange(editingSubCellId as string, value, serverToUI(data));
+      } else {
+        handleCellChange(editingSubCellId as string, value);
+      }
     }
   };
 
@@ -80,6 +74,15 @@ export default function MandalaGrid() {
     const index = mandalaList.findIndex((item) => item.goalId === id);
     return index === -1 ? 0 : index;
   };
+
+  useEffect(() => {
+    return () => {
+      if (timer.current) {
+        clearTimeout(timer.current);
+        timer.current = null;
+      }
+    };
+  }, []);
 
   return (
     <div className="grid grid-cols-3 gap-1 max-w-lg mx-auto aspect-square">

@@ -1,8 +1,12 @@
 export const getURLQuery = (query: string) => {
   const params = new URLSearchParams(window.location.search);
-  const token = params.get(query);
+  const result = params.get(query);
 
-  return token;
+  return result;
+};
+
+export const clearURLQuery = () => {
+  window.history.replaceState({}, document.title, window.location.pathname);
 };
 
 export const APIWithRetry = async <T>(

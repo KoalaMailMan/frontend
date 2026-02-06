@@ -21,7 +21,6 @@ import {
   shouldAttemptRefresh,
 } from "@/feature/auth/service";
 import { IntervalType } from "../const";
-import useUserInfo from "@/feature/auth/hooks/useUserInfo";
 import { toast } from "sonner";
 import RemindeIcon from "./icon/RemindeIcon";
 import X from "@/feature/tutorial/components/icons/X";
@@ -33,6 +32,7 @@ type PropsType = {
 
 export default function ReminderSetting({ openTree = "save" }: PropsType) {
   const accessToken = useAuthStore((state) => state.accessToken);
+  const user = useAuthStore((state) => state.user);
   const setAuthText = useAuthStore((state) => state.setAuthText);
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
   const setSeenReminder = useAuthStore((state) => state.setSeenReminder);
@@ -54,8 +54,6 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
   const isOpen = useMandalaStore((state) => state.isReminderOpen);
   const setData = useMandalaStore((state) => state.setData);
   const onClose = useMandalaStore((state) => state.setReminderVisible);
-
-  const { data: user } = useUserInfo(accessToken || "");
 
   if (!isOpen) return null;
 
