@@ -2,6 +2,28 @@
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 
+const copyComputedStyles = (
+  originalElement: HTMLElement,
+  clonedElement: HTMLElement
+) => {
+  const originalElements = originalElement.querySelectorAll("*");
+  const clonedElements = clonedElement.querySelectorAll("*");
+
+  originalElements.forEach((original, index) => {
+    const computedStyle = window.getComputedStyle(original);
+    const clonedEl = clonedElements[index] as HTMLElement;
+    console.log(computedStyle);
+
+    Array.from(computedStyle).forEach((style) => {
+      clonedEl.style.setProperty(
+        style,
+        computedStyle.getPropertyValue(style),
+        computedStyle.getPropertyPriority(style)
+      );
+    });
+  });
+};
+
 export const captureAndDownload = async (
   mandaraGridRef: React.RefObject<HTMLDivElement | null>
 ) => {
@@ -18,22 +40,16 @@ export const captureAndDownload = async (
   tempContainer.style.overflow = "visible";
   tempContainer.style.width = "max-content";
   tempContainer.style.height = "max-content";
+  tempContainer.style.paddingTop = "50px";
+  tempContainer.style.paddingBottom = "50px";
 
   document.body.appendChild(tempContainer);
 
   try {
     const clonedElement = originalElement.cloneNode(true) as HTMLElement;
 
-    clonedElement.style.overflow = "visible";
-    clonedElement.style.maxHeight = "none";
-    clonedElement.style.height = "auto";
-
-    const allElements = clonedElement.querySelectorAll("*");
-    allElements.forEach((el) => {
-      const htmlEl = el as HTMLElement;
-      htmlEl.style.overflow = "visible";
-      htmlEl.style.maxHeight = "none";
-    });
+    await document.fonts.ready;
+    copyComputedStyles(originalElement, clonedElement);
 
     tempContainer.appendChild(clonedElement);
 
@@ -52,8 +68,6 @@ export const captureAndDownload = async (
       .slice(0, 10)}.png`;
     link.href = dataUrl;
     link.click();
-
-    toast("만다라트 이미지가 저장되었습니다!");
   } catch (error) {
     console.error("이미지 저장 중 오류:", error);
     toast.error(
