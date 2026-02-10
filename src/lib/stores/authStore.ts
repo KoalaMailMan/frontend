@@ -93,26 +93,7 @@ export const useAuthStore = create<States & Actions>()(
       storage: {
         getItem: (name) => {
           const value = localStorage.getItem(name);
-          if (!value) return null;
-          try {
-            const parsed = JSON.parse(value);
-            if (parsed.version === 1) {
-              const migrated = {
-                state: {
-                  ...parsed.state,
-                  hasSeenReminderSetup: false,
-                },
-                version: 2,
-              };
-              localStorage.setItem(name, JSON.stringify(migrated));
-              return migrated;
-            }
-
-            return parsed;
-          } catch (error) {
-            localStorage.removeItem(name);
-            return null;
-          }
+          return value ? JSON.parse(value) : null;
         },
         setItem: (name, value) => {
           if (typeof value === "string") {
