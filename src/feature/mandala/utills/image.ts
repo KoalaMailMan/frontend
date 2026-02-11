@@ -1,28 +1,27 @@
-// image.ts
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 
-const copyComputedStyles = (
-  originalElement: HTMLElement,
-  clonedElement: HTMLElement
-) => {
-  const originalElements = originalElement.querySelectorAll("*");
-  const clonedElements = clonedElement.querySelectorAll("*");
+// const copyComputedStyles = (
+//   originalElement: HTMLElement,
+//   clonedElement: HTMLElement
+// ) => {
+//   const originalElements = originalElement.querySelectorAll("*");
+//   const clonedElements = clonedElement.querySelectorAll("*");
 
-  originalElements.forEach((original, index) => {
-    const computedStyle = window.getComputedStyle(original);
-    const clonedEl = clonedElements[index] as HTMLElement;
-    console.log(computedStyle);
+//   originalElements.forEach((original, index) => {
+//     const computedStyle = window.getComputedStyle(original);
+//     const clonedEl = clonedElements[index] as HTMLElement;
+//     console.log(computedStyle);
 
-    Array.from(computedStyle).forEach((style) => {
-      clonedEl.style.setProperty(
-        style,
-        computedStyle.getPropertyValue(style),
-        computedStyle.getPropertyPriority(style)
-      );
-    });
-  });
-};
+//     Array.from(computedStyle).forEach((style) => {
+//       clonedEl.style.setProperty(
+//         style,
+//         computedStyle.getPropertyValue(style),
+//         computedStyle.getPropertyPriority(style)
+//       );
+//     });
+//   });
+// };
 
 export const captureAndDownload = async (
   mandaraGridRef: React.RefObject<HTMLDivElement | null>
@@ -49,7 +48,11 @@ export const captureAndDownload = async (
     const clonedElement = originalElement.cloneNode(true) as HTMLElement;
 
     await document.fonts.ready;
-    copyComputedStyles(originalElement, clonedElement);
+    // copyComputedStyles(originalElement, clonedElement);
+    const gridElement = clonedElement.querySelector(".grid") as HTMLElement;
+    if (gridElement) {
+      gridElement.style.width = "800px";
+    }
 
     tempContainer.appendChild(clonedElement);
 
