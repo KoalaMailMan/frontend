@@ -92,7 +92,7 @@ export default function MandalaBoard({
       resetChangedCells();
       setMandalartId(mandalartRes?.data?.mandalartId);
       setData(mandalartRes.data);
-      queryClient.setQueryData(["mandalart"], serverToUI(mandalartRes.data));
+      queryClient.setQueryData(["mandalart"], mandalartRes);
       toast.success("만다라트가 저장되었습니다!");
     },
     onError: (error) => {
