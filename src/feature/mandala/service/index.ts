@@ -444,9 +444,9 @@ export const uiToServer = (
       if (core.originalId) {
         result.data.core.goalId = core.originalId;
       }
-      if (core.content && core.content.trim() !== "") {
-        result.data.core.content = core.content;
-      }
+      // if (core.content && core.content.trim() !== "") {
+      result.data.core.content = core.content;
+      // }
     } else if (cellId.startsWith("main")) {
       const mainIndex = currentData.core.mains.findIndex(
         (item) => item.goalId === cellId
@@ -472,9 +472,9 @@ export const uiToServer = (
       if (mainData.position) {
         mainObj.position = mainData.position;
       }
-      if (mainData.content && mainData.content.trim() !== "") {
-        mainObj.content = mainData.content;
-      }
+      // if (mainData.content && mainData.content.trim() !== "") {
+      mainObj.content = mainData.content;
+      // }
       mainObj.status = mainData.status;
     } else if (cellId.startsWith("sub")) {
       // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} | sub-center-{mainIndex}
@@ -536,9 +536,9 @@ export const uiToServer = (
         mainObj.position = mainData.position;
       }
 
-      if (mainData.content && mainData.content.trim() !== "") {
-        mainObj.content = mainData.content;
-      }
+      // if (mainData.content && mainData.content.trim() !== "") {
+      mainObj.content = mainData.content;
+      // }
 
       mainObj.status = mainData.status;
 
@@ -552,9 +552,9 @@ export const uiToServer = (
       if (subData.originalId) {
         subObj.goalId = subData.originalId;
       }
-      if (subData.position !== undefined && subData.content) {
-        subObj.position = subData.position;
-      }
+      // if (subData.position !== undefined && subData.content) {
+      subObj.position = subData.position;
+      // }
       if (subData.content && subData.content.trim() !== "") {
         subObj.content = subData.content;
       }
@@ -597,9 +597,9 @@ export const uiToServer = (
       mainObj.goalId = mainData.originalId;
       mainObj.position = mainData.position;
       mainObj.status = mainData.status;
-      if (mainData.content && mainData.content.trim() !== "") {
-        mainObj.content = mainData.content;
-      }
+      // if (mainData.content && mainData.content.trim() !== "") {
+      mainObj.content = mainData.content;
+      // }
 
       // 해당 main의 모든 기존 subs도 포함 (position 0 제외)
       mainData.subs.forEach((subData) => {
@@ -619,9 +619,9 @@ export const uiToServer = (
             status: subData.status,
           };
 
-          if (subData.content && subData.content.trim() !== "") {
-            subObj.content = subData.content;
-          }
+          // if (subData.content && subData.content.trim() !== "") {
+          subObj.content = subData.content;
+          // }
 
           if (existingSubIndex !== -1) {
             // 이미 처리된 sub라면 병합 (변경된 데이터 우선)
