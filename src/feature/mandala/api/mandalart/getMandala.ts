@@ -12,5 +12,6 @@ export const getMandalaAPI = async (accessToken: string) => {
     return res;
   } catch (error) {
     console.error("getMandalaAPI failed:", error);
+    throw error;
   }
 };

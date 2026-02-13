@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { getMandalaAPI } from "../api/mandalart/getMandala";
-import { type ServerMandalaType } from "../service";
+import { emptyDummyData, type ServerMandalaType } from "../service";
 import { useAuthStore } from "@/lib/stores/authStore";
 
 export default function useMandalaData() {
@@ -13,7 +13,14 @@ export default function useMandalaData() {
         throw new Error("Mandala Data: accessToken이 없습니다.");
       }
 
-      return getMandalaAPI(accessToken);
+      const res = getMandalaAPI(accessToken);
+
+      // 상태 코드 체크
+      if (res === null) {
+        return emptyDummyData;
+      }
+
+      return res;
     },
     enabled: !!accessToken,
     staleTime: Infinity,
