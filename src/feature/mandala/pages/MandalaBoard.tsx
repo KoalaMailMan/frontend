@@ -8,7 +8,7 @@ import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
 import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
-import { serverToUI, uiToServer, type ServerMandalaType } from "../service";
+import { uiToServer, type ServerMandalaType } from "../service";
 import { toast } from "sonner";
 import MailIcon from "../components/icon/MailIcon";
 import ActivationBellIcon from "../components/icon/ActivationBellIcon";
@@ -92,7 +92,7 @@ export default function MandalaBoard({
       resetChangedCells();
       setMandalartId(mandalartRes?.data?.mandalartId);
       setData(mandalartRes.data);
-      queryClient.setQueryData(["mandalart"], serverToUI(mandalartRes.data));
+      queryClient.setQueryData(["mandalart"], mandalartRes);
       toast.success("만다라트가 저장되었습니다!");
     },
     onError: (error) => {
