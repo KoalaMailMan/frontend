@@ -20,6 +20,18 @@ export const parseSSEChunks = (rawData: string[]) => {
     .filter((item) => item.length > 0);
 };
 
+const splitSSEChunk = (chunk: string) => {
+  const Queue: string[] = [];
+
+  const chars = chunk.split("");
+
+  chars.forEach((char: string) => {
+    Queue.push(char);
+  });
+  Queue.push(",");
+  return Queue;
+};
+
 const encodingURI = (options: Record<string, string>) => {
   const params = new URLSearchParams({
     ...options,
@@ -167,12 +179,8 @@ export default function useSSERecommendation({
           );
         }
 
-        const chars = data.split("");
-
-        chars.forEach((char: string) => {
-          Queue.current.push(char);
-        });
-        Queue.current.push(",");
+        const chunks = splitSSEChunk(data);
+        Queue.current.push(...chunks);
 
         if (!isProcessing.current) {
           processQueue();
