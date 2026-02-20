@@ -11,7 +11,6 @@ import useMandalaData from "../hooks/useMandalaData";
 export default function MandalaGrid() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
   const modalCellId = useMandalaStore((state) => state.modalCellId);
-  const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
   const editingCellId = useMandalaStore((state) => state.editingCellId);
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
   const getData = useMandalaStore((state) => state.getData);
@@ -19,7 +18,6 @@ export default function MandalaGrid() {
   const setEditingCell = useMandalaStore((state) => state.setEditingCell);
   const setModalCellId = useMandalaStore((state) => state.setModalCellId);
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
-  const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
 
   const timer = useRef<NodeJS.Timeout | null>(null);
 
@@ -54,21 +52,21 @@ export default function MandalaGrid() {
     setModalVisible(true);
   };
 
-  const handleModalClose = () => {
-    setModalCellId(null);
-    setEditingSubCell(null);
-    setModalVisible(false);
-  };
+  // const handleModalClose = () => {
+  //   setModalCellId(null);
+  //   setEditingSubCell(null);
+  //   setModalVisible(false);
+  // };
 
-  const handleSubContentChange = (value: string) => {
-    if (modalCellId) {
-      if (data) {
-        handleCellChange(editingSubCellId as string, value, serverToUI(data));
-      } else {
-        handleCellChange(editingSubCellId as string, value);
-      }
-    }
-  };
+  // const handleSubContentChange = (value: string) => {
+  //   if (modalCellId) {
+  //     if (data) {
+  //       handleCellChange(editingSubCellId as string, value, serverToUI(data));
+  //     } else {
+  //       handleCellChange(editingSubCellId as string, value);
+  //     }
+  //   }
+  // };
 
   const findByIdWithGoalIndex = (id: string) => {
     const index = mandalaList.findIndex((item) => item.goalId === id);
@@ -130,9 +128,9 @@ export default function MandalaGrid() {
             getData(findByIdWithGoalIndex(modalCellId as string)) as SubGoal[]
           }
           compact={false}
-          onContentChange={handleSubContentChange}
+          // onContentChange={handleSubContentChange}
           onRemove={handleContentChange}
-          onCancelEdit={handleModalClose}
+          // onCancelEdit={handleModalClose}
         />
       )}
     </div>
