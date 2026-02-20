@@ -14,26 +14,27 @@ import { ensureAccessToken } from "@/feature/auth/service";
 import QuestionIcon from "./icon/QuestionIcon";
 import LoadingSpiner from "@/feature/ui/LoadingSpiner";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId } from "../service";
+import { getNextCellId, serverToUI } from "../service";
 import UseSubsGoalNavigation from "../hooks/ueSubsGoalNavigation";
+import useMandalaData from "../hooks/useMandalaData";
 
 type Props = {
   isModalVisible: boolean;
   items: SubGoal[];
   compact: boolean;
-  onContentChange: (value: string) => void;
+  // onContentChange: (value: string) => void;
   onRemove: (id: string, value: string) => void;
-  onCancelEdit: () => void;
+  // onCancelEdit: () => void;
 };
 
 export default function MandalaModal({
   isModalVisible,
   items,
   compact,
-  onContentChange,
+  // onContentChange,
   onRemove,
-  onCancelEdit,
-}: Props) {
+}: // onCancelEdit,
+Props) {
   // modal 컴포넌트 상태 관리
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -43,6 +44,13 @@ export default function MandalaModal({
   const positionRef = useRef<HTMLDivElement | null>(null);
   const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
+  const setModalVisible = useMandalaStore((state) => state.setModalVisible);
+  const setModalCellId = useMandalaStore((state) => state.setModalCellId);
+
+  const modalCellId = useMandalaStore((state) => state.modalCellId);
+  const handleCellChange = useMandalaStore((state) => state.handleCellChange);
+
+  const { data } = useMandalaData();
 
   const [width, setWidth] = useState(0);
   const [isQuestion, setIsQuestion] = useState(false);
@@ -90,7 +98,19 @@ export default function MandalaModal({
 
   const handleModalClose = () => {
     setEditingSubCell(null);
-    onCancelEdit();
+    setModalCellId(null);
+    setModalVisible(false);
+    handleSubCancelEdit();
+  };
+
+  const handleSubContentChange = (value: string) => {
+    if (modalCellId) {
+      if (data) {
+        handleCellChange(editingSubCellId as string, value, serverToUI(data));
+      } else {
+        handleCellChange(editingSubCellId as string, value);
+      }
+    }
   };
 
   const handleRecommend = () => {
@@ -170,7 +190,7 @@ export default function MandalaModal({
 
   const modalContent = (
     <div
-      className="fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+      className="data-modal fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleModalClose} // 배경 클릭 시 모달 닫기
     >
       {isStreaming && <LoadingSpiner />}
@@ -228,7 +248,7 @@ export default function MandalaModal({
                           disabled={isCenter ? isStreaming : false}
                           isEmpty={!sub.content || !sub.content.trim()}
                           onStartEdit={() => handleSubStartEdit(sub.goalId)}
-                          onContentChange={onContentChange}
+                          onContentChange={handleSubContentChange}
                           onCancelEdit={handleSubCancelEdit}
                           className={cn(
                             "md:min-w-[125px] w-full h-full",

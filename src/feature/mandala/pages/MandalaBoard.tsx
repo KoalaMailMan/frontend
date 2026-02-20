@@ -1,6 +1,6 @@
 import MandalaGrid from "../components/MandalaGrid";
 import { CardContent } from "@/feature/ui/Card";
-import { cn, queryClient } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 import NoticeContainer from "@/feature/ui/NoticeContainer";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import Button from "@/feature/ui/Button";
@@ -8,7 +8,7 @@ import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
 import { useEffect, useRef } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
-import { uiToServer, type ServerMandalaType } from "../service";
+import { uiToServer } from "../service";
 import { toast } from "sonner";
 import MailIcon from "../components/icon/MailIcon";
 import ActivationBellIcon from "../components/icon/ActivationBellIcon";
@@ -19,9 +19,8 @@ import useAccessibility from "@/shared/hooks/useAccessibility";
 import useVisibility from "@/shared/hooks/useVisibility";
 import { KoalaTextLogo, KoalaTextLogoSrcSet } from "../const/url";
 import useMandalaData from "../hooks/useMandalaData";
-import { useMutation } from "@tanstack/react-query";
-import { createMandalaAPI } from "../api/mandalart/createMandala";
 import { handleLogout } from "@/feature/auth/service";
+import useSaveMandala from "../hooks/useSaveMandala";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
@@ -46,7 +45,6 @@ export default function MandalaBoard({
   const changedCells = useMandalaStore((state) => state.changedCells);
   const setMandalartId = useMandalaStore((state) => state.setMandalartId);
   const setData = useMandalaStore((state) => state.setData);
-  const resetChangedCells = useMandalaStore((state) => state.resetChangedCells);
 
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
@@ -59,6 +57,7 @@ export default function MandalaBoard({
     (state) => state.reminderOption.reminderEnabled
   );
   const { data: mandalartData, isSuccess, isError } = useMandalaData();
+  const saveMadalart = useSaveMandala();
 
   useEffect(() => {
     if (!isSuccess || !mandalartData) return;
@@ -79,28 +78,6 @@ export default function MandalaBoard({
     handleLogout();
   }, [isError]);
 
-  const saveMadalart = useMutation({
-    mutationKey: ["mandalart-save"],
-    mutationFn: ({
-      accessToken,
-      mandalartData,
-    }: {
-      accessToken: string;
-      mandalartData: ServerMandalaType;
-    }) => createMandalaAPI(accessToken, mandalartData),
-    onSuccess: (mandalartRes) => {
-      resetChangedCells();
-      setMandalartId(mandalartRes?.data?.mandalartId);
-      setData(mandalartRes.data);
-      queryClient.setQueryData(["mandalart"], mandalartRes);
-      toast.success("만다라트가 저장되었습니다!");
-    },
-    onError: (error) => {
-      console.log(error);
-      toast.warning("만다라트 저장에 실패했습니다. 다시 시도해주세요!");
-    },
-  });
-
   const handleSave = async () => {
     if (!accessToken && !wasLoggedIn) {
       setAuthText({
@@ -119,9 +96,8 @@ export default function MandalaBoard({
         toast("변경된 목표가 없습니다!");
         return;
       }
-      if (!accessToken) throw new Error("토큰이 없습니다!");
       const mandalartData = uiToServer(data, changedCells, mandalartId);
-      saveMadalart.mutate({ accessToken, mandalartData });
+      saveMadalart.mutate({ mandalartData });
     }
   };
 
