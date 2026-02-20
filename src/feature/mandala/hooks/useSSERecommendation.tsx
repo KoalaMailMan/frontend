@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 
@@ -12,13 +12,13 @@ type UseSSERecommendationOptions = {
 
 const EventSource = EventSourcePolyfill;
 
-export const parseSSEChunks = (rawData: string[]) => {
-  return rawData
-    .join("")
-    .split(/\s*,\s*/g)
-    .map((item) => item.replace("__COMPLETE__", ""))
-    .filter((item) => item.length > 0);
-};
+// export const parseSSEChunks = (rawData: string[]) => {
+//   return rawData
+//     .join("")
+//     .split(/\s*,\s*/g)
+//     .map((item) => item.replace("__COMPLETE__", ""))
+//     .filter((item) => item.length > 0);
+// };
 
 const splitSSEChunk = (chunk: string) => {
   const Queue: string[] = [];
@@ -51,7 +51,7 @@ export default function useSSERecommendation({
 }: UseSSERecommendationOptions) {
   const [error, setError] = useState<string | null>(null);
   const [isStreaming, setStreaming] = useState(false);
-  const [rawChunks, setRawChunks] = useState<string[]>([]);
+  // const [rawChunks, setRawChunks] = useState<string[]>([]);
 
   const Queue = useRef<string[]>([]);
   const isProcessing = useRef(false);
@@ -131,12 +131,20 @@ export default function useSSERecommendation({
 
       // 초기화
       setError(null);
-      setRawChunks([]);
+      // setRawChunks([]);
       initRecommendationTargets(subs);
+
+      const existingGoals = subs
+        .slice(1)
+        .map((sub) => sub.content.trim())
+        .filter((sub) => sub.length > 0);
+
+      console.log(`📋 제외할 목표: ${existingGoals.length}개`, existingGoals);
 
       const params = encodingURI({
         parentGoal: goal,
         recommendationCount: count.toString(),
+        excludeGoals: existingGoals.join(","),
       });
       const RECOMMEND_URL = `${baseURL}/api/recommend/streaming?${params}`;
 
@@ -218,7 +226,7 @@ export default function useSSERecommendation({
     clearQueue();
   }, []);
 
-  const parsed = useMemo(() => parseSSEChunks(rawChunks), [rawChunks]);
+  // const parsed = useMemo(() => parseSSEChunks(rawChunks), [rawChunks]);
 
   useEffect(() => {
     return () => {
@@ -231,17 +239,17 @@ export default function useSSERecommendation({
     clearQueue();
   }, [isProcessing]);
 
-  useEffect(() => {
-    if (!isStreaming && !error && parsed.length > 0) {
-      onComplete?.(parsed);
-    }
-  }, [isStreaming, error, parsed, onComplete]);
+  // useEffect(() => {
+  //   if (!isStreaming && !error && parsed.length > 0) {
+  //     onComplete?.(parsed);
+  //   }
+  // }, [isStreaming, error, parsed, onComplete]);
 
   return {
     startStream,
     stopStream,
     error,
     isStreaming,
-    recommendation: parsed,
+    // recommendation: parsed,
   };
 }
