@@ -60,6 +60,7 @@ type States = {
   emptySubIndexes: number[];
   recommendationCursor: number;
   currentRecommendationText: string;
+  isServiceIntroOpen: boolean;
 } & PersistedState;
 
 type PersistedState = {
@@ -96,6 +97,7 @@ type Actions = {
   setFullVisible: (visible: boolean) => void;
   setEmptyState: (state: boolean) => void;
   resetChangedCells: () => void;
+  setServiceIntroVisible: (visible: boolean) => void;
 };
 
 export const useMandalaStore = create<States & Actions>()(
@@ -121,6 +123,7 @@ export const useMandalaStore = create<States & Actions>()(
       emptySubIndexes: [],
       recommendationCursor: 0,
       currentRecommendationText: "",
+      isServiceIntroOpen: false,
 
       getData: (index) => {
         if (index != null) {
@@ -495,6 +498,8 @@ export const useMandalaStore = create<States & Actions>()(
       setReminderVisible: (visible) => set(() => ({ isReminderOpen: visible })),
       setFullVisible: (visible) => set(() => ({ isFullOpen: visible })),
       setEmptyState: (state) => set(() => ({ isEmpty: state })),
+      setServiceIntroVisible: (visible) =>
+        set(() => ({ isServiceIntroOpen: visible })),
 
       resetChangedCells: () =>
         set(() => ({ changedCells: new Set([]), isDirty: false })),

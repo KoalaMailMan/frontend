@@ -13,6 +13,8 @@ import useResize from "./shared/hooks/useResize";
 import AuthComponent from "./feature/auth/components/AuthComponent";
 import AuthEntry from "./feature/auth/components/AuthGateway";
 import { queryClient } from "./lib/utils";
+import { useMandalaStore } from "./lib/stores/mandalaStore";
+import ServiceIntroCompoenent from "./feature/home/components/ServiceIntroComponent";
 
 function App() {
   useResize();
@@ -24,6 +26,9 @@ function App() {
 
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
+  const isServiceIntroOpen = useMandalaStore(
+    (state) => state.isServiceIntroOpen
+  );
 
   useEffect(() => {
     const initApp = async () => {
@@ -57,6 +62,9 @@ function App() {
 
       <Toaster position="top-center" />
       {isOnboardingOpen && <OnboardingTutorial />}
+      {isServiceIntroOpen && (
+        <ServiceIntroCompoenent getCurrentBackground={getCurrentBackground} />
+      )}
       {isAuthOpen && !wasLoggedIn && (
         <AuthComponent>{authComponentText}</AuthComponent>
       )}

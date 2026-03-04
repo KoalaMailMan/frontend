@@ -7,6 +7,7 @@ import type { ThemeColor } from "@/data/themes";
 import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import AddressBook from "./icons/AddressBook";
 import { cn } from "@/lib/utils";
+import { useMandalaStore } from "@/lib/stores/mandalaStore";
 
 type MandaraChartProps = {
   currentTheme: ThemeColor;
@@ -25,6 +26,12 @@ export default function Header({
   const setOnboardingVisible = useTutorialStore(
     (state) => state.setOnboardingVisible
   );
+  const setServiceIntroVisible = useMandalaStore(
+    (state) => state.setServiceIntroVisible
+  );
+  const isServiceIntroOpen = useMandalaStore(
+    (state) => state.isServiceIntroOpen
+  );
 
   return (
     <div className="w-full mb-4 sm:mb-6 lg:mb-8 px-4 p-4 fixed z-40">
@@ -35,18 +42,30 @@ export default function Header({
       >
         <div className="flex flex-wrap gap-2 w-full sm:w-auto">
           {temporaryAuth !== "none" && (
-            <Button
-              variant="outline"
-              size="default"
-              onClick={() => setOnboardingVisible(true)}
-              className="flex items-center gap-1 sm:gap-2 pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4 "
-              dir="ltr"
-            >
-              <AddressBook />
+            <>
+              <Button
+                variant="outline"
+                size="default"
+                onClick={() => setServiceIntroVisible(!isServiceIntroOpen)}
+                className="flex items-center gap-1 sm:gap-2 pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4 "
+                dir="ltr"
+              >
+                <span className="hidden sm:inline">서비스 소개</span>
+                <span className="sm:hidden">서비스 소개</span>
+              </Button>
+              <Button
+                variant="outline"
+                size="default"
+                onClick={() => setOnboardingVisible(true)}
+                className="flex items-center gap-1 sm:gap-2 pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4 "
+                dir="ltr"
+              >
+                <AddressBook />
 
-              <span className="hidden sm:inline">튜토리얼</span>
-              <span className="sm:hidden">?</span>
-            </Button>
+                <span className="hidden sm:inline">튜토리얼</span>
+                <span className="sm:hidden">?</span>
+              </Button>
+            </>
           )}
           <ThemeSelector
             currentTheme={currentTheme}
