@@ -1,6 +1,4 @@
-import ScrollAnimation from "./ScrollAnimation";
-import GoogleLoginButton from "@/feature/auth/components/GoogleLoginButton";
-import NaverLoginButton from "@/feature/auth/components/NaverLoginButton";
+import Button from "@/feature/ui/Button";
 import type { AuthState } from "@/lib/stores/authStore";
 
 type Props = {
@@ -34,15 +32,20 @@ export default function MainSection({ onTemporaryLogin }: Props) {
         </h1>
       </div>
       <div className="space-y-4 max-w-sm mx-auto">
-        <NaverLoginButton />
-        <GoogleLoginButton />
-
-        <p
+        {/* <NaverLoginButton /> */}
+        {/* <GoogleLoginButton /> */}
+        <Button
+          className="w-full h-14 border-1 pixel-login-button border-primary bg-[#FFFFFF] active:bg-[#E6E6E6] active:border-[#999999] backdrop-blur-sm text-gray-800 text-lg  shadow-2xl shadow-[4px_4px_0_0_rgba(0,0,0,0.3)] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)] transition-shadow duration-200"
+          onClick={() => onTemporaryLogin("temporary")}
+        >
+          시작하기
+        </Button>
+        {/* <p
           className="h-[46px] flex justify-center items-center underline text-[12px] text-[#191919] font-medium leading-[17.5px]"
           onClick={() => onTemporaryLogin("temporary")}
         >
           로그인 없이 이용하기
-        </p>
+        </p> */}
       </div>
       <div className="mt-8">
         <p
@@ -56,7 +59,7 @@ export default function MainSection({ onTemporaryLogin }: Props) {
           동의하는 것으로 간주됩니다.
         </p>
         {/* 스크롤 안내 */}
-        <ScrollAnimation />
+        {/* <ScrollAnimation /> */}
       </div>
     </section>
   );
