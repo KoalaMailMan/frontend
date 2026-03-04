@@ -37,16 +37,16 @@ export default function ServiceIntroCompoenent({
         <picture>
           <source srcSet={srcSet} />
           <img
-            className="fixed inset-0 w-full h-full object-cover -z-10"
+            className="h-lvh fixed inset-0 object-cover -z-10"
             src={backgroundImage[0]}
             alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
           />
         </picture>
       </div>
       {/* 불투명 오버레이 */}
-      <div className="absolute inset-0 bg-black/30 backdrop-blur-sm"></div>
-      <div className="relative z-10">
-        <div className="max-w-4xl mx-auto">
+      <div className="w-full h-[100%] fixed inset-0 object-cover bg-black/30 backdrop-blur-sm"></div>
+      <div className="relative z-10 pb-30">
+        <div className="max-w-4xl mx-auto ">
           {/* 소개 제목 */}
           <div className="text-center mb-16">
             <div className="bg-white/95 backdrop-blur-sm rounded-lg p-8 shadow-lg border border-white/20">
