@@ -1,29 +1,20 @@
 import MainSection from "../components/MainSection";
-import BackgroundAnimation from "../components/BackgroundAnimation";
 import { useViewportStore } from "@/lib/stores/viewportStore";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
-import useAccessibility from "@/shared/hooks/useAccessibility";
-import useVisibility from "@/shared/hooks/useVisibility";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
 };
 
 export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
-  const [lcpDone, setLcpDone] = useState(false);
   const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
   const height = useViewportStore((state) => state.height);
   const { backgroundImage, srcSet } = getCurrentBackground();
-  const reduced = useAccessibility(); // default: false
-  const inactiveTab = useVisibility(); // default: false
 
   useEffect(() => {
     document.documentElement.style.setProperty("--real-vh", `${height}`);
   }, [height]);
-  useEffect(() => {
-    requestIdleCallback(() => setLcpDone(true));
-  }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
@@ -49,7 +40,7 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
         <MainSection onTemporaryLogin={setTemporaryAuth} />
 
         {/* 날아가는 코알라 애니메이션 */}
-        {lcpDone && !reduced && !inactiveTab && <BackgroundAnimation />}
+        {/* {lcpDone && !reduced && !inactiveTab && <BackgroundAnimation />} */}
       </div>
 
       {/* 서비스 소개 섹션 */}
