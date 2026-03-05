@@ -3,7 +3,6 @@ import useRefresh from "../hooks/useRefresh";
 import { useEffect } from "react";
 import { handleLogout } from "../service";
 import { toast } from "sonner";
-import HomePage from "@/feature/home/pages/HomePage";
 import MandalaBoard from "@/feature/mandala/pages/MandalaBoard";
 import useUserInfo from "../hooks/useUserInfo";
 
@@ -12,8 +11,6 @@ type Props = {
 };
 
 export default function AuthEntry({ getCurrentBackground }: Props) {
-  const accessToken = useAuthStore((state) => state.accessToken);
-  const temporaryAuth = useAuthStore((state) => state.temporaryAuth);
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setWasLoggedIn = useAuthStore((state) => state.setWasLoggedIn);
   const setLastLoginTime = useAuthStore((state) => state.setLastLoginTime);
@@ -50,10 +47,12 @@ export default function AuthEntry({ getCurrentBackground }: Props) {
     }
   }, [userInfo, isUserReady]);
 
-  if (temporaryAuth === "temporary")
-    return <MandalaBoard getCurrentBackground={getCurrentBackground} />;
-  if (temporaryAuth === "loggedIn" && accessToken)
-    return <MandalaBoard getCurrentBackground={getCurrentBackground} />;
+  return <MandalaBoard getCurrentBackground={getCurrentBackground} />;
 
-  return <HomePage getCurrentBackground={getCurrentBackground} />;
+  // if (temporaryAuth === "temporary")
+  //   return <MandalaBoard getCurrentBackground={getCurrentBackground} />;
+  // if (temporaryAuth === "loggedIn" && accessToken)
+  // return <MandalaBoard getCurrentBackground={getCurrentBackground} />;
+
+  // return <HomePage getCurrentBackground={getCurrentBackground} />;
 }
