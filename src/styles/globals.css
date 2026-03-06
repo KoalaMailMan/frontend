@@ -8,7 +8,8 @@
   font-style: normal;
   font-weight: 100 900; /* Variable Font는 범위로 지정 */
   font-display: swap;
-  src: url("/fonts/Inter-VariableFont_opsz,wght.ttf") format("truetype");
+  src: url("/fonts/Inter-VariableFont_opsz,wght.woff2") format("truetype");
+  font-display: swap;
 }
 
 /* 숨김 처리 */
