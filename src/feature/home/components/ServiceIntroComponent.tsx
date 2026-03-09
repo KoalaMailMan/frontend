@@ -7,10 +7,9 @@ import { useMandalaStore } from "@/lib/stores/mandalaStore";
 type Props = {
   getCurrentBackground: () => Record<string, string>;
 };
-export default function ServiceIntroCompoenent({
-  getCurrentBackground,
-}: Props) {
-  const { backgroundImage, srcSet } = getCurrentBackground();
+export default function ServiceIntroCompoenent({}: // getCurrentBackground,
+Props) {
+  // const { backgroundImage, srcSet } = getCurrentBackground();
   const accessToken = useAuthStore((state) => state.accessToken);
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
@@ -32,16 +31,16 @@ export default function ServiceIntroCompoenent({
       <div
         aria-hidden="true"
         role="presentation"
-        className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]"
+        className="background fixed inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]"
       >
-        <picture>
+        {/* <picture>
           <source srcSet={srcSet} />
           <img
             className="h-lvh fixed inset-0 object-cover -z-10"
             src={backgroundImage[0]}
             alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
           />
-        </picture>
+        </picture> */}
       </div>
       {/* 불투명 오버레이 */}
       <div className="w-full h-[100%] fixed inset-0 object-cover bg-black/30 backdrop-blur-sm"></div>
