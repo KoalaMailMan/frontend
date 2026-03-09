@@ -9,6 +9,8 @@ import {
   service_info_make_goals_srcSet,
   service_info_regret_srcSet,
   service_info_success_srcSet,
+  service_info_mandalart,
+  service_info_mandalart_srcSet,
 } from "@/feature/home/const/url";
 
 export const SERVICE_GUIDE_STEPS = [
@@ -36,9 +38,8 @@ export const SERVICE_GUIDE_STEPS = [
     title: "코알라 우체부와 함께 만다라트를",
     subtitle: "오타니 쇼헤이의 성공 비결",
     description: "오타니 쇼헤이의 성공 비결이라는 만다라트 같이 작성해봐요",
-    image:
-      "https://images.unsplash.com/photo-1754299078912-602a882904a5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtYW5kYWxhJTIwY2hhcnQlMjBwbGFubmluZyUyMGdyaWR8ZW58MXx8fHwxNzU3OTM2NDkxfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    srcSet: "",
+    image: service_info_mandalart,
+    srcSet: service_info_mandalart_srcSet,
     emoji: "📊",
   },
   {

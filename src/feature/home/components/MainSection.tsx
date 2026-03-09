@@ -1,5 +1,6 @@
 import Button from "@/feature/ui/Button";
 import type { AuthState } from "@/lib/stores/authStore";
+import { koalaTextLogoCol, koalaTextLogoColSrcSet } from "../const/url";
 
 type Props = {
   onTemporaryLogin: (state: AuthState) => void;
@@ -11,7 +12,8 @@ export default function MainSection({ onTemporaryLogin }: Props) {
       <div className="w-full">
         <h1>
           <img
-            src={"/images/koala_mailman_text_logo_940.webp"}
+            src={koalaTextLogoCol}
+            srcSet={koalaTextLogoColSrcSet}
             sizes="(max-width: 600px) 90vw, 940px"
             alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
             className="w-full max-w-xl mx-auto"
