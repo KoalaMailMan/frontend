@@ -1,10 +1,10 @@
 // @ts-expect-error -- vite-imagetools query import
 import textLogoCol from "@/assets/common/koala_mailman_text_logo.png?width=320;576;940&format=webp&quality=60";
 // @ts-expect-error -- vite-imagetools query import
-import makeGoalSrcSet from "@/assets/common/koala_mailman_text_logo.png?as=srcset&width=320;576;940&format=webp&quality=60";
+import textLogoColSrcSet from "@/assets/common/koala_mailman_text_logo.png?as=srcset&width=320;576;940&format=webp&quality=60";
 
 export const koalaTextLogoCol = textLogoCol;
-export const koalaTextLogoColSrcSet = textLogoCol;
+export const koalaTextLogoColSrcSet = textLogoColSrcSet;
 
 import redIcon from "@/assets/home/mini_red_koala.svg";
 import greenIcon from "@/assets/home/mini_green_koala.svg";
