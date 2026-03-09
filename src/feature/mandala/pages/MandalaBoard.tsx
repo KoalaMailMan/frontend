@@ -23,10 +23,9 @@ type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
 };
 
-export default function MandalaBoard({
-  getCurrentBackground,
-}: MandaraChartProps) {
-  const { backgroundImage, srcSet } = getCurrentBackground();
+export default function MandalaBoard({}: // getCurrentBackground,
+MandaraChartProps) {
+  // const { backgroundImage, srcSet } = getCurrentBackground();
 
   const accessToken = useAuthStore((state) => state.accessToken);
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
@@ -102,16 +101,16 @@ export default function MandalaBoard({
       <div
         aria-hidden="true"
         role="presentation"
-        className="absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]"
+        className="background absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]"
       >
-        <picture>
+        {/* <picture>
           <source srcSet={srcSet} />
           <img
             className="fixed inset-0 w-full h-full object-cover -z-10"
             src={backgroundImage[3]}
             alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
           />
-        </picture>
+        </picture> */}
       </div>
 
       <div className="max-w-2xl mx-auto">

@@ -24,7 +24,33 @@
   white-space: nowrap;
   border-width: 0;
 }
+[data-theme="spring"] {
+  --current-theme: #ff99a9;
+  --current-modal-theme: #ff99a9;
+  --current-modal-outline-theme: #ff99a9;
+  --current-recommend-btn-theme: #ff99a9;
+}
 
+[data-theme="summer"] {
+  --current-theme: #02c2fe;
+  --current-modal-theme: #02c2fe;
+  --current-modal-outline-theme: #02c2fe;
+  --current-recommend-btn-theme: #02c2fe;
+}
+
+[data-theme="autumn"] {
+  --current-theme: #fa7018;
+  --current-modal-theme: #fa7018;
+  --current-modal-outline-theme: #fa7018;
+  --current-recommend-btn-theme: #fa7018;
+}
+
+[data-theme="winter"] {
+  --current-theme: #3085ba;
+  --current-modal-theme: #3085ba;
+  --current-modal-outline-theme: #3085ba;
+  --current-recommend-btn-theme: #3085ba;
+}
 :root {
   --font-size: 14px;
 
@@ -60,13 +86,13 @@
   --recommend-btn-pink: #e17aaa;
 
   /* Current Theme (default: red) */
-  --current-theme: var(--theme-red);
+  /* --current-theme: var(--theme-red); */
   --current-theme-light: color-mix(in srgb, var(--current-theme) 10%, white);
   --current-theme-lighter: color-mix(in srgb, var(--current-theme) 5%, white);
   --current-theme-dark: color-mix(in srgb, var(--current-theme) 80%, black);
   --current-theme-darker: color-mix(in srgb, var(--current-theme) 60%, black);
   /* Current Modal Theme (모달 전용 테마) */
-  --current-modal-theme: var(--modal-red);
+  /* --current-modal-theme: var(--modal-red); */
   --current-modal-theme-light: color-mix(
     in srgb,
     var(--current-modal-theme) 10%,
@@ -88,7 +114,7 @@
     black
   );
   /* Current Modal Border Outline Theme (모달 border outline 전용 테마) */
-  --current-modal-outline-theme: var(--outline-red);
+  /* --current-modal-outline-theme: var(--outline-red); */
   --current-modal-outline-theme-light: color-mix(
     in srgb,
     var(--current-modal-outline-theme) 10%,
@@ -111,7 +137,7 @@
   );
 
   /* Recommend Button Theme Colors - 목표 추천 버튼 전용 테마 */
-  --current-recommend-btn-theme: var(--recommend-btn-red);
+  /* --current-recommend-btn-theme: var(--recommend-btn-red); */
   --current-recommend-btn-theme-light: color-mix(
     in srgb,
     var(--current-recommend-btn-theme) 10%,
@@ -677,4 +703,64 @@ html {
   box-shadow: 0 0 25px 0 rgba(255, 255, 255, 0.8),
     0 0 0 max(100vw, 100vh) rgba(65, 65, 65, 0.6) !important;
   background-color: #ffffff !important;
+}
+
+/* Spring */
+[data-theme="spring"] .background {
+  background-image: url("/images/backgrounds/background_spring_768.webp");
+}
+@media (min-width: 768px) {
+  [data-theme="spring"] .background {
+    background-image: url("/images/backgrounds/background_spring_1200.webp");
+  }
+}
+@media (min-width: 1200px) {
+  [data-theme="spring"] .background {
+    background-image: url("/images/backgrounds/background_spring_1600.webp");
+  }
+}
+
+/* Summer */
+[data-theme="summer"] .background {
+  background-image: url("/images/backgrounds/background_summer_768.webp");
+}
+@media (min-width: 768px) {
+  [data-theme="summer"] .background {
+    background-image: url("/images/backgrounds/background_summer_1200.webp");
+  }
+}
+@media (min-width: 1200px) {
+  [data-theme="summer"] .background {
+    background-image: url("/images/backgrounds/background_summer_1600.webp");
+  }
+}
+
+/* Autumn */
+[data-theme="autumn"] .background {
+  background-image: url("/images/backgrounds/background_autumn_768.webp");
+}
+@media (min-width: 768px) {
+  [data-theme="autumn"] .background {
+    background-image: url("/images/backgrounds/background_autumn_1200.webp");
+  }
+}
+@media (min-width: 1200px) {
+  [data-theme="autumn"] .background {
+    background-image: url("/images/backgrounds/background_autumn_1600.webp");
+  }
+}
+
+/* Winter */
+[data-theme="winter"] .background {
+  background-image: url("/images/backgrounds/background_winter_768.webp");
+}
+@media (min-width: 768px) {
+  [data-theme="winter"] .background {
+    background-image: url("/images/backgrounds/background_winter_1200.webp");
+  }
+}
+@media (min-width: 1200px) {
+  [data-theme="winter"] .background {
+    background-image: url("/images/backgrounds/background_winter_1600.webp");
+  }
 }
