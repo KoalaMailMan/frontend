@@ -130,6 +130,7 @@ MandaraChartProps) {
             width={476}
             height={96}
             style={{ maxWidth: "100%", height: "auto" }}
+            alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
           />
         </div>
         <NoticeContainer
