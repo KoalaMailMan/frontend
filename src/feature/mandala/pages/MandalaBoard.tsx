@@ -98,11 +98,7 @@ MandaraChartProps) {
   return (
     <div className="relative min-h-screen p-4 pt-[51px] ">
       {/* 배경 이미지 */}
-      <div
-        aria-hidden="true"
-        role="presentation"
-        className="background absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]"
-      >
+      <div className="background absolute inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]">
         {/* <picture>
           <source srcSet={srcSet} />
           <img
@@ -123,7 +119,8 @@ MandaraChartProps) {
           <img
             src={KoalaTextLogo[0]}
             className="w-full"
-            loading="lazy"
+            loading="eager"
+            fetchPriority="high"
             decoding="async"
             srcSet={KoalaTextLogoSrcSet}
             sizes="(max-width: 768px) 90vw, 476px"
