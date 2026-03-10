@@ -28,11 +28,7 @@ Props) {
   //   };
   return (
     <div className="w-full h-full py-20 px-4 absolute top-0 z-20 ">
-      <div
-        aria-hidden="true"
-        role="presentation"
-        className="background fixed inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]"
-      >
+      <div className="background fixed inset-0 min-h-screen z-[-1000] pointer-events-none md:block bg-cover bg-center bg-no-repeat bg-scroll h-[var(--real-vh)]">
         {/* <picture>
           <source srcSet={srcSet} />
           <img
