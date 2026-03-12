@@ -14,7 +14,6 @@ export default function AuthEntry({ getCurrentBackground }: Props) {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setWasLoggedIn = useAuthStore((state) => state.setWasLoggedIn);
   const setLastLoginTime = useAuthStore((state) => state.setLastLoginTime);
-  const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
   const setUserInfo = useAuthStore((state) => state.setUserInfo);
 
   const {
@@ -42,7 +41,6 @@ export default function AuthEntry({ getCurrentBackground }: Props) {
       const currentTime = new Date().toISOString();
       setWasLoggedIn(true);
       setLastLoginTime(currentTime);
-      setTemporaryAuth("loggedIn");
       setUserInfo(userInfo);
     }
   }, [userInfo, isUserReady]);

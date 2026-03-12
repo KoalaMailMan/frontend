@@ -25,7 +25,6 @@ function App() {
   const isOnboardingOpen = useTutorialStore((state) => state.isOnboardingOpen);
 
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
-  const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
   const isServiceIntroOpen = useMandalaStore(
     (state) => state.isServiceIntroOpen
   );
@@ -48,7 +47,6 @@ function App() {
         }
       } catch (error) {
         console.error("Auth initialization failed:", error);
-        setTemporaryAuth("none");
       }
     };
     initApp();

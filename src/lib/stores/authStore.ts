@@ -1,13 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type AuthState = "none" | "temporary" | "loggedIn";
 type SocialProvider = "google" | "naver" | null;
 
 export type AuthModalText = { title: string; description: string };
 type States = {
   accessToken: string | null;
-  temporaryAuth: AuthState;
   user: {
     nickname: string;
     email: string;
@@ -19,7 +17,6 @@ type States = {
 type Actions = {
   getAccessToken: () => string | null;
   setAccessToken: (token: string | null) => void;
-  setTemporaryAuth: (state: AuthState) => void;
   setWasLoggedIn: (state: boolean) => void;
   setLastProvider: (state: SocialProvider) => void;
   setLastLoginTime: (state: string) => void;
@@ -31,7 +28,6 @@ type Actions = {
 
 type AuthPersistedState = {
   wasLoggedIn: boolean;
-  temporaryAuth: AuthState;
   lastProvider: SocialProvider;
   lastLoginTime?: string | null;
   hasSeenReminderSetup: boolean;
@@ -43,7 +39,6 @@ export const useAuthStore = create<States & Actions>()(
   persist(
     (set, get) => ({
       accessToken: null,
-      temporaryAuth: "none",
       wasLoggedIn: false,
       lastProvider: null,
       lastLoginTime: "",
@@ -61,8 +56,6 @@ export const useAuthStore = create<States & Actions>()(
       getAccessToken: () => get().accessToken,
       setAccessToken: (token: string | null) =>
         set(() => ({ accessToken: token })),
-      setTemporaryAuth: (state: AuthState) =>
-        set(() => ({ temporaryAuth: state })),
       setWasLoggedIn: (state: boolean) => set(() => ({ wasLoggedIn: state })),
       setLastProvider: (state: SocialProvider) =>
         set(() => ({ lastProvider: state })),
@@ -83,12 +76,11 @@ export const useAuthStore = create<States & Actions>()(
       name: AUTH_INFO,
       partialize: (state): AuthPersistedState => ({
         wasLoggedIn: state.wasLoggedIn,
-        temporaryAuth: state.temporaryAuth,
         lastProvider: state.lastProvider,
         lastLoginTime: state.lastLoginTime,
         hasSeenReminderSetup: state.hasSeenReminderSetup,
       }),
-      version: 2,
+      version: 3,
 
       storage: {
         getItem: (name) => {
@@ -103,6 +95,15 @@ export const useAuthStore = create<States & Actions>()(
                   hasSeenReminderSetup: false,
                 },
                 version: 2,
+              };
+              localStorage.setItem(name, JSON.stringify(migrated));
+              return migrated;
+            }
+            if (parsed.version === 2) {
+              const { temporaryAuth, ...rest } = parsed.state;
+              const migrated = {
+                state: rest,
+                version: 3,
               };
               localStorage.setItem(name, JSON.stringify(migrated));
               return migrated;

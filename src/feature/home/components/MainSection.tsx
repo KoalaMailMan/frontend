@@ -1,12 +1,9 @@
 import Button from "@/feature/ui/Button";
-import type { AuthState } from "@/lib/stores/authStore";
 import { koalaTextLogoCol, koalaTextLogoColSrcSet } from "../const/url";
 
-type Props = {
-  onTemporaryLogin: (state: AuthState) => void;
-};
+type Props = {};
 
-export default function MainSection({ onTemporaryLogin }: Props) {
+export default function MainSection({}: Props) {
   return (
     <section className="relative z-20 text-center">
       <div className="w-full">
@@ -38,7 +35,7 @@ export default function MainSection({ onTemporaryLogin }: Props) {
         {/* <GoogleLoginButton /> */}
         <Button
           className="w-full h-14 border-1 pixel-login-button border-primary bg-[#FFFFFF] active:bg-[#E6E6E6] active:border-[#999999] backdrop-blur-sm text-gray-800 text-lg  shadow-2xl shadow-[4px_4px_0_0_rgba(0,0,0,0.3)] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)] transition-shadow duration-200"
-          onClick={() => onTemporaryLogin("temporary")}
+          // onClick={() => onTemporaryLogin("temporary")}
         >
           시작하기
         </Button>

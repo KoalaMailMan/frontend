@@ -8,7 +8,6 @@ type MandaraChartProps = {
 };
 
 export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
-  const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
   const height = useViewportStore((state) => state.height);
   const { backgroundImage, srcSet } = getCurrentBackground();
 
@@ -37,7 +36,7 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
         </div>
 
         {/* 메인 로그인 컨테이너 */}
-        <MainSection onTemporaryLogin={setTemporaryAuth} />
+        <MainSection />
 
         {/* 날아가는 코알라 애니메이션 */}
         {/* {lcpDone && !reduced && !inactiveTab && <BackgroundAnimation />} */}
