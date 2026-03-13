@@ -1,12 +1,11 @@
 import { useAuthStore } from "@/lib/stores/authStore";
-import { getUserProfileAPI, logouAPI, refreshTokenAPI } from "./api";
-import { APIWithRetry, getURLQuery } from "./\butils";
+import { refreshTokenAPI } from "./api";
+import { APIWithRetry } from "./\butils";
 import { ENV } from "@/const";
-import { apiClient } from "@/lib/api/client";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { emptyDummyData } from "../mandala/service";
 import { toast } from "sonner";
-import { cleanQuery } from "@/shared/utils/query";
+import { performLogout } from "./hooks/useLogout";
 
 export const handleGoogleLogin = () => {
   window.location.href = ENV.BACKEND_URL + "/api/auth/login/google";
@@ -18,58 +17,58 @@ export const handleNaverLogin = () => {
   useAuthStore.getState().setLastProvider("naver");
 };
 
-export const handleLogin = () => {
-  const token = getURLQuery("access_token");
-  if (token) {
-    const currentTime = new Date().toISOString();
-    useAuthStore.getState().setAccessToken(token);
-    useAuthStore.getState().setWasLoggedIn(true);
-    useAuthStore.getState().setLastLoginTime(currentTime);
-    handleUnknownData();
-    handleUserLookup(token);
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-};
-export const handleUnknownData = () => {
-  const saved = localStorage.getItem("mandalart");
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    if (parsed.state.data) {
-      delete parsed.state.data;
-      localStorage.setItem("mandalart", JSON.stringify(parsed));
-    }
-  }
-};
+// export const handleLogin = () => {
+//   const token = getURLQuery("access_token");
+//   if (token) {
+//     const currentTime = new Date().toISOString();
+//     useAuthStore.getState().setAccessToken(token);
+//     useAuthStore.getState().setWasLoggedIn(true);
+//     useAuthStore.getState().setLastLoginTime(currentTime);
+//     handleUnknownData();
+//     handleUserLookup(token);
+//     window.history.replaceState({}, document.title, window.location.pathname);
+//   }
+// };
+// export const handleUnknownData = () => {
+//   const saved = localStorage.getItem("mandalart");
+//   if (saved) {
+//     const parsed = JSON.parse(saved);
+//     if (parsed.state.data) {
+//       delete parsed.state.data;
+//       localStorage.setItem("mandalart", JSON.stringify(parsed));
+//     }
+//   }
+// };
 
-export const handleLogout = () => {
-  try {
-    logoutMiddleWare();
-    logouAPI();
-  } catch (error) {
-    console.error("Logout failed:", error);
-  }
-};
+// export const handleLogout = () => {
+//   try {
+//     logoutMiddleWare();
+//     logouAPI();
+//   } catch (error) {
+//     console.error("Logout failed:", error);
+//   }
+// };
 
-export const logoutMiddleWare = () => {
-  apiClient.addResponseInterceptor({
-    onSuccess: async (res: Response) => {
-      if (res.status === 204) {
-        console.log("로그아웃 성공");
-        cleanQuery();
-        clearAuth();
-        clearMandalart();
-        return;
-      }
-      return await res.json();
-    },
-  });
-};
+// export const logoutMiddleWare = () => {
+//   apiClient.addResponseInterceptor({
+//     onSuccess: async (res: Response) => {
+//       if (res.status === 204) {
+//         console.log("로그아웃 성공");
+//         cleanQuery();
+//         clearAuth();
+//         clearMandalart();
+//         return;
+//       }
+//       return await res.json();
+//     },
+//   });
+// };
 
-export const clearAuth = () => {
-  useAuthStore.getState().setWasLoggedIn(false);
-  useAuthStore.getState().setAccessToken(null);
-  useAuthStore.getState().setUserInfo({ nickname: "", email: "" });
-};
+// export const clearAuth = () => {
+//   useAuthStore.getState().setWasLoggedIn(false);
+//   useAuthStore.getState().setAccessToken(null);
+//   useAuthStore.getState().setUserInfo({ nickname: "", email: "" });
+// };
 
 export const clearMandalart = () => {
   useMandalaStore.getState().setReminderOption({
@@ -94,7 +93,7 @@ export const reissueWithRefreshToken = async () => {
       return newAccessToken;
     } catch (error) {
       console.error("refresh failed:", error);
-      handleLogout();
+      performLogout();
       return null;
     } finally {
       refreshInProgress = null;
@@ -108,14 +107,14 @@ export const shouldAttemptRefresh = () => {
   return !accessToken && wasLoggedIn;
 };
 
-export const handleUserLookup = async (accessToken: string) => {
-  if (!accessToken) return;
-  const res = await getUserProfileAPI(accessToken);
-  const user = res?.data;
-  if (user) {
-    useAuthStore.getState().setUserInfo(user);
-  }
-};
+// export const handleUserLookup = async (accessToken: string) => {
+//   if (!accessToken) return;
+//   const res = await getUserProfileAPI(accessToken);
+//   const user = res?.data;
+//   if (user) {
+//     useAuthStore.getState().setUserInfo(user);
+//   }
+// };
 
 export const ensureAccessToken = async () => {
   const { accessToken } = useAuthStore.getState();
@@ -125,7 +124,8 @@ export const ensureAccessToken = async () => {
 
   const success = await APIWithRetry(reissueWithRefreshToken);
   if (!success) {
-    handleLogout();
+    // handleLogout();
+    performLogout();
     toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
     return null;
   }
