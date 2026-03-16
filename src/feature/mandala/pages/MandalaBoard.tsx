@@ -16,8 +16,8 @@ import DisableBellIcon from "../components/icon/DisableBellIcon";
 import FullIcon from "../components/icon/FullIcon";
 import { KoalaTextLogo, KoalaTextLogoSrcSet } from "../const/url";
 import useMandalaData from "../hooks/useMandalaData";
-import { handleLogout } from "@/feature/auth/service";
 import useSaveMandala from "../hooks/useSaveMandala";
+import { performLogout } from "@/feature/auth/hooks/useLogout";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
@@ -69,7 +69,7 @@ MandaraChartProps) {
     toast.warning(
       "만다라트 대시보드를 가져오는 것에 실패했습니다. 재로그인 해주세요."
     );
-    handleLogout();
+    performLogout();
   }, [isError]);
 
   const handleSave = async () => {

@@ -16,7 +16,6 @@ import { useAuthStore } from "@/lib/stores/authStore";
 import { patchReminderAPI } from "../api/reminder/patchReminder";
 import { APIWithRetry } from "@/feature/auth/\butils";
 import {
-  handleLogout,
   reissueWithRefreshToken,
   shouldAttemptRefresh,
 } from "@/feature/auth/service";
@@ -25,6 +24,7 @@ import { toast } from "sonner";
 import RemindeIcon from "./icon/RemindeIcon";
 import X from "@/feature/tutorial/components/icons/X";
 import { cn } from "@/lib/utils";
+import { performLogout } from "@/feature/auth/hooks/useLogout";
 
 type PropsType = {
   openTree: "reminder" | "save";
@@ -64,10 +64,11 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
         // access token 없으나 로그인 기록 있음.
         const success = await APIWithRetry(reissueWithRefreshToken);
         if (!success) {
-          return handleLogout();
+          return performLogout();
         }
       } else {
-        handleLogout();
+        performLogout();
+
         toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
         return;
       }
