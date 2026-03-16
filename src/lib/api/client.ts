@@ -1,6 +1,7 @@
 import { ENV } from "@/const";
 import type { ApiError, RequestConfig } from "./type";
 import { ApiErrorHandler } from "./errorHandler";
+import { useAuthStore } from "../stores/authStore";
 type ResponseInterceptor = {
   id?: string; // ID 필드 추가
   onSuccess?: (response: Response) => Promise<any>;
@@ -12,7 +13,8 @@ type RequestInterceptor = {
   onRequest?: (config: any) => any;
   onError?: (error: any) => any;
 };
-class ApiClient {
+export class ApiClient {
+  private tokenRefresher: (() => Promise<string | null>) | null = null;
   private baseURL: string;
   private timeout: number;
   private requestInterceptors: RequestInterceptor[] = [];
@@ -20,27 +22,55 @@ class ApiClient {
   constructor(baseURL: string = "", timeout: number = 10000) {
     this.baseURL = baseURL;
     this.timeout = timeout;
+
+    this.addRequestInterceptor({
+      onRequest: async (config) => {
+        if (!config.requiresAuth) return config;
+        return this.attachToken(config);
+      },
+    });
   }
 
-  get(url: string, config?: RequestConfig) {
+  setTokenRefresher(fn: () => Promise<string | null>) {
+    this.tokenRefresher = fn;
+  }
+
+  private async attachToken(config: RequestConfig) {
+    const token = useAuthStore.getState().accessToken;
+    if (token) {
+      return {
+        ...config,
+        headers: { ...config.headers, Authorization: `Bearer ${token}` },
+      };
+    }
+
+    const newToken = await this.tokenRefresher?.();
+    if (!newToken) throw new Error("토큰이 없습니다.");
+    return {
+      ...config,
+      headers: { ...config.headers, Authorization: `Bearer ${newToken}` },
+    };
+  }
+
+  get(url: string, config: RequestConfig) {
     return this.request(url, { ...config, method: "GET" });
   }
 
-  post(url: string, data?: any, config?: RequestConfig) {
+  post(url: string, config: RequestConfig, data?: any) {
     if (data) {
       return this.request(url, { ...config, method: "POST", data });
     }
     return this.request(url, { ...config, method: "POST" });
   }
-  put(url: string, data: any, config?: RequestConfig) {
+  put(url: string, data: any, config: RequestConfig) {
     if (!data) throw new Error("PUT 요청: 데이터를 찾을 수 없습니다.");
     return this.request(url, { ...config, method: "PUT", data });
   }
-  patch(url: string, data: any, config?: RequestConfig) {
+  patch(url: string, data: any, config: RequestConfig) {
     if (!data) throw new Error("PATCH 요청: 데이터를 찾을 수 없습니다.");
     return this.request(url, { ...config, method: "PATCH", data });
   }
-  delete(url: string, config?: RequestConfig) {
+  delete(url: string, config: RequestConfig) {
     return this.request(url, { ...config, method: "DELETE" });
   }
 
@@ -63,14 +93,17 @@ class ApiClient {
   }
 
   // 요청 처리 시작
-  async request(url: string, options: RequestConfig = {}) {
+  async request(url: string, options: RequestConfig) {
+    const { requiresAuth, data, url: _, ...fetchOptions } = options;
     const finalURL = url.startsWith("http") ? url : `${this.baseURL}${url}`;
+
     let config: RequestConfig = {
-      ...options,
+      ...fetchOptions,
+      requiresAuth,
       url: finalURL,
       headers: {
         "Content-Type": "application/json",
-        ...options.headers,
+        ...fetchOptions.headers,
       },
     };
 
@@ -120,7 +153,7 @@ class ApiClient {
         throw error;
       }
       const response = await fetch(config.url, {
-        ...config,
+        ...fetchOptions,
         signal: controller.signal,
       });
 
@@ -130,11 +163,13 @@ class ApiClient {
         const error: ApiError = {
           message: `HTTP Error: ${response.status}`,
           status: response.status,
+          originalRequest: { url, options },
         };
         try {
           const errorData = await response.json();
           error.message = errorData.message || error.message;
           error.code = errorData.code;
+          error.type = errorData.type;
         } catch (error) {
           // 기본 메세지 사용 -> error 객체
         }
@@ -176,7 +211,7 @@ class ApiClient {
             }
           : (error as ApiError);
 
-      await ApiErrorHandler.handleError(apiError);
+      await ApiErrorHandler.handleError(apiError, this);
 
       for (const interceptor of this.responseInterceptors) {
         if (interceptor.onError) {

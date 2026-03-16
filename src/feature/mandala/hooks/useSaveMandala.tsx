@@ -17,7 +17,7 @@ export default function useSaveMandala() {
     mutationKey: ["mandalart-save"],
     mutationFn: ({ mandalartData }: { mandalartData: ServerMandalaType }) => {
       if (!accessToken) throw new Error("토큰이 없습니다!");
-      return createMandalaAPI(accessToken, mandalartData);
+      return createMandalaAPI(mandalartData);
     },
     onSuccess: (mandalartRes: ServerMandalaType) => {
       resetChangedCells();

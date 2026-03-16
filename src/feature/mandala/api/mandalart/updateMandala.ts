@@ -1,16 +1,10 @@
 import { apiClient } from "@/lib/api/client";
 
-export const updateMandalaAPI = async (
-  accessToken: string,
-  mandalartId: string,
-  data: any
-) => {
+export const updateMandalaAPI = async (mandalartId: string, data: any) => {
   const MANDALA_URL = "/api/mandalart/" + mandalartId;
   try {
     const res = await apiClient.put(MANDALA_URL, data, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      requiresAuth: true,
       credentials: "include",
     });
     return res;

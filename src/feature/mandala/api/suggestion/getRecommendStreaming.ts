@@ -6,7 +6,6 @@ import { apiClient } from "@/lib/api/client";
  * recommendationCount: 추천 받을 목표 갯수 필요
  */
 export const getRecommendStreaming = async (
-  accessToken: string,
   parentGoal: string,
   recommendationCount: number
 ) => {
@@ -14,9 +13,7 @@ export const getRecommendStreaming = async (
   const RECOMMEND_URL = `/api/recommend/streaming${QEURY_URL}`;
   try {
     const res = await apiClient.get(RECOMMEND_URL, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      requiresAuth: true,
       credentials: "include",
     });
     return res;

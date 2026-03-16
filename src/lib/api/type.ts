@@ -1,4 +1,5 @@
 export interface RequestConfig extends RequestInit {
+  requiresAuth: boolean;
   url?: string;
   baseURL?: string;
   timeout?: number;
@@ -18,4 +19,6 @@ export interface ApiError {
   message: string;
   status: number;
   code?: string;
+  type?: string;
+  originalRequest?: { url: string; options: RequestConfig };
 }

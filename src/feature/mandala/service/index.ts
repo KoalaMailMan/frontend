@@ -17,7 +17,7 @@ export const handleMandalaData = async () => {
   const accessToken = useAuthStore.getState().accessToken;
   if (!accessToken) return;
   try {
-    const mandalart: ServerMandalaType = await getMandalaAPI(accessToken);
+    const mandalart: ServerMandalaType = await getMandalaAPI();
     if (mandalart) {
       if (
         mandalart.data &&
@@ -62,14 +62,13 @@ export const handleUpdateMandala = async (
           mandalartId
         );
         const mandalartRes: ServerMandalaType = await createMandalaAPI(
-          accessToken,
           mandalaData
         );
         resetChangedCells();
         return mandalartRes;
       } else {
         const mandalaData = uiToServer(data, changedCells);
-        const mandalartRes = await createMandalaAPI(accessToken, mandalaData);
+        const mandalartRes = await createMandalaAPI(mandalaData);
         resetChangedCells();
         return mandalartRes;
       }

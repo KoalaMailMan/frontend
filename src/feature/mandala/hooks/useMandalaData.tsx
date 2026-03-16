@@ -13,7 +13,7 @@ export default function useMandalaData() {
         throw new Error("Mandala Data: accessToken이 없습니다.");
       }
 
-      const res = await getMandalaAPI(accessToken);
+      const res = await getMandalaAPI();
       if (res === null) {
         return emptyDummyData;
       }

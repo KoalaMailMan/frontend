@@ -86,7 +86,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
               reminderInterval: interval,
             },
           };
-          await patchReminderAPI(accessToken, reminderOptionObj);
+          await patchReminderAPI(reminderOptionObj);
           toast.success("리마인드 설정이 완료되었습니다.");
           onClose(false);
         } else {
@@ -144,7 +144,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
           };
 
           try {
-            await patchReminderAPI(accessToken, reminderOptionObj);
+            await patchReminderAPI(reminderOptionObj);
             setSeenReminder(true);
             toast.success(
               "만다라트 저장 및 리마인드 설정이 완료되었습니다! 🎉"
