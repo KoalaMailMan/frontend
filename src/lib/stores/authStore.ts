@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, subscribeWithSelector } from "zustand/middleware";
 
 type SocialProvider = "google" | "naver" | null;
 
@@ -21,16 +21,15 @@ type Actions = {
   setLastProvider: (state: SocialProvider) => void;
   setLastLoginTime: (state: string) => void;
   setUserInfo: (state: States["user"]) => void;
-  setSeenReminder: (state: boolean) => void;
   setAuthOpen: (state: boolean) => void;
   setAuthText: (state: AuthModalText) => void;
+  clearAuth: () => void;
 };
 
 type AuthPersistedState = {
   wasLoggedIn: boolean;
   lastProvider: SocialProvider;
   lastLoginTime?: string | null;
-  hasSeenReminderSetup: boolean;
 };
 
 const AUTH_INFO = "AUTH_INFO";
@@ -46,7 +45,6 @@ export const useAuthStore = create<States & Actions>()(
         nickname: "",
         email: "",
       },
-      hasSeenReminderSetup: false,
       isAuthOpen: false,
       authComponentText: {
         title: "",
@@ -62,7 +60,6 @@ export const useAuthStore = create<States & Actions>()(
       setLastLoginTime: (state: string) =>
         set(() => ({ lastLoginTime: state })),
       setUserInfo: (state) => set(() => ({ user: state })),
-      setSeenReminder: (state) => set(() => ({ hasSeenReminderSetup: state })),
       setAuthOpen: (state) => set(() => ({ isAuthOpen: state })),
       setAuthText: (state) =>
         set(() => ({
@@ -71,14 +68,21 @@ export const useAuthStore = create<States & Actions>()(
             description: state.description,
           },
         })),
+
+      clearAuth: () =>
+        set(() => ({
+          accessToken: null,
+          wasLoggedIn: false,
+          user: { nickname: "", email: "" },
+        })),
     }),
+
     {
       name: AUTH_INFO,
       partialize: (state): AuthPersistedState => ({
         wasLoggedIn: state.wasLoggedIn,
         lastProvider: state.lastProvider,
         lastLoginTime: state.lastLoginTime,
-        hasSeenReminderSetup: state.hasSeenReminderSetup,
       }),
       version: 3,
 
