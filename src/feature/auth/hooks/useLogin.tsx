@@ -3,7 +3,7 @@ import { useCallback } from "react";
 import { clearURLQuery, getURLQuery } from "../\butils";
 import { toast } from "sonner";
 
-export default function useLogin() {
+export default function useOAuthCallback() {
   const setAccessToken = useAuthStore((s) => s.setAccessToken);
   const setWasLoggedIn = useAuthStore((s) => s.setWasLoggedIn);
   const setLastLoginTime = useAuthStore((s) => s.setLastLoginTime);

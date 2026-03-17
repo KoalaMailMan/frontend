@@ -1,20 +1,25 @@
 import { useAuthStore } from "@/lib/stores/authStore";
 import useRefresh from "../hooks/useRefresh";
-import { useEffect } from "react";
-import { handleLogout } from "../service";
+import { useEffect, type ReactNode } from "react";
 import { toast } from "sonner";
-import MandalaBoard from "@/feature/mandala/pages/MandalaBoard";
 import useUserInfo from "../hooks/useUserInfo";
+import useOAuthCallback from "../hooks/useLogin";
+import { apiClient } from "@/lib/api/client";
+import { reissueWithRefreshToken } from "../service";
+import { performLogout } from "../hooks/useLogout";
+import { cleanQuery } from "@/shared/utils/query";
 
-type Props = {
-  getCurrentBackground: () => Record<string, string>;
-};
-
-export default function AuthEntry({ getCurrentBackground }: Props) {
+export default function AuthProvider({ children }: { children: ReactNode }) {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setWasLoggedIn = useAuthStore((state) => state.setWasLoggedIn);
   const setLastLoginTime = useAuthStore((state) => state.setLastLoginTime);
   const setUserInfo = useAuthStore((state) => state.setUserInfo);
+
+  useEffect(() => {
+    apiClient.setTokenRefresher(reissueWithRefreshToken);
+  }, []);
+
+  useOAuthCallback();
 
   const {
     data: token,
@@ -30,8 +35,7 @@ export default function AuthEntry({ getCurrentBackground }: Props) {
       setAccessToken(token);
     }
     if (isError) {
-      console.error(refreshError);
-      handleLogout();
+      performLogout();
       toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
     }
   }, [token, isTokenReady, isError]);
@@ -45,7 +49,7 @@ export default function AuthEntry({ getCurrentBackground }: Props) {
     }
   }, [userInfo, isUserReady]);
 
-  return <MandalaBoard getCurrentBackground={getCurrentBackground} />;
+  return <>{children}</>;
 
   // if (temporaryAuth === "temporary")
   //   return <MandalaBoard getCurrentBackground={getCurrentBackground} />;

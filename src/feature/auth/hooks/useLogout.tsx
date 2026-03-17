@@ -1,15 +1,13 @@
 import { useAuthStore } from "@/lib/stores/authStore";
 import { cleanQuery } from "@/shared/utils/query";
 import { useCallback } from "react";
-import { clearMandalart } from "../service";
 import { logouAPI } from "../api";
+import { useMandalaStore } from "@/lib/stores/mandalaStore";
 
 export const performLogout = () => {
-  useAuthStore.getState().setWasLoggedIn(false);
-  useAuthStore.getState().setAccessToken(null);
-  useAuthStore.getState().setUserInfo({ nickname: "", email: "" });
+  useAuthStore.getState().clearAuth();
+  useMandalaStore.getState().clearMandalart();
   cleanQuery();
-  clearMandalart();
 };
 
 export default function useLogout() {

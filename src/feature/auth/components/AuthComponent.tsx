@@ -2,6 +2,17 @@ import X from "@/feature/tutorial/components/icons/X";
 import NaverLoginButton from "./NaverLoginButton";
 import GoogleLoginButton from "./GoogleLoginButton";
 import { useAuthStore, type AuthModalText } from "@/lib/stores/authStore";
+import { ENV } from "@/const";
+
+export const handleGoogleLogin = () => {
+  window.location.href = ENV.BACKEND_URL + "/api/auth/login/google";
+  useAuthStore.getState().setLastProvider("google");
+};
+
+export const handleNaverLogin = () => {
+  window.location.href = ENV.BACKEND_URL + "/api/auth/login/naver";
+  useAuthStore.getState().setLastProvider("naver");
+};
 
 export default function AuthComponent({
   children,

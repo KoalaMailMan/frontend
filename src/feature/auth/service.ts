@@ -7,16 +7,6 @@ import { emptyDummyData } from "../mandala/service";
 import { toast } from "sonner";
 import { performLogout } from "./hooks/useLogout";
 
-export const handleGoogleLogin = () => {
-  window.location.href = ENV.BACKEND_URL + "/api/auth/login/google";
-  useAuthStore.getState().setLastProvider("google");
-};
-
-export const handleNaverLogin = () => {
-  window.location.href = ENV.BACKEND_URL + "/api/auth/login/naver";
-  useAuthStore.getState().setLastProvider("naver");
-};
-
 // export const handleLogin = () => {
 //   const token = getURLQuery("access_token");
 //   if (token) {
@@ -70,15 +60,6 @@ export const handleNaverLogin = () => {
 //   useAuthStore.getState().setUserInfo({ nickname: "", email: "" });
 // };
 
-export const clearMandalart = () => {
-  useMandalaStore.getState().setReminderOption({
-    reminderEnabled: true,
-    remindInterval: "3month",
-    remindScheduledAt: null,
-  });
-  useMandalaStore.getState().setData(emptyDummyData.data);
-};
-
 let refreshInProgress: Promise<string | null> | null = null;
 export const reissueWithRefreshToken = async () => {
   if (refreshInProgress) {
@@ -99,6 +80,7 @@ export const reissueWithRefreshToken = async () => {
       refreshInProgress = null;
     }
   })();
+  return null;
 };
 
 export const shouldAttemptRefresh = () => {
