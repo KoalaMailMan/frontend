@@ -1,5 +1,3 @@
-import { useAuthStore } from "@/lib/stores/authStore";
-import { getMandalaAPI } from "../api/mandalart/getMandala";
 import {
   useMandalaStore,
   type DataOption,
@@ -8,9 +6,6 @@ import {
   type SubGoal,
   type Status,
 } from "@/lib/stores/mandalaStore";
-import { apiClient } from "@/lib/api/client";
-import { createMandalaAPI } from "../api/mandalart/createMandala";
-import { toast } from "sonner";
 import { findIdIndex, moveItem } from "../utills/\bindex";
 
 // export const handleMandalaData = async () => {

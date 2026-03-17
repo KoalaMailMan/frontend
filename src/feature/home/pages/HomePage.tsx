@@ -1,7 +1,6 @@
 import MainSection from "../components/MainSection";
 import { useViewportStore } from "@/lib/stores/viewportStore";
 import { useEffect } from "react";
-import { useAuthStore } from "@/lib/stores/authStore";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;

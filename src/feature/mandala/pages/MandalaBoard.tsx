@@ -6,7 +6,7 @@ import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import Button from "@/feature/ui/Button";
 import ReminderSetting from "../components/ReminderSetting";
 import FullMandalaView from "../components/FullMandalaView";
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { uiToServer } from "../service";
 import { toast } from "sonner";
@@ -45,7 +45,6 @@ MandaraChartProps) {
   const setFullVisible = useMandalaStore((state) => state.setFullVisible);
   const setReminderOption = useMandalaStore((state) => state.setReminderOption);
 
-  const typeRef = useRef<"save" | "reminder">("save");
   const reminderEnabled = useMandalaStore(
     (state) => state.reminderOption.reminderEnabled
   );

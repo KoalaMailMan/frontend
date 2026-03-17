@@ -1,9 +1,6 @@
 import { useAuthStore } from "@/lib/stores/authStore";
 import { refreshTokenAPI } from "./api";
 import { APIWithRetry } from "./\butils";
-import { ENV } from "@/const";
-import { useMandalaStore } from "@/lib/stores/mandalaStore";
-import { emptyDummyData } from "../mandala/service";
 import { toast } from "sonner";
 import { performLogout } from "./hooks/useLogout";
 

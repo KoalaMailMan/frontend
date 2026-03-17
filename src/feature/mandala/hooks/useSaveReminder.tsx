@@ -3,7 +3,6 @@ import {
   patchReminderAPI,
   type ReminderType,
 } from "../api/reminder/patchReminder";
-import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { toast } from "sonner";
 
 export default function useSaveReminder() {

@@ -25,13 +25,10 @@ export default function useGoalRecommendation({
   return useQuery({
     queryKey: ["goal-recommendation", goal.trim().toLowerCase(), count],
     queryFn: () => {
-      if (!accessToken) {
-        throw new Error("accessToken이 없습니다.");
-      }
       if (!goal || !count) {
         throw new Error("양식이 맞지 않습니다.");
       }
-      return getRecommendList(accessToken, goal, count);
+      return getRecommendList(goal, count);
     },
     enabled: shouldFetch,
     staleTime: 1000 * 60 * 10, // 10분간 캐시 유지

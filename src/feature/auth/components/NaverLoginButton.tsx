@@ -1,6 +1,6 @@
 import Button from "@/feature/ui/Button";
-import { handleNaverLogin } from "../service";
 import { cn } from "@/lib/utils";
+import { handleNaverLogin } from "./AuthComponent";
 
 type Props = {
   className?: string;

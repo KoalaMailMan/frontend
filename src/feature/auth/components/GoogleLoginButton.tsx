@@ -1,6 +1,6 @@
 import Button from "@/feature/ui/Button";
-import { handleGoogleLogin } from "../service";
 import { cn } from "@/lib/utils";
+import { handleGoogleLogin } from "./AuthComponent";
 
 type Props = {
   className?: string;

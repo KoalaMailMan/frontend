@@ -8,7 +8,6 @@ import {
 } from "@/feature/mandala/service";
 import { findIdIndex, findKeyByValue } from "@/feature/mandala/utills/\bindex";
 import { persist } from "zustand/middleware";
-import { useAuthStore } from "./authStore";
 
 export type Status = "DONE" | "UNDONE";
 

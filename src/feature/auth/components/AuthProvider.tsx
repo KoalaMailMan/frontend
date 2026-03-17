@@ -7,7 +7,6 @@ import useOAuthCallback from "../hooks/useLogin";
 import { apiClient } from "@/lib/api/client";
 import { reissueWithRefreshToken } from "../service";
 import { performLogout } from "../hooks/useLogout";
-import { cleanQuery } from "@/shared/utils/query";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
@@ -21,12 +20,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
   useOAuthCallback();
 
-  const {
-    data: token,
-    isSuccess: isTokenReady,
-    isError,
-    error: refreshError,
-  } = useRefresh();
+  const { data: token, isSuccess: isTokenReady, isError } = useRefresh();
 
   const { data: userInfo, isSuccess: isUserReady } = useUserInfo();
 

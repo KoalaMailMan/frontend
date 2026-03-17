@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist, subscribeWithSelector } from "zustand/middleware";
+import { persist } from "zustand/middleware";
 
 type SocialProvider = "google" | "naver" | null;
 
