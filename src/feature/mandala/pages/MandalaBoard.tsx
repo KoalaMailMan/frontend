@@ -31,9 +31,6 @@ MandaraChartProps) {
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
   const setAuthText = useAuthStore((state) => state.setAuthText);
-  const hasSeenReminderSetup = useAuthStore(
-    (state) => state.hasSeenReminderSetup
-  );
   const mandalartId = useMandalaStore((state) => state.mandalartId);
   const data = useMandalaStore((state) => state.data);
   const changedCells = useMandalaStore((state) => state.changedCells);
@@ -42,7 +39,9 @@ MandaraChartProps) {
 
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
-  const onReminderOpen = useMandalaStore((state) => state.setReminderVisible);
+  const setReminderVisible = useMandalaStore(
+    (state) => state.setReminderVisible
+  );
   const setFullVisible = useMandalaStore((state) => state.setFullVisible);
   const setReminderOption = useMandalaStore((state) => state.setReminderOption);
 
@@ -72,7 +71,7 @@ MandaraChartProps) {
     performLogout();
   }, [isError]);
 
-  const handleSave = async () => {
+  const handleSave = () => {
     if (!accessToken && !wasLoggedIn) {
       setAuthText({
         title: "저장하려면 로그인이 필요해요",
@@ -82,17 +81,27 @@ MandaraChartProps) {
       setAuthOpen(true);
       return;
     }
-    if (!hasSeenReminderSetup && !mandalartId) {
-      onReminderOpen(true);
-      typeRef.current = "save";
-    } else {
-      if (changedCells.size <= 0) {
-        toast("변경된 목표가 없습니다!");
-        return;
-      }
-      const mandalartData = uiToServer(data, changedCells, mandalartId);
-      saveMadalart.mutate({ mandalartData });
+    if (changedCells.size <= 0) {
+      toast("변경된 목표가 없습니다!");
+      return;
     }
+    if (!mandalartId) {
+      setReminderVisible(true);
+    }
+    const mandalartData = uiToServer(data, changedCells, mandalartId);
+    saveMadalart.mutateAsync({ mandalartData });
+  };
+
+  const handleReminderOpen = () => {
+    if (!mandalartId && changedCells.size > 0) {
+      const mandalartData = uiToServer(data, changedCells, mandalartId);
+      saveMadalart.mutateAsync({ mandalartData });
+    }
+    if (!mandalartId && changedCells.size <= 0) {
+      toast("만다라트를 먼저 작성해주세요!");
+      return;
+    }
+    setReminderVisible(true);
   };
 
   return (
@@ -150,10 +159,7 @@ MandaraChartProps) {
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    typeRef.current = "reminder";
-                    onReminderOpen(true);
-                  }}
+                  onClick={handleReminderOpen}
                   className={`w-[136px] h-[32px] flex items-center gap-2 pixel-button text-sm px-4 py-2 bg-white border-[#CCCCCC] border-1 text-[#373737] active:bg-[#CCCCCC] active:border-[#B3B3B3] font-medium shadow-[4px_4px_0_0_rgba(102,102,102,0.6)] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)] backdrop-blur-sm`}
                   data-tutorial="reminder-button"
                 >
@@ -180,7 +186,7 @@ MandaraChartProps) {
           </CardContent>
         </NoticeContainer>
       </div>
-      {isReminder && <ReminderSetting openTree={typeRef.current} />}
+      {isReminder && <ReminderSetting />}
       {isFullOpen && <FullMandalaView />}
     </div>
   );

@@ -11,31 +11,20 @@ import {
 import { Switch } from "@/feature/ui/Switch";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { Select } from "@radix-ui/react-select";
-import { handleUpdateMandala, type ServerMandalaType } from "../service";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { patchReminderAPI } from "../api/reminder/patchReminder";
-import { APIWithRetry } from "@/feature/auth/\butils";
-import {
-  reissueWithRefreshToken,
-  shouldAttemptRefresh,
-} from "@/feature/auth/service";
+import { ensureAccessToken } from "@/feature/auth/service";
 import { IntervalType } from "../const";
 import { toast } from "sonner";
 import RemindeIcon from "./icon/RemindeIcon";
 import X from "@/feature/tutorial/components/icons/X";
 import { cn } from "@/lib/utils";
-import { performLogout } from "@/feature/auth/hooks/useLogout";
+import useSaveReminder from "../hooks/useSaveReminder";
 
-type PropsType = {
-  openTree: "reminder" | "save";
-};
-
-export default function ReminderSetting({ openTree = "save" }: PropsType) {
-  const accessToken = useAuthStore((state) => state.accessToken);
+export default function ReminderSetting() {
   const user = useAuthStore((state) => state.user);
   const setAuthText = useAuthStore((state) => state.setAuthText);
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
-  const setSeenReminder = useAuthStore((state) => state.setSeenReminder);
 
   const reminderEnabled = useMandalaStore(
     (state) => state.reminderOption.reminderEnabled
@@ -48,65 +37,16 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
   );
   const setRemindInterval = useMandalaStore((state) => state.setRemindInterval);
 
-  const data = useMandalaStore((state) => state.data);
   const mandalartId = useMandalaStore((state) => state.mandalartId);
-  const changedCells = useMandalaStore((state) => state.changedCells);
   const isOpen = useMandalaStore((state) => state.isReminderOpen);
-  const setData = useMandalaStore((state) => state.setData);
   const onClose = useMandalaStore((state) => state.setReminderVisible);
 
+  const saveReminder = useSaveReminder();
   if (!isOpen) return null;
 
   const handleReminder = async () => {
-    if (!accessToken) {
-      // token X
-      if (shouldAttemptRefresh()) {
-        // access token 없으나 로그인 기록 있음.
-        const success = await APIWithRetry(reissueWithRefreshToken);
-        if (!success) {
-          return performLogout();
-        }
-      } else {
-        performLogout();
-
-        toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
-        return;
-      }
-    } else {
-      // token O
-      try {
-        if (mandalartId) {
-          // 기존 대시보드 존재
-          setSeenReminder(true);
-          const interval = IntervalType[remindInterval];
-          const reminderOptionObj = {
-            data: {
-              mandalartId: mandalartId,
-              reminderEnabled: reminderEnabled,
-              reminderInterval: interval,
-            },
-          };
-          await patchReminderAPI(reminderOptionObj);
-          toast.success("리마인드 설정이 완료되었습니다.");
-          onClose(false);
-        } else {
-          // 기존 대시보드 존재 X
-          if (openTree === "reminder") {
-            // 리마인더 설정 버튼으로 들어옴.
-            toast("먼저 만다라트를 저장해주세요!");
-            onClose(false);
-            return;
-          }
-        }
-      } catch (error) {
-        setSeenReminder(true);
-        console.error("리마인더 설정 실패:", error);
-      }
-    }
-  };
-
-  const handleSave = async () => {
-    if (!accessToken) {
+    const token = await ensureAccessToken();
+    if (!token) {
       setAuthText({
         title: "리마인드를 설정하려면 로그인이 필요해요.",
         description:
@@ -115,51 +55,21 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
       setAuthOpen(true);
       return;
     }
-    if (openTree === "reminder") {
-      // 리마인더 설정
-      await handleReminder();
-      return;
-    }
-    if (openTree === "save") {
-      // 만다라트 저장
-      if (changedCells.size <= 0) {
-        toast("변경된 목표가 없습니다!");
-        onClose(false);
-        return;
-      }
-      const mandalartRes: ServerMandalaType | undefined =
-        await handleUpdateMandala(data, changedCells);
-      if (mandalartRes?.data) {
-        setData(mandalartRes.data);
 
-        if (reminderEnabled && mandalartRes.data.mandalartId) {
-          const mandalartId = mandalartRes.data.mandalartId;
-          const interval = IntervalType[remindInterval];
-          const reminderOptionObj = {
-            data: {
-              mandalartId: mandalartId,
-              reminderEnabled: reminderEnabled,
-              remindInterval: interval,
-            },
-          };
-
-          try {
-            await patchReminderAPI(reminderOptionObj);
-            setSeenReminder(true);
-            toast.success(
-              "만다라트 저장 및 리마인드 설정이 완료되었습니다! 🎉"
-            );
-          } catch (error) {
-            console.error("리마인더 설정 실패:", error);
-            toast.warning(
-              "만다라트는 저장되었으나 리마인더 설정에 실패했습니다."
-            );
-          }
-        } else {
-          toast.success("만다라트가 저장되었습니다! 🎉");
-        }
-      }
-      onClose(false);
+    if (mandalartId) {
+      const interval = IntervalType[remindInterval];
+      const reminderOptionObj = {
+        data: {
+          mandalartId: mandalartId,
+          reminderEnabled: reminderEnabled,
+          reminderInterval: interval,
+        },
+      };
+      saveReminder.mutate(reminderOptionObj, {
+        onSuccess() {
+          onClose(false);
+        },
+      });
     }
   };
 
@@ -226,7 +136,7 @@ export default function ReminderSetting({ openTree = "save" }: PropsType) {
             <Button
               variant="shadow"
               className="min-w-[299px] h-[30px] active:border-[#4C4C4C] active:bg-[#CCCCCC] active:shadow-none"
-              onClick={handleSave}
+              onClick={handleReminder}
             >
               저장하기
             </Button>
