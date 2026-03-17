@@ -11,10 +11,12 @@ import { useTutorialStore } from "./lib/stores/tutorialStore";
 import OnboardingTutorial from "./feature/tutorial/page";
 import useResize from "./shared/hooks/useResize";
 import AuthComponent from "./feature/auth/components/AuthComponent";
-import AuthEntry from "./feature/auth/components/AuthGateway";
+import AuthEntry from "./feature/auth/components/AuthProvider";
 import { queryClient } from "./lib/utils";
 import { useMandalaStore } from "./lib/stores/mandalaStore";
 import ServiceIntroCompoenent from "./feature/home/components/ServiceIntroComponent";
+import AuthProvider from "./feature/auth/components/AuthProvider";
+import MandalaBoard from "./feature/mandala/pages/MandalaBoard";
 
 function App() {
   useResize();
@@ -29,45 +31,26 @@ function App() {
     (state) => state.isServiceIntroOpen
   );
 
-  useEffect(() => {
-    const initApp = async () => {
-      try {
-        // 최초 로그인
-        const token = getURLQuery("access_token");
-        const errorFromUrl = getURLQuery("error");
-        if (errorFromUrl) {
-          toast.error("로그인에 실패했습니다. 다시 시도해주세요.");
-          clearURLQuery();
-          return;
-        }
-        if (token) {
-          setAccessToken(token);
-          clearURLQuery();
-          return;
-        }
-      } catch (error) {
-        console.error("Auth initialization failed:", error);
-      }
-    };
-    initApp();
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
-      <Header currentTheme={currentTheme} onThemeChange={updateCurrentTheme} />
+      <AuthProvider>
+        <Header
+          currentTheme={currentTheme}
+          onThemeChange={updateCurrentTheme}
+        />
+        <MandalaBoard getCurrentBackground={getCurrentBackground} />
 
-      <AuthEntry getCurrentBackground={getCurrentBackground} />
+        <Toaster position="top-center" />
+        {isOnboardingOpen && <OnboardingTutorial />}
+        {isServiceIntroOpen && (
+          <ServiceIntroCompoenent getCurrentBackground={getCurrentBackground} />
+        )}
+        {isAuthOpen && !wasLoggedIn && (
+          <AuthComponent>{authComponentText}</AuthComponent>
+        )}
 
-      <Toaster position="top-center" />
-      {isOnboardingOpen && <OnboardingTutorial />}
-      {isServiceIntroOpen && (
-        <ServiceIntroCompoenent getCurrentBackground={getCurrentBackground} />
-      )}
-      {isAuthOpen && !wasLoggedIn && (
-        <AuthComponent>{authComponentText}</AuthComponent>
-      )}
-
-      <ReactQueryDevtools initialIsOpen={false} />
+        <ReactQueryDevtools initialIsOpen={false} />
+      </AuthProvider>
     </QueryClientProvider>
   );
 }
