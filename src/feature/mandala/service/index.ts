@@ -13,96 +13,96 @@ import { createMandalaAPI } from "../api/mandalart/createMandala";
 import { toast } from "sonner";
 import { findIdIndex, moveItem } from "../utills/\bindex";
 
-export const handleMandalaData = async () => {
-  const accessToken = useAuthStore.getState().accessToken;
-  if (!accessToken) return;
-  try {
-    const mandalart: ServerMandalaType = await getMandalaAPI();
-    if (mandalart) {
-      if (
-        mandalart.data &&
-        mandalart.data.mandalartId !== undefined &&
-        mandalart.data.reminderOption !== undefined
-      ) {
-        useMandalaStore.getState().setData(mandalart.data);
-        useMandalaStore.getState().setMandalartId(mandalart.data.mandalartId);
-        const reminderOptions = mandalart.data.reminderOption;
-        if (reminderOptions.reminderEnabled) {
-          useMandalaStore
-            .getState()
-            .setReminderOption(mandalart.data.reminderOption);
-        }
-      }
-    } else {
-      useMandalaStore.getState().setEmptyState(true);
-    }
-  } finally {
-  }
-};
+// export const handleMandalaData = async () => {
+//   const accessToken = useAuthStore.getState().accessToken;
+//   if (!accessToken) return;
+//   try {
+//     const mandalart: ServerMandalaType = await getMandalaAPI();
+//     if (mandalart) {
+//       if (
+//         mandalart.data &&
+//         mandalart.data.mandalartId !== undefined &&
+//         mandalart.data.reminderOption !== undefined
+//       ) {
+//         useMandalaStore.getState().setData(mandalart.data);
+//         useMandalaStore.getState().setMandalartId(mandalart.data.mandalartId);
+//         const reminderOptions = mandalart.data.reminderOption;
+//         if (reminderOptions.reminderEnabled) {
+//           useMandalaStore
+//             .getState()
+//             .setReminderOption(mandalart.data.reminderOption);
+//         }
+//       }
+//     } else {
+//       useMandalaStore.getState().setEmptyState(true);
+//     }
+//   } finally {
+//   }
+// };
 
-export const handleUpdateMandala = async (
-  data: MandalaType,
-  changedCells: Set<string>,
-  callback?: () => void
-) => {
-  const accessToken = useAuthStore.getState().accessToken;
-  const mandalartId = useMandalaStore.getState().mandalartId;
-  const resetChangedCells = useMandalaStore.getState().resetChangedCells;
-  if (accessToken) {
-    // 인증 성공
-    try {
-      if (callback !== undefined) {
-        callback();
-      }
+// export const handleUpdateMandala = async (
+//   data: MandalaType,
+//   changedCells: Set<string>,
+//   callback?: () => void
+// ) => {
+//   const accessToken = useAuthStore.getState().accessToken;
+//   const mandalartId = useMandalaStore.getState().mandalartId;
+//   const resetChangedCells = useMandalaStore.getState().resetChangedCells;
+//   if (accessToken) {
+//     // 인증 성공
+//     try {
+//       if (callback !== undefined) {
+//         callback();
+//       }
 
-      if (mandalartId != null) {
-        const mandalaData: ServerMandalaType = uiToServer(
-          data,
-          changedCells,
-          mandalartId
-        );
-        const mandalartRes: ServerMandalaType = await createMandalaAPI(
-          mandalaData
-        );
-        resetChangedCells();
-        return mandalartRes;
-      } else {
-        const mandalaData = uiToServer(data, changedCells);
-        const mandalartRes = await createMandalaAPI(mandalaData);
-        resetChangedCells();
-        return mandalartRes;
-      }
-    } catch (error: any) {
-      console.error(error);
-      toast.warning("만다라트 저장에 실패했습니다. 다시 시도해주세요.");
-    }
-  }
-};
+//       if (mandalartId != null) {
+//         const mandalaData: ServerMandalaType = uiToServer(
+//           data,
+//           changedCells,
+//           mandalartId
+//         );
+//         const mandalartRes: ServerMandalaType = await createMandalaAPI(
+//           mandalaData
+//         );
+//         resetChangedCells();
+//         return mandalartRes;
+//       } else {
+//         const mandalaData = uiToServer(data, changedCells);
+//         const mandalartRes = await createMandalaAPI(mandalaData);
+//         resetChangedCells();
+//         return mandalartRes;
+//       }
+//     } catch (error: any) {
+//       console.error(error);
+//       toast.warning("만다라트 저장에 실패했습니다. 다시 시도해주세요.");
+//     }
+//   }
+// };
 
-export const withNoContentInterceptor = async () => {
-  const interceptorId = apiClient.addResponseInterceptor({
-    onSuccess: async (res: Response) => {
-      if (res.status === 204) {
-        useMandalaStore.getState().setEmptyState(true);
-        return emptyDummyData;
-      }
-      const contentLength = res.headers.get("content-length");
-      if (contentLength === "0") {
-        useMandalaStore.getState().setEmptyState(true);
-        return emptyDummyData;
-      }
-      try {
-        useMandalaStore.getState().setEmptyState(false);
-        return await res.json();
-      } catch (error) {
-        useMandalaStore.getState().setEmptyState(true);
-        console.error("JSON parsing failed:", error);
-        throw new Error("Invalid JSON response");
-      }
-    },
-  });
-  return interceptorId;
-};
+// export const withNoContentInterceptor = async () => {
+//   const interceptorId = apiClient.addResponseInterceptor({
+//     onSuccess: async (res: Response) => {
+//       if (res.status === 204) {
+//         useMandalaStore.getState().setEmptyState(true);
+//         return emptyDummyData;
+//       }
+//       const contentLength = res.headers.get("content-length");
+//       if (contentLength === "0") {
+//         useMandalaStore.getState().setEmptyState(true);
+//         return emptyDummyData;
+//       }
+//       try {
+//         useMandalaStore.getState().setEmptyState(false);
+//         return await res.json();
+//       } catch (error) {
+//         useMandalaStore.getState().setEmptyState(true);
+//         console.error("JSON parsing failed:", error);
+//         throw new Error("Invalid JSON response");
+//       }
+//     },
+//   });
+//   return interceptorId;
+// };
 
 /**
  * 빈 데이터 구조 임시 생성 로직
