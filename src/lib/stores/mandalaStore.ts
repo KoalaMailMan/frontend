@@ -65,10 +65,6 @@ type States = {
 
 type PersistedState = {
   data: MandalaType;
-  modalCellId: string | null;
-  isModalOpen: boolean;
-  isReminderOpen: boolean;
-  isFullOpen: boolean;
 };
 
 type Actions = {
@@ -98,32 +94,37 @@ type Actions = {
   setEmptyState: (state: boolean) => void;
   resetChangedCells: () => void;
   setServiceIntroVisible: (visible: boolean) => void;
+  clearMandalart: () => void;
+};
+
+const initialState = {
+  data: serverToUI(emptyDummyData.data),
+  mandalartId: null,
+  isDirty: false,
+  editingCellId: null,
+  editingSubCellId: null,
+  editingFullCellId: null,
+  modalCellId: null,
+  changedCells: new Set<string>([]),
+  isModalOpen: false,
+  isReminderOpen: false,
+  isFullOpen: false,
+  isEmpty: true,
+  emptySubIndexes: [],
+  recommendationCursor: 0,
+  currentRecommendationText: "",
+  isServiceIntroOpen: false,
+  reminderOption: {
+    reminderEnabled: true,
+    remindInterval: "3month",
+    remindScheduledAt: null,
+  },
 };
 
 export const useMandalaStore = create<States & Actions>()(
   persist(
     (set, get) => ({
-      data: serverToUI(emptyDummyData.data),
-      reminderOption: {
-        reminderEnabled: true,
-        remindInterval: "3month",
-        remindScheduledAt: null,
-      },
-      mandalartId: null,
-      isDirty: false,
-      editingCellId: null,
-      editingSubCellId: null,
-      editingFullCellId: null,
-      modalCellId: null,
-      changedCells: new Set([]),
-      isModalOpen: false,
-      isReminderOpen: false,
-      isFullOpen: false,
-      isEmpty: true,
-      emptySubIndexes: [],
-      recommendationCursor: 0,
-      currentRecommendationText: "",
-      isServiceIntroOpen: false,
+      ...initialState,
 
       getData: (index) => {
         if (index != null) {
@@ -503,48 +504,30 @@ export const useMandalaStore = create<States & Actions>()(
 
       resetChangedCells: () =>
         set(() => ({ changedCells: new Set([]), isDirty: false })),
+      clearMandalart: () =>
+        set(() => ({
+          ...initialState,
+        })),
     }),
     {
       name: "mandalart",
       partialize: (state): PersistedState => ({
         data: state.data,
-        modalCellId: state.modalCellId,
-        isModalOpen: state.isModalOpen,
-        isReminderOpen: state.isReminderOpen,
-        isFullOpen: state.isFullOpen,
       }),
-      version: 1,
+      version: 2,
 
-      storage: {
-        getItem: (name) => {
-          const value = localStorage.getItem(name);
-          return value ? JSON.parse(value) : null;
-        },
-        setItem: (name, value) => {
-          const { wasLoggedIn, accessToken } = useAuthStore.getState();
-          if (wasLoggedIn && accessToken && value?.state?.data) {
-            return;
-          }
-          if (typeof value === "string") {
-            localStorage.setItem(name, value);
-          } else {
-            localStorage.setItem(name, JSON.stringify(value));
-          }
-        },
-        removeItem: (name) => {
-          const { wasLoggedIn, accessToken } = useAuthStore.getState();
-          if (wasLoggedIn && accessToken) {
-            const current = localStorage.getItem(name);
-            if (!current) return;
-            const parsed = JSON.parse(current);
-            if (parsed?.state?.data !== undefined) {
-              delete parsed.state.data;
-              localStorage.setItem(name, JSON.stringify(parsed));
-            }
-            return;
-          }
-          localStorage.removeItem(name);
-        },
+      migrate: (persistedState: any, version: number) => {
+        if (version === 1) {
+          const {
+            modalCellId,
+            isModalOpen,
+            isReminderOpen,
+            isFullOpen,
+            ...rest
+          } = persistedState;
+          return rest;
+        }
+        return persistedState;
       },
     }
   )
