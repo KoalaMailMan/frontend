@@ -112,14 +112,15 @@ export class ApiClient {
       try {
         if (interceptor.onRequest) {
           const interceptorResult = await interceptor.onRequest(config);
+          const { requiresAuth, ...rest } = interceptorResult;
 
           if (interceptorResult && typeof interceptorResult === "object") {
             config = {
               ...config,
-              ...interceptorResult,
+              ...rest,
               headers: {
                 ...config.headers,
-                ...(interceptorResult.headers || {}),
+                ...(rest.headers || {}),
               },
             };
           }
@@ -153,7 +154,7 @@ export class ApiClient {
         throw error;
       }
       const response = await fetch(config.url, {
-        ...fetchOptions,
+        ...config,
         signal: controller.signal,
       });
 
