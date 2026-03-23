@@ -1,5 +1,5 @@
 import { useAuthStore } from "@/lib/stores/authStore";
-import { useCallback } from "react";
+import { useEffect } from "react";
 import { clearURLQuery, getURLQuery } from "../\butils";
 import { toast } from "sonner";
 
@@ -8,7 +8,7 @@ export default function useOAuthCallback() {
   const setWasLoggedIn = useAuthStore((s) => s.setWasLoggedIn);
   const setLastLoginTime = useAuthStore((s) => s.setLastLoginTime);
 
-  return useCallback(async () => {
+  useEffect(() => {
     const errorFromUrl = getURLQuery("error");
     if (errorFromUrl) {
       toast.error("로그인에 실패했습니다. 다시 시도해주세요.");
@@ -22,5 +22,5 @@ export default function useOAuthCallback() {
     setWasLoggedIn(true);
     setLastLoginTime(new Date().toISOString());
     clearURLQuery();
-  }, [setAccessToken, setWasLoggedIn, setLastLoginTime]);
+  }, []);
 }
