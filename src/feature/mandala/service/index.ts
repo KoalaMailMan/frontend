@@ -188,7 +188,7 @@ export const serverToUI = (
   // subs 배열 생성 - position 기준으로 배치
   const coreSubsArray = new Array(9).fill(null);
   coreSubsArray[0] = {
-    goalId: `sub-0-0`,
+    goalId: `sub-0-${serverData.core?.goalId ?? "0"}`,
     originalId: getOriginalId(serverData.core?.goalId),
     position: 0,
     content: serverData.core?.content || "",
@@ -212,7 +212,7 @@ export const serverToUI = (
   for (let i = 1; i <= 8; i++) {
     if (!coreSubsArray[i]) {
       coreSubsArray[i] = {
-        goalId: idManager.generateSubId(coreAsMain.goalId, undefined, i),
+        goalId: idManager.generateSubId("0", undefined, i),
         originalId: undefined, // 빈 데이터는 originalId 없음
         position: i,
         content: "",
