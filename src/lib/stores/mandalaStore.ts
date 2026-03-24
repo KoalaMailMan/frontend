@@ -1,13 +1,17 @@
 import { create } from "zustand";
 import {
   emptyDummyData,
-  getDataById,
-  isEqual,
   serverToUI,
   toggleStatus,
 } from "@/feature/mandala/service";
 import { findIdIndex, findKeyByValue } from "@/feature/mandala/utills/\bindex";
 import { persist } from "zustand/middleware";
+import { parseCellId } from "@/feature/mandala/service/parseCellId";
+import { getSyncTargets } from "@/feature/mandala/service/getSyncTargets";
+import {
+  getChangedCellId,
+  normalizeToTrackId,
+} from "@/feature/mandala/service/changedCellId";
 
 export type Status = "DONE" | "UNDONE";
 
@@ -243,151 +247,38 @@ export const useMandalaStore = create<States & Actions>()(
       handleCellChange: (cellId, value, queryData) =>
         set((state) => {
           console.log("Store handleCellChange:", cellId, value, queryData);
+          // if (cellId == null) return state;
           if (!state.data) return state;
           if (!state.data.core.mains) return state;
           const dataList = [...state.data.core.mains];
-          const ids = cellId.split("-");
 
-          const isSubGoal = cellId.startsWith("sub");
-          const isMainGoal = cellId.startsWith("main");
-          const isCoreGoal = cellId.startsWith("core");
-
-          if (isSubGoal) {
-            // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} |  sub-center-{0}
-
-            let mainId: string;
-            if (ids[1] === "center") {
-              if (ids[2] === "0") {
-                mainId = `core-0`;
-              } else {
-                mainId = `main-${ids[2]}`;
-              }
-            } else if (ids[1] === "0") {
-              mainId = `main-${ids[2]}`;
+          const findIndex = parseCellId(cellId);
+          const targets = getSyncTargets(findIndex);
+          if (targets == null || targets?.length <= 0) return state;
+          targets.forEach((target) => {
+            if ("subIndex" in target) {
+              // sub 업데이트
+              dataList[target.mainIndex].subs[
+                target.subIndex as number
+              ].content = value;
             } else {
-              mainId = `main-${ids[1]}`;
+              // main 업데이트
+              dataList[target.mainIndex].content = value;
             }
-            let mainIndex = dataList.findIndex(
-              (item) => item.goalId === mainId
-            );
-            let subIndex: number;
-            if (mainIndex === -1) return state;
-            if (cellId.includes("center") || ids[1] === "0") {
-              // sub-0-{subIndex} |  sub-center-{0}
-              subIndex = dataList[mainIndex].subs.findIndex(
-                (sub) => sub.goalId === dataList[mainIndex].subs[0].goalId
-              );
-            } else {
-              subIndex = dataList[mainIndex].subs.findIndex(
-                (sub) => sub.goalId === cellId
-              );
-            }
-            if (subIndex === -1) return state;
-
-            if (ids[1] === "center" || ids[1] === "0") {
-              if (ids[2] === "0") {
-                // 핵심 목표: 정중앙
-                dataList[0] = {
-                  ...dataList[0],
-                  content: value,
-                  subs: dataList[0].subs.map((sub, i) =>
-                    i === 0 ? { ...sub, content: value } : sub
-                  ),
-                };
-              } else {
-                // 주요 목표: mains
-                dataList[0] = {
-                  ...dataList[0],
-                  subs: dataList[0].subs.map((sub, i) =>
-                    i === mainIndex ? { ...sub, content: value } : sub
-                  ),
-                };
-                dataList[mainIndex] = {
-                  ...dataList[mainIndex],
-                  content: value,
-                  subs: dataList[mainIndex].subs.map((sub, i) =>
-                    i === 0 ? { ...sub, content: value } : sub
-                  ),
-                };
-              }
-            } else if (ids[2] === "0") {
-              dataList[0] = {
-                ...dataList[0],
-                subs: dataList[0].subs.map((sub, i) =>
-                  i === mainIndex ? { ...sub, content: value } : sub
-                ),
-              };
-              dataList[mainIndex] = {
-                ...dataList[mainIndex],
-                content: value,
-                subs: dataList[mainIndex].subs.map((sub, i) =>
-                  i === 0 ? { ...sub, content: value } : sub
-                ),
-              };
-            }
-            // 세부 목표: subs
-            dataList[mainIndex] = {
-              ...dataList[mainIndex],
-              subs: dataList[mainIndex].subs.map((sub, i) =>
-                i === subIndex ? { ...sub, content: value } : sub
-              ),
-            };
-          } else if (isMainGoal) {
-            const mainId = cellId; // main-{mainIndex} | main-center-{mainIndex}
-            const mainIndex = dataList.findIndex(
-              (item) => item.goalId === mainId
-            );
-
-            if (mainIndex < 0) return state;
-
-            dataList[mainIndex] = {
-              ...dataList[mainIndex],
-              content: value,
-              subs: dataList[mainIndex].subs.map((sub, i) =>
-                i === 0 ? { ...sub, content: value } : sub
-              ),
-            };
-
-            dataList[0] = {
-              ...dataList[0],
-              subs: dataList[0].subs.map((sub, i) =>
-                i === mainIndex ? { ...sub, content: value } : sub
-              ),
-            };
-          } else if (isCoreGoal) {
-            dataList[0] = {
-              ...dataList[0],
-              content: value,
-              subs: dataList[0].subs.map((sub, i) =>
-                i === 0 ? { ...sub, content: value } : sub
-              ),
-            };
-          }
+          });
 
           if (queryData) {
-            const original =
-              getDataById(queryData.core.mains, cellId) ?? queryData.core;
-
-            const next = getDataById(dataList, cellId)! ?? dataList[0];
-
-            const isChanged = !isEqual(original, next);
-
             const nextChangedCells = new Set(state.changedCells);
-            let dirty = false;
-            if (isChanged) {
-              if (isSubGoal && cellId === "sub-center-0") {
-                nextChangedCells.add("core-0");
-              } else {
-                nextChangedCells.add(cellId);
-              }
-              dirty = true;
+            const updatedCellId = getChangedCellId({
+              cellId,
+              rawData: queryData,
+              updatedData: dataList,
+            });
+            if (updatedCellId) {
+              nextChangedCells.add(updatedCellId);
             } else {
-              if (isSubGoal && cellId === "sub-center-0") {
-                nextChangedCells.delete("core-0");
-              } else {
-                nextChangedCells.delete(cellId);
-              }
-              dirty = false;
+              const trackId = normalizeToTrackId(cellId);
+              if (trackId) nextChangedCells.delete(trackId);
             }
 
             return {
@@ -400,7 +291,6 @@ export const useMandalaStore = create<States & Actions>()(
                 },
               },
               changedCells: nextChangedCells,
-              isDirty: dirty,
             };
           }
 
