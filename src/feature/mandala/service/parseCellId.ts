@@ -34,6 +34,11 @@ export const parseCellId = (cellId: string): ParsedCellId => {
       if (isNaN(mainIndex)) return { type: "unknown" };
       return { type: "main", mainIndex };
     }
+    if (parts[2] === "0") {
+      const mainIndex = parseInt(parts[1]);
+      if (isNaN(mainIndex)) return { type: "unknown" };
+      return { type: "main", mainIndex };
+    }
     const mainIndex = parseInt(parts[1]);
     const subIndex = parseInt(parts[2]);
     if (isNaN(mainIndex) || isNaN(subIndex)) return { type: "unknown" };
