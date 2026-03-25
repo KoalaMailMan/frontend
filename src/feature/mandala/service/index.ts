@@ -7,6 +7,7 @@ import {
   type Status,
 } from "@/lib/stores/mandalaStore";
 import { findIdIndex, moveItem } from "../utills/\bindex";
+import { parseCellId } from "./parseCellId";
 
 // export const handleMandalaData = async () => {
 //   const accessToken = useAuthStore.getState().accessToken;
@@ -140,15 +141,15 @@ export type ServerMandalaType = {
 };
 
 export type ServerMainGoal = {
-  goalId: number;
+  goalId?: number;
   position: number;
-  content: string;
-  status: "DONE" | "UNDONE";
+  content?: string;
+  status?: "DONE" | "UNDONE";
   subs: ServerSubGoal[];
 };
 
 export type ServerSubGoal = {
-  goalId: number;
+  goalId?: number;
   position: number;
   content: string;
   status: "DONE" | "UNDONE";
@@ -188,7 +189,7 @@ export const serverToUI = (
   // subs 배열 생성 - position 기준으로 배치
   const coreSubsArray = new Array(9).fill(null);
   coreSubsArray[0] = {
-    goalId: `sub-0-${serverData.core?.goalId ?? "0"}`,
+    goalId: `sub-0-0`,
     originalId: getOriginalId(serverData.core?.goalId),
     position: 0,
     content: serverData.core?.content || "",
@@ -199,7 +200,7 @@ export const serverToUI = (
     const targetPosition = main.position;
     if (targetPosition >= 1 && targetPosition <= 8) {
       coreSubsArray[targetPosition] = {
-        goalId: idManager.generateSubId("0", main.goalId, targetPosition),
+        goalId: `sub-0-${targetPosition}`,
         originalId: getOriginalId(main.goalId),
         position: main.position,
         content: main.content || "",
@@ -212,7 +213,7 @@ export const serverToUI = (
   for (let i = 1; i <= 8; i++) {
     if (!coreSubsArray[i]) {
       coreSubsArray[i] = {
-        goalId: idManager.generateSubId("0", undefined, i),
+        goalId: `sub-0-${i}`,
         originalId: undefined, // 빈 데이터는 originalId 없음
         position: i,
         content: "",
@@ -232,7 +233,7 @@ export const serverToUI = (
 
     if (targetPosition >= 1 && targetPosition <= 8) {
       const uiMain: MainGoal = {
-        goalId: idManager.generateMainId(main.goalId, targetPosition),
+        goalId: `main-${targetPosition}`,
         originalId: getOriginalId(main.goalId),
         position: targetPosition,
         content: main.content || "",
@@ -244,7 +245,7 @@ export const serverToUI = (
       const subsArray = new Array(9).fill(null);
 
       subsArray[0] = {
-        goalId: idManager.generateSubId(uiMain.goalId, undefined, 0),
+        goalId: `sub-${targetPosition}-0`,
         originalId: getOriginalId(main.goalId),
         position: 0,
         content: main.content || "",
@@ -256,11 +257,7 @@ export const serverToUI = (
         const subTargetPosition = sub.position;
         if (subTargetPosition >= 1 && subTargetPosition <= 8) {
           subsArray[subTargetPosition] = {
-            goalId: idManager.generateSubId(
-              uiMain.goalId,
-              sub.goalId,
-              subTargetPosition
-            ),
+            goalId: `sub-${targetPosition}-${subTargetPosition}`,
             originalId: getOriginalId(sub.goalId),
             position: subTargetPosition,
             content: sub.content || "",
@@ -400,251 +397,261 @@ const createMandalaIdManager = (serverData: ServerMandalaType["data"]) => {
   };
 };
 
+type UIToServerType = {
+  serverData: ServerMandalaType["data"];
+  currentData: MandalaType<string>;
+  changedCells: Set<string>;
+  id?: number | null;
+};
+
 // 서버에 만다라트 대시보드 생성 & 수정
-export const uiToServer = (
-  currentData: MandalaType<string>,
-  changedCells: Set<string>,
-  id?: number | null
-) => {
-  const result: {
-    data: {
-      core: Partial<ServerMandalaType["data"]["core"]>;
-      mandalartId?: number;
-    };
-  } = {
-    data: { core: {} },
-  };
-
-  if (id != null) {
-    result.data.mandalartId = id;
+export const uiToServer = ({
+  id,
+  currentData,
+  changedCells,
+  serverData,
+}: UIToServerType) => {
+  // let result: ServerMandalaType = {
+  //   data: { core: {} },
+  // };
+  let result;
+  console.log(id);
+  if (id) {
+    result = applyChangesToServer(id, currentData, changedCells, serverData);
+  } else {
+    result = buildFromScratch(currentData);
   }
-  // Core 초기 처리 (originalId가 있고 content가 있는 경우)
-  if (currentData.core.mains[0].originalId) {
-    result.data.core.goalId = currentData.core.mains[0].originalId;
-  }
-  if (currentData.core.mains[0].content.trim() !== "") {
-    result.data.core.content = currentData.core.mains[0].content;
-  }
-  result.data.core.status = currentData.core.mains[0].status;
+  console.log(result);
+  // if (id != null) {
+  //   result.data.mandalartId = id;
+  // }
+  // // Core 초기 처리 (originalId가 있고 content가 있는 경우)
+  // if (currentData.core.mains[0].originalId) {
+  //   result.data.core.goalId = currentData.core.mains[0].originalId;
+  // }
+  // if (currentData.core.mains[0].content.trim() !== "") {
+  //   result.data.core.content = currentData.core.mains[0].content;
+  // }
+  // result.data.core.status = currentData.core.mains[0].status;
 
-  // 변경된 셀들을 직접 순회하면서 처리
-  const processedMains = new Map<number, any>(); // mainIndex -> mainObj
-  const directlyChangedMains = new Set<number>(); // 직접 변경된 main들을 추적
+  // // 변경된 셀들을 직접 순회하면서 처리
+  // const processedMains = new Map<number, any>(); // mainIndex -> mainObj
+  // const directlyChangedMains = new Set<number>(); // 직접 변경된 main들을 추적
 
-  changedCells.forEach((cellId) => {
-    if (cellId.startsWith("core")) {
-      const core = currentData.core.mains[0];
-      result.data.core.status = core.status;
-      if (core.originalId) {
-        result.data.core.goalId = core.originalId;
-      }
-      // if (core.content && core.content.trim() !== "") {
-      result.data.core.content = core.content;
-      // }
-    } else if (cellId.startsWith("main")) {
-      const mainIndex = currentData.core.mains.findIndex(
-        (item) => item.goalId === cellId
-      );
-      if (mainIndex === -1) {
-        console.log("main 인덱스 추출 실패: ", cellId);
-        return;
-      }
+  // changedCells.forEach((cellId) => {
+  //   if (cellId.startsWith("core")) {
+  //     const core = currentData.core.mains[0];
+  //     result.data.core.status = core.status;
+  //     if (core.originalId) {
+  //       result.data.core.goalId = core.originalId;
+  //     }
+  //     // if (core.content && core.content.trim() !== "") {
+  //     result.data.core.content = core.content;
+  //     // }
+  //   } else if (cellId.startsWith("main")) {
+  //     const mainIndex = currentData.core.mains.findIndex(
+  //       (item) => item.goalId === cellId
+  //     );
+  //     if (mainIndex === -1) {
+  //       console.log("main 인덱스 추출 실패: ", cellId);
+  //       return;
+  //     }
 
-      const mainData = currentData.core.mains[mainIndex];
-      directlyChangedMains.add(mainIndex); // 직접 변경된 main 추적
+  //     const mainData = currentData.core.mains[mainIndex];
+  //     directlyChangedMains.add(mainIndex); // 직접 변경된 main 추적
 
-      let mainObj = processedMains.get(mainIndex);
-      if (!mainObj) {
-        mainObj = { subs: [] };
-        processedMains.set(mainIndex, mainObj);
-      }
+  //     let mainObj = processedMains.get(mainIndex);
+  //     if (!mainObj) {
+  //       mainObj = { subs: [] };
+  //       processedMains.set(mainIndex, mainObj);
+  //     }
 
-      // Main이 직접 변경된 경우: 모든 정보 포함
-      if (mainData.originalId) {
-        mainObj.goalId = mainData.originalId;
-      }
-      if (mainData.position) {
-        mainObj.position = mainData.position;
-      }
-      // if (mainData.content && mainData.content.trim() !== "") {
-      mainObj.content = mainData.content;
-      // }
-      mainObj.status = mainData.status;
-    } else if (cellId.startsWith("sub")) {
-      // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} | sub-center-{mainIndex}
-      let mainIndex;
-      let subIndex;
-      const parts = cellId.split("-");
+  //     // Main이 직접 변경된 경우: 모든 정보 포함
+  //     if (mainData.originalId) {
+  //       mainObj.goalId = mainData.originalId;
+  //     }
+  //     if (mainData.position) {
+  //       mainObj.position = mainData.position;
+  //     }
+  //     // if (mainData.content && mainData.content.trim() !== "") {
+  //     mainObj.content = mainData.content;
+  //     // }
+  //     mainObj.status = mainData.status;
+  //   } else if (cellId.startsWith("sub")) {
+  //     // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} | sub-center-{mainIndex}
+  //     let mainIndex;
+  //     let subIndex;
+  //     const parts = cellId.split("-");
 
-      if (parts[1] === "0" || parts[1] === "center") {
-        mainIndex = 0;
-        subIndex = parseInt(parts[2]);
-      } else {
-        // parts[1]이 숫자인지 확인
-        const parsedMainId = parseInt(parts[1]);
+  //     if (parts[1] === "0" || parts[1] === "center") {
+  //       mainIndex = 0;
+  //       subIndex = parseInt(parts[2]);
+  //     } else {
+  //       // parts[1]이 숫자인지 확인
+  //       const parsedMainId = parseInt(parts[1]);
 
-        if (!isNaN(parsedMainId)) {
-          // 숫자라면 배열 인덱스가 아닌 goalId로 찾기
-          mainIndex = currentData.core.mains.findIndex(
-            (item) => item.goalId === `main-${parts[1]}`
-          );
-        } else {
-          // 숫자가 아니라면 goalId로 찾기
-          mainIndex = currentData.core.mains.findIndex(
-            (item) => item.goalId === `main-${parts[1]}`
-          );
-        }
+  //       if (!isNaN(parsedMainId)) {
+  //         // 숫자라면 배열 인덱스가 아닌 goalId로 찾기
+  //         mainIndex = currentData.core.mains.findIndex(
+  //           (item) => item.goalId === `main-${parts[1]}`
+  //         );
+  //       } else {
+  //         // 숫자가 아니라면 goalId로 찾기
+  //         mainIndex = currentData.core.mains.findIndex(
+  //           (item) => item.goalId === `main-${parts[1]}`
+  //         );
+  //       }
 
-        if (mainIndex !== -1) {
-          subIndex = currentData.core.mains[mainIndex].subs.findIndex(
-            (item) => item.goalId === cellId
-          );
-        } else {
-          subIndex = -1;
-        }
-      }
+  //       if (mainIndex !== -1) {
+  //         subIndex = currentData.core.mains[mainIndex].subs.findIndex(
+  //           (item) => item.goalId === cellId
+  //         );
+  //       } else {
+  //         subIndex = -1;
+  //       }
+  //     }
 
-      if (mainIndex === -1) {
-        console.log("sub: main 인덱스 추출 실패: ", cellId);
-        return;
-      }
-      if (subIndex === -1) {
-        console.log("sub: sub 인덱스 추출 실패: ", cellId);
-        return;
-      }
+  //     if (mainIndex === -1) {
+  //       console.log("sub: main 인덱스 추출 실패: ", cellId);
+  //       return;
+  //     }
+  //     if (subIndex === -1) {
+  //       console.log("sub: sub 인덱스 추출 실패: ", cellId);
+  //       return;
+  //     }
 
-      const mainData = currentData.core.mains[mainIndex];
-      const subData = mainData.subs[subIndex];
+  //     const mainData = currentData.core.mains[mainIndex];
+  //     const subData = mainData.subs[subIndex];
 
-      let mainObj = processedMains.get(mainIndex);
-      if (!mainObj) {
-        mainObj = { subs: [] };
-        processedMains.set(mainIndex, mainObj);
-      }
+  //     let mainObj = processedMains.get(mainIndex);
+  //     if (!mainObj) {
+  //       mainObj = { subs: [] };
+  //       processedMains.set(mainIndex, mainObj);
+  //     }
 
-      if (mainData.originalId) {
-        mainObj.goalId = mainData.originalId;
-      }
+  //     if (mainData.originalId) {
+  //       mainObj.goalId = mainData.originalId;
+  //     }
 
-      if (mainData.position !== undefined) {
-        mainObj.position = mainData.position;
-      }
+  //     if (mainData.position !== undefined) {
+  //       mainObj.position = mainData.position;
+  //     }
 
-      // if (mainData.content && mainData.content.trim() !== "") {
-      mainObj.content = mainData.content;
-      // }
+  //     // if (mainData.content && mainData.content.trim() !== "") {
+  //     mainObj.content = mainData.content;
+  //     // }
 
-      mainObj.status = mainData.status;
+  //     mainObj.status = mainData.status;
 
-      if (subData.position === 0) {
-        return;
-      }
+  //     if (subData.position === 0) {
+  //       return;
+  //     }
 
-      // Sub 객체 생성
-      const subObj: any = {};
+  //     // Sub 객체 생성
+  //     const subObj: any = {};
 
-      if (subData.originalId) {
-        subObj.goalId = subData.originalId;
-      }
-      // if (subData.position !== undefined && subData.content) {
-      subObj.position = subData.position;
-      // }
-      if (subData.content && subData.content.trim() !== "") {
-        subObj.content = subData.content;
-      }
-      subObj.status = subData.status;
+  //     if (subData.originalId) {
+  //       subObj.goalId = subData.originalId;
+  //     }
+  //     // if (subData.position !== undefined && subData.content) {
+  //     subObj.position = subData.position;
+  //     // }
+  //     if (subData.content && subData.content.trim() !== "") {
+  //       subObj.content = subData.content;
+  //     }
+  //     subObj.status = subData.status;
 
-      // 중복 제거 (같은 sub가 이미 추가되었는지 확인)
-      const existingSubIndex = mainObj.subs.findIndex(
-        (s: any) => s.position === subObj.position
-      );
+  //     // 중복 제거 (같은 sub가 이미 추가되었는지 확인)
+  //     const existingSubIndex = mainObj.subs.findIndex(
+  //       (s: any) => s.position === subObj.position
+  //     );
 
-      if (existingSubIndex !== -1) {
-        // 기존 sub 업데이트
-        mainObj.subs[existingSubIndex] = {
-          ...mainObj.subs[existingSubIndex],
-          ...subObj,
-        };
-      } else {
-        // 새로운 sub 추가
-        mainObj.subs.push(subObj);
-      }
-    }
-  });
+  //     if (existingSubIndex !== -1) {
+  //       // 기존 sub 업데이트
+  //       mainObj.subs[existingSubIndex] = {
+  //         ...mainObj.subs[existingSubIndex],
+  //         ...subObj,
+  //       };
+  //     } else {
+  //       // 새로운 sub 추가
+  //       mainObj.subs.push(subObj);
+  //     }
+  //   }
+  // });
 
-  // 기존에 저장된 모든 데이터 추가 (originalId가 있는 것들)
-  currentData.core.mains.forEach((mainData, idx) => {
-    // idx 0은 core이므로 스킵
-    if (idx === 0) return;
+  // // 기존에 저장된 모든 데이터 추가 (originalId가 있는 것들)
+  // currentData.core.mains.forEach((mainData, idx) => {
+  //   // idx 0은 core이므로 스킵
+  //   if (idx === 0) return;
 
-    // originalId가 있으면 기존 저장된 데이터
-    if (mainData.originalId) {
-      let mainObj = processedMains.get(idx);
+  //   // originalId가 있으면 기존 저장된 데이터
+  //   if (mainData.originalId) {
+  //     let mainObj = processedMains.get(idx);
 
-      if (!mainObj) {
-        // 아직 처리되지 않은 기존 데이터라면 새로 추가
-        mainObj = { subs: [] };
-        processedMains.set(idx, mainObj);
-      }
+  //     if (!mainObj) {
+  //       // 아직 처리되지 않은 기존 데이터라면 새로 추가
+  //       mainObj = { subs: [] };
+  //       processedMains.set(idx, mainObj);
+  //     }
 
-      // 기존 데이터: goalId, position, content 모두 포함
-      mainObj.goalId = mainData.originalId;
-      mainObj.position = mainData.position;
-      mainObj.status = mainData.status;
-      // if (mainData.content && mainData.content.trim() !== "") {
-      mainObj.content = mainData.content;
-      // }
+  //     // 기존 데이터: goalId, position, content 모두 포함
+  //     mainObj.goalId = mainData.originalId;
+  //     mainObj.position = mainData.position;
+  //     mainObj.status = mainData.status;
+  //     // if (mainData.content && mainData.content.trim() !== "") {
+  //     mainObj.content = mainData.content;
+  //     // }
 
-      // 해당 main의 모든 기존 subs도 포함 (position 0 제외)
-      mainData.subs.forEach((subData) => {
-        // position 0인 sub는 제외 (main의 중복)
-        if (subData.position === 0) {
-          return;
-        }
+  //     // 해당 main의 모든 기존 subs도 포함 (position 0 제외)
+  //     mainData.subs.forEach((subData) => {
+  //       // position 0인 sub는 제외 (main의 중복)
+  //       if (subData.position === 0) {
+  //         return;
+  //       }
 
-        if (subData.originalId) {
-          const existingSubIndex = mainObj.subs.findIndex(
-            (s: any) => s.position === subData.position
-          );
+  //       if (subData.originalId) {
+  //         const existingSubIndex = mainObj.subs.findIndex(
+  //           (s: any) => s.position === subData.position
+  //         );
 
-          const subObj: any = {
-            goalId: subData.originalId,
-            position: subData.position,
-            status: subData.status,
-          };
+  //         const subObj: any = {
+  //           goalId: subData.originalId,
+  //           position: subData.position,
+  //           status: subData.status,
+  //         };
 
-          // if (subData.content && subData.content.trim() !== "") {
-          subObj.content = subData.content;
-          // }
+  //         // if (subData.content && subData.content.trim() !== "") {
+  //         subObj.content = subData.content;
+  //         // }
 
-          if (existingSubIndex !== -1) {
-            // 이미 처리된 sub라면 병합 (변경된 데이터 우선)
-            mainObj.subs[existingSubIndex] = {
-              ...subObj,
-              ...mainObj.subs[existingSubIndex],
-            };
-          } else {
-            // 새로 추가
-            mainObj.subs.push(subObj);
-          }
-        }
-      });
-    }
-  });
+  //         if (existingSubIndex !== -1) {
+  //           // 이미 처리된 sub라면 병합 (변경된 데이터 우선)
+  //           mainObj.subs[existingSubIndex] = {
+  //             ...subObj,
+  //             ...mainObj.subs[existingSubIndex],
+  //           };
+  //         } else {
+  //           // 새로 추가
+  //           mainObj.subs.push(subObj);
+  //         }
+  //       }
+  //     });
+  //   }
+  // });
 
-  // 처리된 mains를 결과에 추가
-  result.data.core.mains = Array.from(processedMains.values()).filter(
-    (mainObj) => {
-      // 유효한 데이터가 있는 main만 포함
-      return (
-        mainObj.goalId ||
-        mainObj.content ||
-        (mainObj.subs && mainObj.subs.length > 0)
-      );
-    }
-  );
+  // // 처리된 mains를 결과에 추가
+  // result.data.core.mains = Array.from(processedMains.values()).filter(
+  //   (mainObj) => {
+  //     // 유효한 데이터가 있는 main만 포함
+  //     return (
+  //       mainObj.goalId ||
+  //       mainObj.content ||
+  //       (mainObj.subs && mainObj.subs.length > 0)
+  //     );
+  //   }
+  // );
 
-  return result;
+  // return result;
 };
 
 export const handlePrefixDuplication = (id: string) => {
@@ -762,10 +769,11 @@ export const getDataById = (
   data: MainGoal[],
   cellId: string
 ): MainGoal | SubGoal | null => {
-  const { mainIndex, subIndex } = findIdIndex(data, cellId);
-  if (mainIndex === -1) return null;
-  if (subIndex && subIndex !== -1) return data[mainIndex].subs[subIndex];
-  return data[mainIndex];
+  const target = parseCellId(cellId);
+  if (target.type === "main") return data[target.mainIndex];
+  if (target.type === "sub")
+    return data[target.mainIndex].subs[target.subIndex];
+  return data[0];
 };
 
 export const isEqual = (
@@ -773,4 +781,143 @@ export const isEqual = (
   b: MandalaType["core"] | MainGoal | SubGoal
 ) => {
   return a.content === b.content && a.status === b.status;
+};
+
+export const buildFromScratch = (currentData: MandalaType<string>) => {
+  const mains = currentData.core.mains
+    .slice(1)
+    .filter((main) => main.content !== "")
+    .map((main) => ({
+      position: main.position,
+      content: main.content,
+      status: main.status,
+      subs: main.subs
+        .slice(1)
+        .filter((sub) => sub.content !== "")
+        .map((sub) => ({
+          position: sub.position,
+          content: sub.content,
+          status: sub.status,
+        })),
+    }));
+
+  return {
+    data: {
+      core: {
+        content: currentData.core.content,
+        status: currentData.core.status,
+        mains,
+      },
+    },
+  };
+};
+
+export const applyChangesToServer = (
+  id: number,
+  currentData: MandalaType<string>,
+  changedCells: Set<string>,
+  serverData: ServerMandalaType["data"]
+) => {
+  const result = structuredClone(serverData);
+
+  result.mandalartId = id;
+
+  changedCells.forEach((cell) => {
+    const cellId = parseCellId(cell);
+
+    if (cellId.type === "core") {
+      const serverTarget = result.core;
+      const currentTarget = currentData.core;
+      serverTarget.content = currentTarget.content;
+      if (currentTarget.originalId) {
+        serverTarget.goalId = currentTarget.originalId;
+      }
+      serverTarget.status = currentTarget.status;
+    }
+    const serverMains = result.core.mains;
+    if (!serverMains) return;
+
+    // main 타입
+    // → main 있음 → 수정
+    // → main 없음 → 생성
+    if (cellId.type === "main") {
+      const mainIndex = cellId.mainIndex;
+      const serverTarget = serverMains.find(
+        (main) => main.position === mainIndex
+      );
+      const currentTarget = currentData.core.mains[mainIndex];
+
+      if (serverTarget) {
+        serverTarget.content = currentTarget.content;
+        if (currentTarget.originalId) {
+          serverTarget.goalId = currentTarget.originalId;
+        }
+        serverTarget.position = currentTarget.position;
+        serverTarget.status = currentTarget.status;
+      } else {
+        serverMains.push({
+          content: currentTarget.content,
+          position: currentTarget.position,
+          status: currentTarget.status,
+          ...(currentTarget.originalId && { goalId: currentTarget.originalId }),
+          subs: [],
+        });
+      }
+    }
+
+    if (cellId.type === "sub") {
+      // sub 타입
+      const mainIndex = cellId.mainIndex;
+      const subIndex = cellId.subIndex;
+      const serverMain = serverMains.find(
+        (main) => main.position === mainIndex
+      );
+      const currentTarget = currentData.core.mains[mainIndex].subs[subIndex];
+
+      if (serverMain) {
+        const serverSub = serverMain.subs.find(
+          (sub) => sub.position === subIndex
+        );
+        if (serverSub) {
+          // → main 있음, sub 있음 → sub 수정
+          serverSub.content = currentTarget.content;
+          if (currentTarget.originalId) {
+            serverSub.goalId = currentTarget.originalId;
+          }
+          serverSub.position = currentTarget.position;
+          serverSub.status = currentTarget.status;
+        } else {
+          // → main 있음, sub 없음 → sub 생성
+          serverMain.subs.push({
+            content: currentTarget.content,
+            position: currentTarget.position,
+            status: currentTarget.status,
+            ...(currentTarget.originalId && {
+              goalId: currentTarget.originalId,
+            }),
+          });
+        }
+      } else {
+        // → main 없음 → main + sub 둘 다 생성
+        serverMains.push({
+          position: currentTarget.position,
+          ...(currentTarget.originalId && { goalId: currentTarget.originalId }),
+          subs: [
+            {
+              content: currentTarget.content,
+              position: currentTarget.position,
+              status: currentTarget.status,
+              ...(currentTarget.originalId && {
+                goalId: currentTarget.originalId,
+              }),
+            },
+          ],
+        });
+      }
+    }
+  });
+
+  console.log("result", result);
+
+  return result;
 };
