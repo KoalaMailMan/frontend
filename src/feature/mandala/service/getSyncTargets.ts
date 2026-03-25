@@ -4,16 +4,16 @@ type ParsedCellId =
   | { type: "sub"; mainIndex: number; subIndex: number }
   | { type: "unknown" };
 
-type SyncTarget = { mainIndex: number; subIndex?: number };
-type SyncTargets = SyncTarget[] | null;
+type ArrayPosition = { mainIndex: number; subIndex?: number };
 
-export const getSyncTargets = (cellId: ParsedCellId): SyncTargets => {
+export const getSyncTargets = (
+  cellId: ParsedCellId
+): ArrayPosition[] | null => {
   if (cellId.type === "unknown") return null;
 
   if (cellId.type === "core") {
     const target = { mainIndex: 0 };
-    const target_1 = { mainIndex: 0, subIndex: 0 };
-    return [target, target_1];
+    return [target];
   }
 
   if (cellId.type === "main") {
@@ -26,12 +26,17 @@ export const getSyncTargets = (cellId: ParsedCellId): SyncTargets => {
       mainIndex: cellId.mainIndex,
       subIndex: 0,
     };
-    return [target, target_1];
+    const target_2 = {
+      mainIndex: 0,
+      subIndex: cellId.mainIndex,
+    };
+    return [target, target_1, target_2];
   }
 
   if (cellId.type === "sub") {
     const mainIndex = cellId.mainIndex;
     const subIndex = cellId.subIndex;
+    console.log(mainIndex, subIndex);
 
     if (mainIndex <= -1 || mainIndex >= 9) return null;
     if (subIndex <= -1 || subIndex >= 9) return null;
