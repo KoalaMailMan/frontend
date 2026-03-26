@@ -294,7 +294,7 @@ function GuideWritingComponent({
 }: {
   parentWidth: number;
   isQuestion: boolean;
-  setIsQuestion: (state: any) => void;
+  setIsQuestion: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const positionRef = useRef<HTMLDivElement | null>(null);
   useEffect(() => {

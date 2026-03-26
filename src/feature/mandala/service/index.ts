@@ -6,7 +6,7 @@ import {
   type SubGoal,
   type Status,
 } from "@/lib/stores/mandalaStore";
-import { findIdIndex, moveItem } from "../utills/\bindex";
+import { moveItem } from "../utills/\bindex";
 import { parseCellId } from "./parseCellId";
 
 // export const handleMandalaData = async () => {
@@ -415,13 +415,11 @@ export const uiToServer = ({
   //   data: { core: {} },
   // };
   let result;
-  console.log(id);
   if (id) {
     result = applyChangesToServer(id, currentData, changedCells, serverData);
   } else {
     result = buildFromScratch(currentData);
   }
-  console.log(result);
   // if (id != null) {
   //   result.data.mandalartId = id;
   // }
@@ -651,7 +649,7 @@ export const uiToServer = ({
   //   }
   // );
 
-  // return result;
+  return result;
 };
 
 export const handlePrefixDuplication = (id: string) => {
@@ -667,7 +665,10 @@ export const handlePrefixDuplication = (id: string) => {
   return deduped.join("-");
 };
 
-export const getNextCellId = (editingCellId: string, data?: any) => {
+export const getNextCellId = (
+  editingCellId: string,
+  data?: Omit<SubGoal, "originalId">[][]
+) => {
   let mandalart: MainGoal[] = useMandalaStore.getState().data.core.mains;
   if (editingCellId.startsWith("sub")) {
     const chunk = editingCellId.split("-");
@@ -753,12 +754,13 @@ export const toggleStatus = (
   mainIndex: number
 ) => {
   const mainId = mains[mainIndex].goalId;
-  const newMain = mains.map((main) => {
-    if (main.goalId === mainId) {
-      if (main.content) {
-        main.status = status;
-        main.subs[0].status = status;
-      }
+  const newMain = mains.map((main, i) => {
+    if (i === mainIndex && main.content) {
+      return {
+        ...main,
+        status,
+        subs: main.subs.map((sub, j) => (j === 0 ? { ...sub, status } : sub)),
+      };
     }
     return main;
   });

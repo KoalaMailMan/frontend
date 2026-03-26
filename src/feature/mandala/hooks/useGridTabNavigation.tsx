@@ -1,11 +1,13 @@
+import type { SubGoal } from "@/lib/stores/mandalaStore";
 import { useEffect } from "react";
 
 type UseGridTabNavigationProps = {
   editingId: string | null;
   setEditingId: (id: string | null) => void;
-  getNextId: (id: string, data?: any) => string | null;
-  data?: any;
+  getNextId: (id: string, data?: DataType[][]) => string | null;
+  data?: DataType[][];
 };
+type DataType = Omit<SubGoal, "originalId"> & { type: string };
 
 export default function useGridTabNavigation({
   editingId,

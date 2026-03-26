@@ -36,7 +36,7 @@ export class ApiErrorHandler {
     console.error("권한이 없습니다", error.message);
     throw error;
   }
-  static handle404(error: ApiError): any {
+  static handle404(error: ApiError): ApiError {
     throw error;
   }
   static handle500(error: ApiError) {
@@ -53,7 +53,7 @@ export class ApiErrorHandler {
   static async handleError(error: ApiError, client: ApiClient) {
     console.log(error);
     const code = String(error.status) || "default";
-    const handlers: Record<string, () => Promise<any>> = {
+    const handlers: Record<string, () => Promise<unknown>> = {
       "401": async () => this.handle401(error, client),
       "403": async () => this.handle403(error),
       "404": async () => this.handle404(error),

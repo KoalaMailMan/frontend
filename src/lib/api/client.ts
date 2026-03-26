@@ -4,14 +4,14 @@ import { ApiErrorHandler } from "./errorHandler";
 import { useAuthStore } from "../stores/authStore";
 type ResponseInterceptor = {
   id?: string; // ID 필드 추가
-  onSuccess?: (response: Response) => Promise<any>;
-  onError?: (error: any) => Promise<any>;
+  onSuccess?: (response: Response) => Promise<unknown>;
+  onError?: (error: ApiError) => Promise<void> | void;
 };
 
 type RequestInterceptor = {
   id?: string; // ID 필드 추가
-  onRequest?: (config: any) => any;
-  onError?: (error: any) => any;
+  onRequest?: (config: RequestConfig) => Promise<RequestConfig> | RequestConfig;
+  onError?: (error: ApiError) => Promise<void> | void;
 };
 export class ApiClient {
   private tokenRefresher: (() => Promise<string | null>) | null = null;
@@ -52,21 +52,21 @@ export class ApiClient {
     };
   }
 
-  get(url: string, config: RequestConfig) {
-    return this.request(url, { ...config, method: "GET" });
+  get<T = unknown>(url: string, config: RequestConfig): Promise<T> {
+    return this.request<T>(url, { ...config, method: "GET" });
   }
 
-  post(url: string, config: RequestConfig, data?: any) {
+  post(url: string, config: RequestConfig, data?: unknown) {
     if (data) {
       return this.request(url, { ...config, method: "POST", data });
     }
     return this.request(url, { ...config, method: "POST" });
   }
-  put(url: string, data: any, config: RequestConfig) {
+  put(url: string, data: unknown, config: RequestConfig) {
     if (!data) throw new Error("PUT 요청: 데이터를 찾을 수 없습니다.");
     return this.request(url, { ...config, method: "PUT", data });
   }
-  patch(url: string, data: any, config: RequestConfig) {
+  patch(url: string, data: unknown, config: RequestConfig) {
     if (!data) throw new Error("PATCH 요청: 데이터를 찾을 수 없습니다.");
     return this.request(url, { ...config, method: "PATCH", data });
   }
@@ -93,7 +93,7 @@ export class ApiClient {
   }
 
   // 요청 처리 시작
-  async request(url: string, options: RequestConfig) {
+  async request<T = unknown>(url: string, options: RequestConfig): Promise<T> {
     const { requiresAuth, data, url: _, ...fetchOptions } = options;
     const finalURL = url.startsWith("http") ? url : `${this.baseURL}${url}`;
 
@@ -178,12 +178,12 @@ export class ApiClient {
         throw error;
       }
 
-      let result;
+      let result: unknown;
       if (this.responseInterceptors.length > 0) {
         result = response;
         for (const interceptor of this.responseInterceptors) {
           if (interceptor.onSuccess) {
-            result = await interceptor.onSuccess(result);
+            result = await interceptor.onSuccess(result as Response);
           }
         }
       } else {
@@ -202,7 +202,7 @@ export class ApiClient {
         }
       }
 
-      return result;
+      return result as T;
     } catch (error) {
       const apiError: ApiError =
         error instanceof Error

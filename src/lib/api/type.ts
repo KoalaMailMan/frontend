@@ -3,7 +3,7 @@ export interface RequestConfig extends RequestInit {
   url?: string;
   baseURL?: string;
   timeout?: number;
-  data?: any;
+  data?: unknown;
 }
 
 export type RequestInterceptor = (
