@@ -87,13 +87,24 @@ MandaraChartProps) {
     if (!mandalartId) {
       setReminderVisible(true);
     }
-    const mandalartData = uiToServer(data, changedCells, mandalartId);
-    saveMadalart.mutateAsync({ mandalartData });
+    if (mandalartData) {
+      const formattData = uiToServer({
+        id: mandalartId,
+        currentData: data,
+        changedCells,
+        serverData: mandalartData,
+      });
+
+      saveMadalart.mutateAsync({ mandalartData: formattData });
+    }
   };
 
   const handleReminderOpen = () => {
     if (!mandalartId && changedCells.size > 0) {
-      const mandalartData = uiToServer(data, changedCells, mandalartId);
+      const mandalartData = uiToServer({
+        currentData: data,
+        changedCells,
+      });
       saveMadalart.mutateAsync({ mandalartData });
     }
     if (!mandalartId && changedCells.size <= 0) {

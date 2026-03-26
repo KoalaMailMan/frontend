@@ -398,9 +398,9 @@ const createMandalaIdManager = (serverData: ServerMandalaType["data"]) => {
 };
 
 type UIToServerType = {
-  serverData: ServerMandalaType["data"];
   currentData: MandalaType<string>;
   changedCells: Set<string>;
+  serverData?: ServerMandalaType["data"];
   id?: number | null;
 };
 
@@ -411,12 +411,16 @@ export const uiToServer = ({
   changedCells,
   serverData,
 }: UIToServerType) => {
-  // let result: ServerMandalaType = {
-  //   data: { core: {} },
-  // };
-  let result;
-  if (id) {
-    result = applyChangesToServer(id, currentData, changedCells, serverData);
+  let result: ServerMandalaType = {
+    data: { core: {} },
+  };
+  if (id && serverData) {
+    result.data = applyChangesToServer(
+      id,
+      currentData,
+      changedCells,
+      serverData
+    );
   } else {
     result = buildFromScratch(currentData);
   }
