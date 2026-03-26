@@ -250,20 +250,25 @@ export const useMandalaStore = create<States & Actions>()(
           // if (cellId == null) return state;
           if (!state.data) return state;
           if (!state.data.core.mains) return state;
-          const dataList = [...state.data.core.mains];
+          const coreList = structuredClone(state.data.core);
+          // const dataList = [...state.data.core.mains];
 
           const findIndex = parseCellId(cellId);
           const targets = getSyncTargets(findIndex);
           if (targets == null || targets?.length <= 0) return state;
+          console.log(targets);
           targets.forEach((target) => {
+            if (target.mainIndex === 0 && "subIndex" in target === false) {
+              coreList.content = value;
+            }
             if ("subIndex" in target) {
               // sub 업데이트
-              dataList[target.mainIndex].subs[
+              coreList.mains[target.mainIndex].subs[
                 target.subIndex as number
               ].content = value;
             } else {
               // main 업데이트
-              dataList[target.mainIndex].content = value;
+              coreList.mains[target.mainIndex].content = value;
             }
           });
 
@@ -272,7 +277,7 @@ export const useMandalaStore = create<States & Actions>()(
             const updatedCellId = getChangedCellId({
               cellId,
               rawData: queryData,
-              updatedData: dataList,
+              updatedData: coreList.mains,
             });
             if (updatedCellId) {
               nextChangedCells.add(updatedCellId);
@@ -285,10 +290,7 @@ export const useMandalaStore = create<States & Actions>()(
               ...state,
               data: {
                 ...state.data,
-                core: {
-                  ...state.data.core,
-                  mains: dataList,
-                },
+                core: coreList,
               },
               changedCells: nextChangedCells,
             };
@@ -298,10 +300,7 @@ export const useMandalaStore = create<States & Actions>()(
             ...state,
             data: {
               ...state.data,
-              core: {
-                ...state.data.core,
-                mains: dataList,
-              },
+              core: coreList,
             },
           };
         }),
