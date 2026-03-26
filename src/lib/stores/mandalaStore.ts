@@ -3,6 +3,7 @@ import {
   emptyDummyData,
   serverToUI,
   toggleStatus,
+  type ServerMandalaType,
 } from "@/feature/mandala/service";
 import { findIdIndex, findKeyByValue } from "@/feature/mandala/utills/\bindex";
 import { persist } from "zustand/middleware";
@@ -50,7 +51,6 @@ type States = {
   data: MandalaType;
   mandalartId: number | null;
   reminderOption: DataOption;
-  isDirty: boolean;
   editingCellId: string | null;
   editingSubCellId: string | null;
   editingFullCellId: string | null;
@@ -71,7 +71,7 @@ type PersistedState = {
 };
 
 type Actions = {
-  setData: (newData: any) => void;
+  setData: (newData: ServerMandalaType["data"]) => void;
   getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
   setMandalartId: (id: number) => void;
   allGoalComplete: (id: string) => void;
@@ -103,7 +103,6 @@ type Actions = {
 const initialState = {
   data: serverToUI(emptyDummyData.data),
   mandalartId: null,
-  isDirty: false,
   editingCellId: null,
   editingSubCellId: null,
   editingFullCellId: null,
@@ -178,7 +177,6 @@ export const useMandalaStore = create<States & Actions>()(
                   },
                 },
                 changedCells: new Set(state.changedCells).add(id),
-                isDirty: true,
               };
             } else {
               const { newMain } = toggleStatus("UNDONE", mains, mainIndex);
@@ -193,7 +191,6 @@ export const useMandalaStore = create<States & Actions>()(
                   },
                 },
                 changedCells: new Set(state.changedCells).add(id),
-                isDirty: true,
               };
             }
           }
@@ -240,23 +237,20 @@ export const useMandalaStore = create<States & Actions>()(
               },
             },
             changedCells: new Set(state.changedCells).add(id),
-            isDirty: true,
           };
         }),
 
       handleCellChange: (cellId, value, queryData) =>
         set((state) => {
           console.log("Store handleCellChange:", cellId, value, queryData);
-          // if (cellId == null) return state;
+          if (cellId == null) return state;
           if (!state.data) return state;
           if (!state.data.core.mains) return state;
           const coreList = structuredClone(state.data.core);
-          // const dataList = [...state.data.core.mains];
 
           const findIndex = parseCellId(cellId);
           const targets = getSyncTargets(findIndex);
           if (targets == null || targets?.length <= 0) return state;
-          console.log(targets);
           targets.forEach((target) => {
             if (target.mainIndex === 0 && "subIndex" in target === false) {
               coreList.content = value;
@@ -372,7 +366,6 @@ export const useMandalaStore = create<States & Actions>()(
               },
               currentRecommendationText: newText,
               changedCells: new Set([...state.changedCells, target.goalId]),
-              isDirty: true,
             };
           }
         }),
@@ -390,8 +383,7 @@ export const useMandalaStore = create<States & Actions>()(
       setServiceIntroVisible: (visible) =>
         set(() => ({ isServiceIntroOpen: visible })),
 
-      resetChangedCells: () =>
-        set(() => ({ changedCells: new Set([]), isDirty: false })),
+      resetChangedCells: () => set(() => ({ changedCells: new Set([]) })),
       clearMandalart: () =>
         set(() => ({
           ...initialState,
@@ -403,7 +395,7 @@ export const useMandalaStore = create<States & Actions>()(
         data: state.data,
       }),
       version: 2,
-
+      // version 1 → 2 마이그레이션: UI 상태 persist 제거
       migrate: (persistedState: any, version: number) => {
         if (version === 1) {
           const {
