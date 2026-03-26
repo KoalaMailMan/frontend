@@ -13,7 +13,8 @@ export const getSyncTargets = (
 
   if (cellId.type === "core") {
     const target = { mainIndex: 0 };
-    return [target];
+    const target_1 = { mainIndex: 0, subIndex: 0 };
+    return [target, target_1];
   }
 
   if (cellId.type === "main") {
