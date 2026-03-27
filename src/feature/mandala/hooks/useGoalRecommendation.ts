@@ -8,6 +8,13 @@ type Props = {
   count: number;
 };
 
+export type RecommendationType = {
+  code: number;
+  message: string;
+  data: {
+    childGoals: string[];
+  };
+};
 /**
  * tanstack query를 이용한 목표 추천 훅
  ** enabled(boolean): 쿼리 실행 조건 / false: 수동 실행 / true: 자동 실행
@@ -35,6 +42,6 @@ export default function useGoalRecommendation({
     gcTime: 1000 * 60 * 30, // 30분간 메모리에 보관
     refetchOnWindowFocus: false, // 창 포커스 시 자동 재요청 여부
     retry: false, // 실패 시 재시도 횟수 (false: 실패해도 재시도 안 함)
-    select: (response) => response.data.childGoals, // 추출 반환
+    select: (response: RecommendationType) => response.data.childGoals, // 추출 반환
   });
 }

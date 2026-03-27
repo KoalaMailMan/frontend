@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api/client";
+import type { RecommendationType } from "../../hooks/useGoalRecommendation";
 
 /**
  * getRecommendList 함수: 주요 목표에 대한 세부 목표 추천
@@ -15,12 +16,13 @@ export const getRecommendList = async (
   });
   const RECOMMEND_URL = `/api/recommend/list?${params.toString()}`;
   try {
-    const res = await apiClient.get(RECOMMEND_URL, {
+    const res = await apiClient.get<RecommendationType>(RECOMMEND_URL, {
       requiresAuth: true,
       credentials: "include",
     });
     return res;
   } catch (error) {
     console.error("getMandalaAPI failed:", error);
+    throw new Error("getMandalaAPI failed");
   }
 };
