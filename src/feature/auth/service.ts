@@ -67,8 +67,11 @@ export const reissueWithRefreshToken = async () => {
   refreshInProgress = (async () => {
     try {
       const newAccessToken = await refreshTokenAPI();
-      useAuthStore.getState().setAccessToken(newAccessToken);
-      return newAccessToken;
+      if (newAccessToken) {
+        useAuthStore.getState().setAccessToken(newAccessToken);
+        return newAccessToken;
+      }
+      return null;
     } catch (error) {
       console.error("refresh failed:", error);
       performLogout();

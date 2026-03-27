@@ -25,7 +25,7 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const { data: userInfo, isSuccess: isUserReady } = useUserInfo();
 
   useEffect(() => {
-    if (isTokenReady) {
+    if (token && isTokenReady) {
       setAccessToken(token);
     }
     if (isError) {
