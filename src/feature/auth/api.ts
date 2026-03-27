@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/client";
-import type { UserType } from "./type";
+import type { RefreshType, UserType } from "./type";
 
 export const logouAPI = async () => {
   const LOGOUT_URL = "/api/auth/logout";
@@ -22,7 +22,7 @@ export const refreshTokenAPI = async () => {
   const REFRESH_URL = "/api/auth/refresh";
 
   try {
-    const res = await apiClient.post(
+    const res = await apiClient.post<RefreshType>(
       REFRESH_URL,
       { requiresAuth: false },
       {
@@ -40,7 +40,7 @@ export const refreshTokenAPI = async () => {
 export const getUserProfileAPI = async (): Promise<UserType | undefined> => {
   const USER_URL = "/api/user";
   try {
-    const res = await apiClient.get(USER_URL, {
+    const res = await apiClient.get<UserType>(USER_URL, {
       requiresAuth: true,
       credentials: "include",
     });

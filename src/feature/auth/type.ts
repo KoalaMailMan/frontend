@@ -6,3 +6,11 @@ export type UserType = {
     email: string;
   };
 };
+
+export type RefreshType = {
+  code: number;
+  message: string;
+  data: {
+    accessToken: string;
+  };
+};
