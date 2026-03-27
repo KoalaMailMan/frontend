@@ -149,7 +149,6 @@ export class ApiClient {
     ) {
       if (typeof data === "string") {
         config.body = data;
-        console.log(config.body);
       } else {
         config.body = JSON.stringify(data);
       }
