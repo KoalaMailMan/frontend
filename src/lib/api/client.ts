@@ -56,22 +56,34 @@ export class ApiClient {
     return this.request<T>(url, { ...config, method: "GET" });
   }
 
-  post(url: string, config: RequestConfig, data?: unknown) {
+  post<T = unknown>(
+    url: string,
+    config: RequestConfig,
+    data?: unknown
+  ): Promise<T> {
     if (data) {
-      return this.request(url, { ...config, method: "POST", data });
+      return this.request<T>(url, { ...config, method: "POST", data });
     }
-    return this.request(url, { ...config, method: "POST" });
+    return this.request<T>(url, { ...config, method: "POST" });
   }
-  put(url: string, data: unknown, config: RequestConfig) {
+  put<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig
+  ): Promise<T> {
     if (!data) throw new Error("PUT 요청: 데이터를 찾을 수 없습니다.");
-    return this.request(url, { ...config, method: "PUT", data });
+    return this.request<T>(url, { ...config, method: "PUT", data });
   }
-  patch(url: string, data: unknown, config: RequestConfig) {
+  patch<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig
+  ): Promise<T> {
     if (!data) throw new Error("PATCH 요청: 데이터를 찾을 수 없습니다.");
-    return this.request(url, { ...config, method: "PATCH", data });
+    return this.request<T>(url, { ...config, method: "PATCH", data });
   }
-  delete(url: string, config: RequestConfig) {
-    return this.request(url, { ...config, method: "DELETE" });
+  delete<T = unknown>(url: string, config: RequestConfig): Promise<T> {
+    return this.request<T>(url, { ...config, method: "DELETE" });
   }
 
   addRequestInterceptor(interceptors: RequestInterceptor) {
@@ -132,15 +144,15 @@ export class ApiClient {
 
     // body data 직렬화
     if (
-      config.data &&
+      data &&
       ["POST", "PATCH", "PUT"].includes(config.method?.toUpperCase() || "")
     ) {
-      if (typeof config.data === "string") {
-        config.body = config.data;
+      if (typeof data === "string") {
+        config.body = data;
+        console.log(config.body);
       } else {
-        config.body = JSON.stringify(config.data);
+        config.body = JSON.stringify(data);
       }
-      delete config.data;
     }
 
     try {
