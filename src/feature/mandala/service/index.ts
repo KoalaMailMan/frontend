@@ -154,6 +154,12 @@ export type ServerSubGoal = {
   content: string;
   status: "DONE" | "UNDONE";
 };
+
+type ServerMandalaData = Omit<ServerMandalaType["data"], "reminderOption">;
+
+export type ServerMandalaTypeWithoutReminder = {
+  data: ServerMandalaData;
+};
 /**
  * 서버 데이터를 UI 데이터로 변환
  * core를 0번 main으로, 서버 mains는 그대로 1~8번
@@ -411,7 +417,7 @@ export const uiToServer = ({
   changedCells,
   serverData,
 }: UIToServerType) => {
-  let result: ServerMandalaType = {
+  let result: ServerMandalaTypeWithoutReminder = {
     data: { core: {} },
   };
   if (id && serverData) {
@@ -424,6 +430,8 @@ export const uiToServer = ({
   } else {
     result = buildFromScratch(currentData);
   }
+  console.log(result);
+
   // if (id != null) {
   //   result.data.mandalartId = id;
   // }
@@ -824,7 +832,8 @@ export const applyChangesToServer = (
   changedCells: Set<string>,
   serverData: ServerMandalaType["data"]
 ) => {
-  const result = structuredClone(serverData);
+  const { reminderOption, ...restData } = serverData;
+  const result = structuredClone(restData);
 
   result.mandalartId = id;
 
@@ -922,8 +931,6 @@ export const applyChangesToServer = (
       }
     }
   });
-
-  console.log("result", result);
 
   return result;
 };
