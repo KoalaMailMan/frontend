@@ -1,18 +1,20 @@
 import { ENV } from "@/const";
 import type { ApiError, RequestConfig } from "./type";
 import { ApiErrorHandler } from "./errorHandler";
+import { useAuthStore } from "../stores/authStore";
 type ResponseInterceptor = {
   id?: string; // ID 필드 추가
-  onSuccess?: (response: Response) => Promise<any>;
-  onError?: (error: any) => Promise<any>;
+  onSuccess?: (response: Response) => Promise<unknown>;
+  onError?: (error: ApiError) => Promise<void> | void;
 };
 
 type RequestInterceptor = {
   id?: string; // ID 필드 추가
-  onRequest?: (config: any) => any;
-  onError?: (error: any) => any;
+  onRequest?: (config: RequestConfig) => Promise<RequestConfig> | RequestConfig;
+  onError?: (error: ApiError) => Promise<void> | void;
 };
-class ApiClient {
+export class ApiClient {
+  private tokenRefresher: (() => Promise<string | null>) | null = null;
   private baseURL: string;
   private timeout: number;
   private requestInterceptors: RequestInterceptor[] = [];
@@ -20,28 +22,68 @@ class ApiClient {
   constructor(baseURL: string = "", timeout: number = 10000) {
     this.baseURL = baseURL;
     this.timeout = timeout;
+
+    this.addRequestInterceptor({
+      onRequest: async (config) => {
+        if (!config.requiresAuth) return config;
+        return this.attachToken(config);
+      },
+    });
   }
 
-  get(url: string, config?: RequestConfig) {
-    return this.request(url, { ...config, method: "GET" });
+  setTokenRefresher(fn: () => Promise<string | null>) {
+    this.tokenRefresher = fn;
   }
 
-  post(url: string, data?: any, config?: RequestConfig) {
-    if (data) {
-      return this.request(url, { ...config, method: "POST", data });
+  private async attachToken(config: RequestConfig) {
+    const token = useAuthStore.getState().accessToken;
+    if (token) {
+      return {
+        ...config,
+        headers: { ...config.headers, Authorization: `Bearer ${token}` },
+      };
     }
-    return this.request(url, { ...config, method: "POST" });
+
+    const newToken = await this.tokenRefresher?.();
+    if (!newToken) throw new Error("토큰이 없습니다.");
+    return {
+      ...config,
+      headers: { ...config.headers, Authorization: `Bearer ${newToken}` },
+    };
   }
-  put(url: string, data: any, config?: RequestConfig) {
+
+  get<T = unknown>(url: string, config: RequestConfig): Promise<T> {
+    return this.request<T>(url, { ...config, method: "GET" });
+  }
+
+  post<T = unknown>(
+    url: string,
+    config: RequestConfig,
+    data?: unknown
+  ): Promise<T> {
+    if (data) {
+      return this.request<T>(url, { ...config, method: "POST", data });
+    }
+    return this.request<T>(url, { ...config, method: "POST" });
+  }
+  put<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig
+  ): Promise<T> {
     if (!data) throw new Error("PUT 요청: 데이터를 찾을 수 없습니다.");
-    return this.request(url, { ...config, method: "PUT", data });
+    return this.request<T>(url, { ...config, method: "PUT", data });
   }
-  patch(url: string, data: any, config?: RequestConfig) {
+  patch<T = unknown>(
+    url: string,
+    data: unknown,
+    config: RequestConfig
+  ): Promise<T> {
     if (!data) throw new Error("PATCH 요청: 데이터를 찾을 수 없습니다.");
-    return this.request(url, { ...config, method: "PATCH", data });
+    return this.request<T>(url, { ...config, method: "PATCH", data });
   }
-  delete(url: string, config?: RequestConfig) {
-    return this.request(url, { ...config, method: "DELETE" });
+  delete<T = unknown>(url: string, config: RequestConfig): Promise<T> {
+    return this.request<T>(url, { ...config, method: "DELETE" });
   }
 
   addRequestInterceptor(interceptors: RequestInterceptor) {
@@ -63,14 +105,17 @@ class ApiClient {
   }
 
   // 요청 처리 시작
-  async request(url: string, options: RequestConfig = {}) {
+  async request<T = unknown>(url: string, options: RequestConfig): Promise<T> {
+    const { requiresAuth, data, url: _, ...fetchOptions } = options;
     const finalURL = url.startsWith("http") ? url : `${this.baseURL}${url}`;
+
     let config: RequestConfig = {
-      ...options,
+      ...fetchOptions,
+      requiresAuth,
       url: finalURL,
       headers: {
         "Content-Type": "application/json",
-        ...options.headers,
+        ...fetchOptions.headers,
       },
     };
 
@@ -79,14 +124,15 @@ class ApiClient {
       try {
         if (interceptor.onRequest) {
           const interceptorResult = await interceptor.onRequest(config);
+          const { requiresAuth, ...rest } = interceptorResult;
 
           if (interceptorResult && typeof interceptorResult === "object") {
             config = {
               ...config,
-              ...interceptorResult,
+              ...rest,
               headers: {
                 ...config.headers,
-                ...(interceptorResult.headers || {}),
+                ...(rest.headers || {}),
               },
             };
           }
@@ -98,15 +144,14 @@ class ApiClient {
 
     // body data 직렬화
     if (
-      config.data &&
+      data &&
       ["POST", "PATCH", "PUT"].includes(config.method?.toUpperCase() || "")
     ) {
-      if (typeof config.data === "string") {
-        config.body = config.data;
+      if (typeof data === "string") {
+        config.body = data;
       } else {
-        config.body = JSON.stringify(config.data);
+        config.body = JSON.stringify(data);
       }
-      delete config.data;
     }
 
     try {
@@ -130,11 +175,13 @@ class ApiClient {
         const error: ApiError = {
           message: `HTTP Error: ${response.status}`,
           status: response.status,
+          originalRequest: { url, options },
         };
         try {
           const errorData = await response.json();
           error.message = errorData.message || error.message;
           error.code = errorData.code;
+          error.type = errorData.type;
         } catch (error) {
           // 기본 메세지 사용 -> error 객체
         }
@@ -142,12 +189,12 @@ class ApiClient {
         throw error;
       }
 
-      let result;
+      let result: unknown;
       if (this.responseInterceptors.length > 0) {
         result = response;
         for (const interceptor of this.responseInterceptors) {
           if (interceptor.onSuccess) {
-            result = await interceptor.onSuccess(result);
+            result = await interceptor.onSuccess(result as Response);
           }
         }
       } else {
@@ -166,7 +213,7 @@ class ApiClient {
         }
       }
 
-      return result;
+      return result as T;
     } catch (error) {
       const apiError: ApiError =
         error instanceof Error
@@ -176,7 +223,7 @@ class ApiClient {
             }
           : (error as ApiError);
 
-      await ApiErrorHandler.handleError(apiError);
+      await ApiErrorHandler.handleError(apiError, this);
 
       for (const interceptor of this.responseInterceptors) {
         if (interceptor.onError) {

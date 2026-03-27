@@ -1,14 +1,29 @@
 import { reissueWithRefreshToken } from "@/feature/auth/service";
-import { useAuthStore } from "../stores/authStore";
 import type { ApiError } from "./type";
+import type { ApiClient } from "./client";
+import { performLogout } from "@/feature/auth/hooks/useLogout";
+import { toast } from "sonner";
 
 export class ApiErrorHandler {
-  static auth = useAuthStore.getState();
-  static handle400(error: ApiError) {
-    console.error(`404 Error in ${error}`);
-  }
-  static async handle401(error: ApiError) {
+  static async handle401(error: ApiError, client: ApiClient) {
     // 토큰 만료 등 인증 에러
+    const type = error.type;
+    if (type === "INVALID_TOKEN") {
+      const newToken = await reissueWithRefreshToken();
+      if (newToken && error.originalRequest) {
+        return client.request(
+          error.originalRequest.url,
+          error.originalRequest.options
+        );
+      }
+      performLogout();
+      toast("세션 종료로 인해 화면으로 돌아갑니다.");
+      return;
+    }
+    if (type === "UNAUTHORIZED") {
+      performLogout();
+    }
+
     const newAccessToken = await reissueWithRefreshToken();
 
     if (!newAccessToken) {
@@ -21,7 +36,7 @@ export class ApiErrorHandler {
     console.error("권한이 없습니다", error.message);
     throw error;
   }
-  static handle404(error: ApiError): any {
+  static handle404(error: ApiError): ApiError {
     throw error;
   }
   static handle500(error: ApiError) {
@@ -35,14 +50,15 @@ export class ApiErrorHandler {
     throw error;
   }
 
-  static async handleError(error: ApiError) {
-    const code = String(error.code) || "default";
-    const handlers: Record<string | number, () => any> = {
-      "401": () => this.handle401(error),
-      "403": () => this.handle403(error),
-      "404": () => this.handle404(error),
-      "500": () => this.handle500(error),
-      default: () => this.handleDefault(error),
+  static async handleError(error: ApiError, client: ApiClient) {
+    console.log(error);
+    const code = String(error.status) || "default";
+    const handlers: Record<string, () => Promise<unknown>> = {
+      "401": async () => this.handle401(error, client),
+      "403": async () => this.handle403(error),
+      "404": async () => this.handle404(error),
+      "500": async () => this.handle500(error),
+      default: async () => this.handleDefault(error),
     };
     if (handlers[code]) handlers[code]();
     else handlers["default"]();

@@ -1,14 +1,18 @@
 import { create } from "zustand";
 import {
   emptyDummyData,
-  getDataById,
-  isEqual,
   serverToUI,
   toggleStatus,
+  type ServerMandalaType,
 } from "@/feature/mandala/service";
 import { findIdIndex, findKeyByValue } from "@/feature/mandala/utills/\bindex";
 import { persist } from "zustand/middleware";
-import { useAuthStore } from "./authStore";
+import { parseCellId } from "@/feature/mandala/service/parseCellId";
+import { getSyncTargets } from "@/feature/mandala/service/getSyncTargets";
+import {
+  getChangedCellId,
+  normalizeToTrackId,
+} from "@/feature/mandala/service/changedCellId";
 
 export type Status = "DONE" | "UNDONE";
 
@@ -47,7 +51,6 @@ type States = {
   data: MandalaType;
   mandalartId: number | null;
   reminderOption: DataOption;
-  isDirty: boolean;
   editingCellId: string | null;
   editingSubCellId: string | null;
   editingFullCellId: string | null;
@@ -65,14 +68,10 @@ type States = {
 
 type PersistedState = {
   data: MandalaType;
-  modalCellId: string | null;
-  isModalOpen: boolean;
-  isReminderOpen: boolean;
-  isFullOpen: boolean;
 };
 
 type Actions = {
-  setData: (newData: any) => void;
+  setData: (newData: ServerMandalaType["data"]) => void;
   getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
   setMandalartId: (id: number) => void;
   allGoalComplete: (id: string) => void;
@@ -98,32 +97,36 @@ type Actions = {
   setEmptyState: (state: boolean) => void;
   resetChangedCells: () => void;
   setServiceIntroVisible: (visible: boolean) => void;
+  clearMandalart: () => void;
+};
+
+const initialState = {
+  data: serverToUI(emptyDummyData.data),
+  mandalartId: null,
+  editingCellId: null,
+  editingSubCellId: null,
+  editingFullCellId: null,
+  modalCellId: null,
+  changedCells: new Set<string>([]),
+  isModalOpen: false,
+  isReminderOpen: false,
+  isFullOpen: false,
+  isEmpty: true,
+  emptySubIndexes: [],
+  recommendationCursor: 0,
+  currentRecommendationText: "",
+  isServiceIntroOpen: false,
+  reminderOption: {
+    reminderEnabled: true,
+    remindInterval: "3month",
+    remindScheduledAt: null,
+  },
 };
 
 export const useMandalaStore = create<States & Actions>()(
   persist(
     (set, get) => ({
-      data: serverToUI(emptyDummyData.data),
-      reminderOption: {
-        reminderEnabled: true,
-        remindInterval: "3month",
-        remindScheduledAt: null,
-      },
-      mandalartId: null,
-      isDirty: false,
-      editingCellId: null,
-      editingSubCellId: null,
-      editingFullCellId: null,
-      modalCellId: null,
-      changedCells: new Set([]),
-      isModalOpen: false,
-      isReminderOpen: false,
-      isFullOpen: false,
-      isEmpty: true,
-      emptySubIndexes: [],
-      recommendationCursor: 0,
-      currentRecommendationText: "",
-      isServiceIntroOpen: false,
+      ...initialState,
 
       getData: (index) => {
         if (index != null) {
@@ -174,7 +177,6 @@ export const useMandalaStore = create<States & Actions>()(
                   },
                 },
                 changedCells: new Set(state.changedCells).add(id),
-                isDirty: true,
               };
             } else {
               const { newMain } = toggleStatus("UNDONE", mains, mainIndex);
@@ -189,7 +191,6 @@ export const useMandalaStore = create<States & Actions>()(
                   },
                 },
                 changedCells: new Set(state.changedCells).add(id),
-                isDirty: true,
               };
             }
           }
@@ -236,171 +237,56 @@ export const useMandalaStore = create<States & Actions>()(
               },
             },
             changedCells: new Set(state.changedCells).add(id),
-            isDirty: true,
           };
         }),
 
       handleCellChange: (cellId, value, queryData) =>
         set((state) => {
           console.log("Store handleCellChange:", cellId, value, queryData);
+          if (cellId == null) return state;
           if (!state.data) return state;
           if (!state.data.core.mains) return state;
-          const dataList = [...state.data.core.mains];
-          const ids = cellId.split("-");
+          const coreList = structuredClone(state.data.core);
 
-          const isSubGoal = cellId.startsWith("sub");
-          const isMainGoal = cellId.startsWith("main");
-          const isCoreGoal = cellId.startsWith("core");
-
-          if (isSubGoal) {
-            // sub-{mainIndex}-{subIndex} | sub-0-{subIndex} |  sub-center-{0}
-
-            let mainId: string;
-            if (ids[1] === "center") {
-              if (ids[2] === "0") {
-                mainId = `core-0`;
-              } else {
-                mainId = `main-${ids[2]}`;
-              }
-            } else if (ids[1] === "0") {
-              mainId = `main-${ids[2]}`;
+          const findIndex = parseCellId(cellId);
+          const targets = getSyncTargets(findIndex);
+          if (targets == null || targets?.length <= 0) return state;
+          targets.forEach((target) => {
+            if (target.mainIndex === 0 && "subIndex" in target === false) {
+              coreList.content = value;
+            }
+            if ("subIndex" in target) {
+              // sub 업데이트
+              coreList.mains[target.mainIndex].subs[
+                target.subIndex as number
+              ].content = value;
             } else {
-              mainId = `main-${ids[1]}`;
+              // main 업데이트
+              coreList.mains[target.mainIndex].content = value;
             }
-            let mainIndex = dataList.findIndex(
-              (item) => item.goalId === mainId
-            );
-            let subIndex: number;
-            if (mainIndex === -1) return state;
-            if (cellId.includes("center") || ids[1] === "0") {
-              // sub-0-{subIndex} |  sub-center-{0}
-              subIndex = dataList[mainIndex].subs.findIndex(
-                (sub) => sub.goalId === dataList[mainIndex].subs[0].goalId
-              );
-            } else {
-              subIndex = dataList[mainIndex].subs.findIndex(
-                (sub) => sub.goalId === cellId
-              );
-            }
-            if (subIndex === -1) return state;
-
-            if (ids[1] === "center" || ids[1] === "0") {
-              if (ids[2] === "0") {
-                // 핵심 목표: 정중앙
-                dataList[0] = {
-                  ...dataList[0],
-                  content: value,
-                  subs: dataList[0].subs.map((sub, i) =>
-                    i === 0 ? { ...sub, content: value } : sub
-                  ),
-                };
-              } else {
-                // 주요 목표: mains
-                dataList[0] = {
-                  ...dataList[0],
-                  subs: dataList[0].subs.map((sub, i) =>
-                    i === mainIndex ? { ...sub, content: value } : sub
-                  ),
-                };
-                dataList[mainIndex] = {
-                  ...dataList[mainIndex],
-                  content: value,
-                  subs: dataList[mainIndex].subs.map((sub, i) =>
-                    i === 0 ? { ...sub, content: value } : sub
-                  ),
-                };
-              }
-            } else if (ids[2] === "0") {
-              dataList[0] = {
-                ...dataList[0],
-                subs: dataList[0].subs.map((sub, i) =>
-                  i === mainIndex ? { ...sub, content: value } : sub
-                ),
-              };
-              dataList[mainIndex] = {
-                ...dataList[mainIndex],
-                content: value,
-                subs: dataList[mainIndex].subs.map((sub, i) =>
-                  i === 0 ? { ...sub, content: value } : sub
-                ),
-              };
-            }
-            // 세부 목표: subs
-            dataList[mainIndex] = {
-              ...dataList[mainIndex],
-              subs: dataList[mainIndex].subs.map((sub, i) =>
-                i === subIndex ? { ...sub, content: value } : sub
-              ),
-            };
-          } else if (isMainGoal) {
-            const mainId = cellId; // main-{mainIndex} | main-center-{mainIndex}
-            const mainIndex = dataList.findIndex(
-              (item) => item.goalId === mainId
-            );
-
-            if (mainIndex < 0) return state;
-
-            dataList[mainIndex] = {
-              ...dataList[mainIndex],
-              content: value,
-              subs: dataList[mainIndex].subs.map((sub, i) =>
-                i === 0 ? { ...sub, content: value } : sub
-              ),
-            };
-
-            dataList[0] = {
-              ...dataList[0],
-              subs: dataList[0].subs.map((sub, i) =>
-                i === mainIndex ? { ...sub, content: value } : sub
-              ),
-            };
-          } else if (isCoreGoal) {
-            dataList[0] = {
-              ...dataList[0],
-              content: value,
-              subs: dataList[0].subs.map((sub, i) =>
-                i === 0 ? { ...sub, content: value } : sub
-              ),
-            };
-          }
+          });
 
           if (queryData) {
-            const original =
-              getDataById(queryData.core.mains, cellId) ?? queryData.core;
-
-            const next = getDataById(dataList, cellId)! ?? dataList[0];
-
-            const isChanged = !isEqual(original, next);
-
             const nextChangedCells = new Set(state.changedCells);
-            let dirty = false;
-            if (isChanged) {
-              if (isSubGoal && cellId === "sub-center-0") {
-                nextChangedCells.add("core-0");
-              } else {
-                nextChangedCells.add(cellId);
-              }
-              dirty = true;
+            const updatedCellId = getChangedCellId({
+              cellId,
+              rawData: queryData,
+              updatedData: coreList.mains,
+            });
+            if (updatedCellId) {
+              nextChangedCells.add(updatedCellId);
             } else {
-              if (isSubGoal && cellId === "sub-center-0") {
-                nextChangedCells.delete("core-0");
-              } else {
-                nextChangedCells.delete(cellId);
-              }
-              dirty = false;
+              const trackId = normalizeToTrackId(cellId);
+              if (trackId) nextChangedCells.delete(trackId);
             }
 
             return {
               ...state,
               data: {
                 ...state.data,
-                core: {
-                  ...state.data.core,
-                  mains: dataList,
-                },
+                core: coreList,
               },
               changedCells: nextChangedCells,
-              isDirty: dirty,
             };
           }
 
@@ -408,10 +294,7 @@ export const useMandalaStore = create<States & Actions>()(
             ...state,
             data: {
               ...state.data,
-              core: {
-                ...state.data.core,
-                mains: dataList,
-              },
+              core: coreList,
             },
           };
         }),
@@ -483,7 +366,6 @@ export const useMandalaStore = create<States & Actions>()(
               },
               currentRecommendationText: newText,
               changedCells: new Set([...state.changedCells, target.goalId]),
-              isDirty: true,
             };
           }
         }),
@@ -501,50 +383,31 @@ export const useMandalaStore = create<States & Actions>()(
       setServiceIntroVisible: (visible) =>
         set(() => ({ isServiceIntroOpen: visible })),
 
-      resetChangedCells: () =>
-        set(() => ({ changedCells: new Set([]), isDirty: false })),
+      resetChangedCells: () => set(() => ({ changedCells: new Set([]) })),
+      clearMandalart: () =>
+        set(() => ({
+          ...initialState,
+        })),
     }),
     {
       name: "mandalart",
       partialize: (state): PersistedState => ({
         data: state.data,
-        modalCellId: state.modalCellId,
-        isModalOpen: state.isModalOpen,
-        isReminderOpen: state.isReminderOpen,
-        isFullOpen: state.isFullOpen,
       }),
-      version: 1,
-
-      storage: {
-        getItem: (name) => {
-          const value = localStorage.getItem(name);
-          return value ? JSON.parse(value) : null;
-        },
-        setItem: (name, value) => {
-          const { wasLoggedIn, accessToken } = useAuthStore.getState();
-          if (wasLoggedIn && accessToken && value?.state?.data) {
-            return;
-          }
-          if (typeof value === "string") {
-            localStorage.setItem(name, value);
-          } else {
-            localStorage.setItem(name, JSON.stringify(value));
-          }
-        },
-        removeItem: (name) => {
-          const { wasLoggedIn, accessToken } = useAuthStore.getState();
-          if (wasLoggedIn && accessToken) {
-            const current = localStorage.getItem(name);
-            if (!current) return;
-            const parsed = JSON.parse(current);
-            if (parsed?.state?.data !== undefined) {
-              delete parsed.state.data;
-              localStorage.setItem(name, JSON.stringify(parsed));
-            }
-            return;
-          }
-          localStorage.removeItem(name);
-        },
+      version: 2,
+      // version 1 → 2 마이그레이션: UI 상태 persist 제거
+      migrate: (persistedState: any, version: number) => {
+        if (version === 1) {
+          const {
+            modalCellId,
+            isModalOpen,
+            isReminderOpen,
+            isFullOpen,
+            ...rest
+          } = persistedState;
+          return rest;
+        }
+        return persistedState;
       },
     }
   )

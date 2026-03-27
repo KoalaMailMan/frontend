@@ -1,86 +1,61 @@
 import { useAuthStore } from "@/lib/stores/authStore";
-import { getUserProfileAPI, logouAPI, refreshTokenAPI } from "./api";
-import { APIWithRetry, getURLQuery } from "./\butils";
-import { ENV } from "@/const";
-import { apiClient } from "@/lib/api/client";
-import { useMandalaStore } from "@/lib/stores/mandalaStore";
-import { emptyDummyData } from "../mandala/service";
+import { refreshTokenAPI } from "./api";
+import { APIWithRetry } from "./\butils";
 import { toast } from "sonner";
-import { cleanQuery } from "@/shared/utils/query";
+import { performLogout } from "./hooks/useLogout";
 
-export const handleGoogleLogin = () => {
-  window.location.href = ENV.BACKEND_URL + "/api/auth/login/google";
-  useAuthStore.getState().setLastProvider("google");
-};
+// export const handleLogin = () => {
+//   const token = getURLQuery("access_token");
+//   if (token) {
+//     const currentTime = new Date().toISOString();
+//     useAuthStore.getState().setAccessToken(token);
+//     useAuthStore.getState().setWasLoggedIn(true);
+//     useAuthStore.getState().setLastLoginTime(currentTime);
+//     handleUnknownData();
+//     handleUserLookup(token);
+//     window.history.replaceState({}, document.title, window.location.pathname);
+//   }
+// };
+// export const handleUnknownData = () => {
+//   const saved = localStorage.getItem("mandalart");
+//   if (saved) {
+//     const parsed = JSON.parse(saved);
+//     if (parsed.state.data) {
+//       delete parsed.state.data;
+//       localStorage.setItem("mandalart", JSON.stringify(parsed));
+//     }
+//   }
+// };
 
-export const handleNaverLogin = () => {
-  window.location.href = ENV.BACKEND_URL + "/api/auth/login/naver";
-  useAuthStore.getState().setLastProvider("naver");
-};
+// export const handleLogout = () => {
+//   try {
+//     logoutMiddleWare();
+//     logouAPI();
+//   } catch (error) {
+//     console.error("Logout failed:", error);
+//   }
+// };
 
-export const handleLogin = () => {
-  const token = getURLQuery("access_token");
-  if (token) {
-    const currentTime = new Date().toISOString();
-    useAuthStore.getState().setAccessToken(token);
-    useAuthStore.getState().setWasLoggedIn(true);
-    useAuthStore.getState().setLastLoginTime(currentTime);
-    useAuthStore.getState().setTemporaryAuth("loggedIn");
-    handleUnknownData();
-    handleUserLookup(token);
-    window.history.replaceState({}, document.title, window.location.pathname);
-  }
-};
-export const handleUnknownData = () => {
-  const saved = localStorage.getItem("mandalart");
-  if (saved) {
-    const parsed = JSON.parse(saved);
-    if (parsed.state.data) {
-      delete parsed.state.data;
-      localStorage.setItem("mandalart", JSON.stringify(parsed));
-    }
-  }
-};
+// export const logoutMiddleWare = () => {
+//   apiClient.addResponseInterceptor({
+//     onSuccess: async (res: Response) => {
+//       if (res.status === 204) {
+//         console.log("로그아웃 성공");
+//         cleanQuery();
+//         clearAuth();
+//         clearMandalart();
+//         return;
+//       }
+//       return await res.json();
+//     },
+//   });
+// };
 
-export const handleLogout = () => {
-  try {
-    logoutMiddleWare();
-    logouAPI();
-  } catch (error) {
-    console.error("Logout failed:", error);
-  }
-};
-
-export const logoutMiddleWare = () => {
-  apiClient.addResponseInterceptor({
-    onSuccess: async (res: Response) => {
-      if (res.status === 204) {
-        console.log("로그아웃 성공");
-        cleanQuery();
-        clearAuth();
-        clearMandalart();
-        return;
-      }
-      return await res.json();
-    },
-  });
-};
-
-export const clearAuth = () => {
-  useAuthStore.getState().setWasLoggedIn(false);
-  useAuthStore.getState().setAccessToken(null);
-  useAuthStore.getState().setTemporaryAuth("none");
-  useAuthStore.getState().setUserInfo({ nickname: "", email: "" });
-};
-
-export const clearMandalart = () => {
-  useMandalaStore.getState().setReminderOption({
-    reminderEnabled: true,
-    remindInterval: "3month",
-    remindScheduledAt: null,
-  });
-  useMandalaStore.getState().setData(emptyDummyData.data);
-};
+// export const clearAuth = () => {
+//   useAuthStore.getState().setWasLoggedIn(false);
+//   useAuthStore.getState().setAccessToken(null);
+//   useAuthStore.getState().setUserInfo({ nickname: "", email: "" });
+// };
 
 let refreshInProgress: Promise<string | null> | null = null;
 export const reissueWithRefreshToken = async () => {
@@ -92,16 +67,20 @@ export const reissueWithRefreshToken = async () => {
   refreshInProgress = (async () => {
     try {
       const newAccessToken = await refreshTokenAPI();
-      useAuthStore.getState().setAccessToken(newAccessToken);
-      return newAccessToken;
+      if (newAccessToken) {
+        useAuthStore.getState().setAccessToken(newAccessToken);
+        return newAccessToken;
+      }
+      return null;
     } catch (error) {
       console.error("refresh failed:", error);
-      handleLogout();
+      performLogout();
       return null;
     } finally {
       refreshInProgress = null;
     }
   })();
+  return null;
 };
 
 export const shouldAttemptRefresh = () => {
@@ -110,14 +89,14 @@ export const shouldAttemptRefresh = () => {
   return !accessToken && wasLoggedIn;
 };
 
-export const handleUserLookup = async (accessToken: string) => {
-  if (!accessToken) return;
-  const res = await getUserProfileAPI(accessToken);
-  const user = res?.data;
-  if (user) {
-    useAuthStore.getState().setUserInfo(user);
-  }
-};
+// export const handleUserLookup = async (accessToken: string) => {
+//   if (!accessToken) return;
+//   const res = await getUserProfileAPI(accessToken);
+//   const user = res?.data;
+//   if (user) {
+//     useAuthStore.getState().setUserInfo(user);
+//   }
+// };
 
 export const ensureAccessToken = async () => {
   const { accessToken } = useAuthStore.getState();
@@ -127,7 +106,8 @@ export const ensureAccessToken = async () => {
 
   const success = await APIWithRetry(reissueWithRefreshToken);
   if (!success) {
-    handleLogout();
+    // handleLogout();
+    performLogout();
     toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
     return null;
   }

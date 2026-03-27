@@ -9,11 +9,12 @@ export default function useRefresh() {
   return useQuery({
     queryKey: ["auth", "refresh"],
     queryFn: () => {
-      if (accessToken && !wasLoggedIn) return;
-      return refreshTokenAPI();
+      const token = refreshTokenAPI();
+      if (!token) throw new Error("토큰 재발급 실패");
+      return token;
     },
     enabled: !accessToken && wasLoggedIn,
-    retry: 3,
+    retry: 0,
     staleTime: Infinity,
     gcTime: Infinity,
   });

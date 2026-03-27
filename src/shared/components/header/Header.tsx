@@ -1,6 +1,5 @@
 import Button from "@/feature/ui/Button";
 import { LogOut } from "lucide-react";
-import { handleLogout } from "@/feature/auth/service";
 import ThemeSelector from "./ThemeSelector";
 import { useAuthStore } from "@/lib/stores/authStore";
 import type { ThemeColor } from "@/data/themes";
@@ -8,6 +7,7 @@ import { useTutorialStore } from "@/lib/stores/tutorialStore";
 import AddressBook from "./icons/AddressBook";
 import { cn } from "@/lib/utils";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
+import { performLogout } from "@/feature/auth/hooks/useLogout";
 
 type MandaraChartProps = {
   currentTheme: ThemeColor;
@@ -70,7 +70,7 @@ export default function Header({
             <Button
               variant="outline"
               size="default"
-              onClick={handleLogout}
+              onClick={performLogout}
               className="pixel-button bg-white/90 backdrop-blur-sm text-xs sm:text-sm px-2 sm:px-4"
               dir="ltr"
             >

@@ -17,11 +17,18 @@ export default function useSaveMandala() {
     mutationKey: ["mandalart-save"],
     mutationFn: ({ mandalartData }: { mandalartData: ServerMandalaType }) => {
       if (!accessToken) throw new Error("토큰이 없습니다!");
-      return createMandalaAPI(accessToken, mandalartData);
+      return createMandalaAPI(mandalartData);
     },
     onSuccess: (mandalartRes: ServerMandalaType) => {
       resetChangedCells();
-      setMandalartId(mandalartRes.data.mandalartId as number);
+      if (!mandalartRes?.data?.mandalartId) {
+        console.error(
+          "createMandalaAPI: mandalartId가 없습니다. 서버 응답을 확인해주세요.",
+          mandalartRes
+        );
+        return;
+      }
+      setMandalartId(mandalartRes.data.mandalartId);
       setData(mandalartRes.data);
       queryClient.setQueryData(["mandalart"], mandalartRes);
       toast.success("만다라트가 저장되었습니다!");
@@ -29,6 +36,7 @@ export default function useSaveMandala() {
     onError: (error) => {
       console.log(error);
       toast.warning("만다라트 저장에 실패했습니다. 다시 시도해주세요!");
+      throw error;
     },
   });
 }

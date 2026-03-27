@@ -1,13 +1,11 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-export type AuthState = "none" | "temporary" | "loggedIn";
 type SocialProvider = "google" | "naver" | null;
 
 export type AuthModalText = { title: string; description: string };
 type States = {
   accessToken: string | null;
-  temporaryAuth: AuthState;
   user: {
     nickname: string;
     email: string;
@@ -19,22 +17,19 @@ type States = {
 type Actions = {
   getAccessToken: () => string | null;
   setAccessToken: (token: string | null) => void;
-  setTemporaryAuth: (state: AuthState) => void;
   setWasLoggedIn: (state: boolean) => void;
   setLastProvider: (state: SocialProvider) => void;
   setLastLoginTime: (state: string) => void;
   setUserInfo: (state: States["user"]) => void;
-  setSeenReminder: (state: boolean) => void;
   setAuthOpen: (state: boolean) => void;
   setAuthText: (state: AuthModalText) => void;
+  clearAuth: () => void;
 };
 
 type AuthPersistedState = {
   wasLoggedIn: boolean;
-  temporaryAuth: AuthState;
   lastProvider: SocialProvider;
   lastLoginTime?: string | null;
-  hasSeenReminderSetup: boolean;
 };
 
 const AUTH_INFO = "AUTH_INFO";
@@ -43,7 +38,6 @@ export const useAuthStore = create<States & Actions>()(
   persist(
     (set, get) => ({
       accessToken: null,
-      temporaryAuth: "none",
       wasLoggedIn: false,
       lastProvider: null,
       lastLoginTime: "",
@@ -51,7 +45,6 @@ export const useAuthStore = create<States & Actions>()(
         nickname: "",
         email: "",
       },
-      hasSeenReminderSetup: false,
       isAuthOpen: false,
       authComponentText: {
         title: "",
@@ -61,15 +54,12 @@ export const useAuthStore = create<States & Actions>()(
       getAccessToken: () => get().accessToken,
       setAccessToken: (token: string | null) =>
         set(() => ({ accessToken: token })),
-      setTemporaryAuth: (state: AuthState) =>
-        set(() => ({ temporaryAuth: state })),
       setWasLoggedIn: (state: boolean) => set(() => ({ wasLoggedIn: state })),
       setLastProvider: (state: SocialProvider) =>
         set(() => ({ lastProvider: state })),
       setLastLoginTime: (state: string) =>
         set(() => ({ lastLoginTime: state })),
       setUserInfo: (state) => set(() => ({ user: state })),
-      setSeenReminder: (state) => set(() => ({ hasSeenReminderSetup: state })),
       setAuthOpen: (state) => set(() => ({ isAuthOpen: state })),
       setAuthText: (state) =>
         set(() => ({
@@ -78,17 +68,23 @@ export const useAuthStore = create<States & Actions>()(
             description: state.description,
           },
         })),
+
+      clearAuth: () =>
+        set(() => ({
+          accessToken: null,
+          wasLoggedIn: false,
+          user: { nickname: "", email: "" },
+        })),
     }),
+
     {
       name: AUTH_INFO,
       partialize: (state): AuthPersistedState => ({
         wasLoggedIn: state.wasLoggedIn,
-        temporaryAuth: state.temporaryAuth,
         lastProvider: state.lastProvider,
         lastLoginTime: state.lastLoginTime,
-        hasSeenReminderSetup: state.hasSeenReminderSetup,
       }),
-      version: 2,
+      version: 3,
 
       storage: {
         getItem: (name) => {
@@ -103,6 +99,15 @@ export const useAuthStore = create<States & Actions>()(
                   hasSeenReminderSetup: false,
                 },
                 version: 2,
+              };
+              localStorage.setItem(name, JSON.stringify(migrated));
+              return migrated;
+            }
+            if (parsed.version === 2) {
+              const { temporaryAuth, ...rest } = parsed.state;
+              const migrated = {
+                state: rest,
+                version: 3,
               };
               localStorage.setItem(name, JSON.stringify(migrated));
               return migrated;

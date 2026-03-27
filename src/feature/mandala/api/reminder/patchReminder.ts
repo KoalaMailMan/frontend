@@ -7,16 +7,11 @@ export type ReminderType = {
   };
 };
 
-export const patchReminderAPI = async (
-  accessToken: string,
-  reminderOptions: ReminderType
-) => {
+export const patchReminderAPI = async (reminderOptions: ReminderType) => {
   const MANDALA_URL = "/api/reminder";
   try {
     const res = await apiClient.patch(MANDALA_URL, reminderOptions, {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
+      requiresAuth: true,
       credentials: "include",
     });
     return res;

@@ -1,38 +1,35 @@
 import { useAuthStore } from "@/lib/stores/authStore";
 import useRefresh from "../hooks/useRefresh";
-import { useEffect } from "react";
-import { handleLogout } from "../service";
+import { useEffect, type ReactNode } from "react";
 import { toast } from "sonner";
-import MandalaBoard from "@/feature/mandala/pages/MandalaBoard";
 import useUserInfo from "../hooks/useUserInfo";
+import useOAuthCallback from "../hooks/useLogin";
+import { apiClient } from "@/lib/api/client";
+import { reissueWithRefreshToken } from "../service";
+import { performLogout } from "../hooks/useLogout";
 
-type Props = {
-  getCurrentBackground: () => Record<string, string>;
-};
-
-export default function AuthEntry({ getCurrentBackground }: Props) {
+export default function AuthProvider({ children }: { children: ReactNode }) {
   const setAccessToken = useAuthStore((state) => state.setAccessToken);
   const setWasLoggedIn = useAuthStore((state) => state.setWasLoggedIn);
   const setLastLoginTime = useAuthStore((state) => state.setLastLoginTime);
-  const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
   const setUserInfo = useAuthStore((state) => state.setUserInfo);
 
-  const {
-    data: token,
-    isSuccess: isTokenReady,
-    isError,
-    error: refreshError,
-  } = useRefresh();
+  useEffect(() => {
+    apiClient.setTokenRefresher(reissueWithRefreshToken);
+  }, []);
+
+  useOAuthCallback();
+
+  const { data: token, isSuccess: isTokenReady, isError } = useRefresh();
 
   const { data: userInfo, isSuccess: isUserReady } = useUserInfo();
 
   useEffect(() => {
-    if (isTokenReady) {
+    if (token && isTokenReady) {
       setAccessToken(token);
     }
     if (isError) {
-      console.error(refreshError);
-      handleLogout();
+      performLogout();
       toast("세션 종료로 인해 처음 화면으로 돌아갑니다.");
     }
   }, [token, isTokenReady, isError]);
@@ -42,12 +39,11 @@ export default function AuthEntry({ getCurrentBackground }: Props) {
       const currentTime = new Date().toISOString();
       setWasLoggedIn(true);
       setLastLoginTime(currentTime);
-      setTemporaryAuth("loggedIn");
       setUserInfo(userInfo);
     }
   }, [userInfo, isUserReady]);
 
-  return <MandalaBoard getCurrentBackground={getCurrentBackground} />;
+  return <>{children}</>;
 
   // if (temporaryAuth === "temporary")
   //   return <MandalaBoard getCurrentBackground={getCurrentBackground} />;

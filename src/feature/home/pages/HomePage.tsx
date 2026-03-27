@@ -1,14 +1,12 @@
 import MainSection from "../components/MainSection";
 import { useViewportStore } from "@/lib/stores/viewportStore";
 import { useEffect } from "react";
-import { useAuthStore } from "@/lib/stores/authStore";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
 };
 
 export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
-  const setTemporaryAuth = useAuthStore((state) => state.setTemporaryAuth);
   const height = useViewportStore((state) => state.height);
   const { backgroundImage, srcSet } = getCurrentBackground();
 
@@ -37,7 +35,7 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
         </div>
 
         {/* 메인 로그인 컨테이너 */}
-        <MainSection onTemporaryLogin={setTemporaryAuth} />
+        <MainSection />
 
         {/* 날아가는 코알라 애니메이션 */}
         {/* {lcpDone && !reduced && !inactiveTab && <BackgroundAnimation />} */}
