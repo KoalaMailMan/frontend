@@ -14,7 +14,7 @@ export default function Head() {
       <title>만다라트 목표 작성 & 리마인드 | 코알라 우체부</title>
       <meta
         name="description"
-        content="코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다."
+        content="코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다. 만다라트는 목표를 세부적으로 나눠 계획할 수 있는 도구로, 코알라 우체부에서 사용해보세요. 코알라 우체부로 목표를 작성하고 AI 추천을 받아 나만의 만다라트를 완성할 수 있습니다. 작성 완료 후, 코알라 우체부가 목표를 잊지 않게 리마인드 메일을 보내드립니다. 지금 바로 시작해서 나만의 만다라트를 완성하고 목표를 달성해보세요."
       />
       <meta
         name="keywords"
@@ -30,7 +30,7 @@ export default function Head() {
       />
       <meta
         property="og:description"
-        content="코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다."
+        content="코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다. 만다라트는 목표를 세부적으로 나눠 계획할 수 있는 도구로, 코알라 우체부에서 사용해보세요. 코알라 우체부로 목표를 작성하고 AI 추천을 받아 나만의 만다라트를 완성할 수 있습니다. 작성 완료 후, 코알라 우체부가 목표를 잊지 않게 리마인드 메일을 보내드립니다. 지금 바로 시작해서 나만의 만다라트를 완성하고 목표를 달성해보세요."
       />
       <meta property="og:url" content="https://ringdong.kr" />
 
@@ -38,6 +38,30 @@ export default function Head() {
       <meta
         name="naver-site-verification"
         content="3920947bcefe8028bf2eee65811cf9f31ca08fd9"
+      />
+
+      {/* <!-- GA4 스크립트 --> */}
+      <script
+        async
+        src="https://www.googletagmanager.com/gtag/js?id=G-YMJF98S5GN"
+      ></script>
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-YMJF98S5GN', {
+      'send_page_view': false // SPA는 수동 페이지뷰 전송
+    });
+
+    // SPA 페이지뷰 트래킹 함수
+    function trackPageView(path, title) {
+      gtag('event', 'page_view', {
+        page_path: path,
+        page_title: title
+      });
+    }`,
+        }}
       />
 
       {/* JSON-LD */}
@@ -49,7 +73,7 @@ export default function Head() {
           "@type": "WebApplication",
           "name": "만다라트",
           "applicationCategory": "ProductivityApplication",
-          "description": "코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다.",
+          "description": "코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다. 만다라트는 목표를 세부적으로 나눠 계획할 수 있는 도구로, 코알라 우체부에서 사용해보세요. 코알라 우체부로 목표를 작성하고 AI 추천을 받아 나만의 만다라트를 완성할 수 있습니다. 작성 완료 후, 코알라 우체부가 목표를 잊지 않게 리마인드 메일을 보내드립니다. 지금 바로 시작해서 나만의 만다라트를 완성하고 목표를 달성해보세요.",
           "url": "https://ringdong.kr",
           "offers": {
             "@type": "Offer",
