@@ -135,19 +135,25 @@ MandaraChartProps) {
             isReminder && "h-[96px]"
           )}
         >
-          <img
-            src={KoalaTextLogo[0]}
-            className="w-full"
-            loading="eager"
-            fetchPriority="high"
-            decoding="async"
-            srcSet={KoalaTextLogoSrcSet}
-            sizes="(max-width: 768px) 90vw, 476px"
-            width={476}
-            height={96}
-            style={{ maxWidth: "100%", height: "auto" }}
-            alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
-          />
+          <h1 className="relative">
+            <span className="sr-only">
+              만다라트 목표 작성 & 리마인드 | 코알라 우체부
+            </span>
+
+            <img
+              src={KoalaTextLogo[0]}
+              className="w-full"
+              loading="eager"
+              fetchPriority="high"
+              decoding="async"
+              srcSet={KoalaTextLogoSrcSet}
+              sizes="(max-width: 768px) 90vw, 476px"
+              width={476}
+              height={96}
+              alt=""
+              aria-hidden="true"
+            />
+          </h1>
         </div>
         <NoticeContainer
           variant={"max"}
