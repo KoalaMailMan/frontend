@@ -27,3 +27,9 @@ dist-ssr
 .env
 stats.html
 static/
+
+# https
+*.pem
+
+*storybook.log
+storybook-static
