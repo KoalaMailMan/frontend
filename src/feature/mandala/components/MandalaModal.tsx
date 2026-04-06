@@ -49,6 +49,7 @@ Props) {
 
   const modalCellId = useMandalaStore((state) => state.modalCellId);
   const handleCellChange = useMandalaStore((state) => state.handleCellChange);
+  const layout = useMandalaStore((state) => state.flatData?.layout);
 
   const { data } = useMandalaData();
 
@@ -235,7 +236,21 @@ Props) {
                     {isStreaming && (
                       <div className="w-full h-full absolute bg-white opacity-80 z-[1]" />
                     )}
-                    {items.map((sub, index) => {
+                    {layout?.mains.map((goalId, index) => {
+                      const isCenter = index === 0;
+                      return (
+                        <MandalaContainer
+                          key={goalId}
+                          goalId={goalId}
+                          isCenter={isCenter}
+                          compact={false}
+                          disabled={false}
+                          // editingCellId={editingSubCellId}
+                          // onDetailClick={() => handleDetailClick(goalId)}
+                        />
+                      );
+                    })}
+                    {/* {items.map((sub, index) => {
                       const isCenter = centerIndex === index;
                       const isEditing = editingSubCellId === sub.goalId;
                       return (
@@ -259,7 +274,7 @@ Props) {
                           )}
                         />
                       );
-                    })}
+                    })} */}
                   </div>
                 </div>
               </div>

@@ -4,7 +4,7 @@ import MandalaContainer from "./MandalaContainer";
 import MandalaModal from "./MandalaModal";
 import { getGridClasses } from "../utills/css";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId, serverToUI } from "../service";
+import { getNextCellId, serverToUI, toLegacyStructure } from "../service";
 import { useEffect, useRef } from "react";
 import useMandalaData from "../hooks/useMandalaData";
 
@@ -18,8 +18,9 @@ export default function MandalaGrid() {
   const setEditingCell = useMandalaStore((state) => state.setEditingCell);
   const setModalCellId = useMandalaStore((state) => state.setModalCellId);
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
-
   const timer = useRef<NodeJS.Timeout | null>(null);
+
+  const layout = useMandalaStore((state) => state.flatData?.layout);
 
   useGridTabNavigation({
     editingId: editingCellId,
@@ -31,7 +32,7 @@ export default function MandalaGrid() {
 
   const handleContentChange = (goalId: string, value: string) => {
     if (data) {
-      handleCellChange(goalId, value, serverToUI(data));
+      handleCellChange(goalId, value, toLegacyStructure(data));
     } else {
       handleCellChange(goalId, value);
     }
@@ -84,7 +85,31 @@ export default function MandalaGrid() {
 
   return (
     <div className="grid grid-cols-3 gap-1 max-w-lg mx-auto aspect-square">
-      {mandalaList.map((item, index) => {
+      {layout?.mains.map((goalId, index) => {
+        const isCenter = index === 0;
+
+        return (
+          <MandalaContainer
+            className={`w-full h-full
+          ${isCenter && "border-primary text-primary font-semibold"}
+          ${getGridClasses(index)}
+        `}
+            key={goalId}
+            goalId={goalId}
+            isCenter={isCenter}
+            compact={false}
+            disabled={false}
+            // editingCellId={editingCellId}
+            // onDetailClick={() => handleDetailClick(goalId)}
+            data-tutorial={
+              // 0번째 중앙의 핵심 목표
+              index === 0 ? "center-cell" : index === 4 ? "main-cells" : ""
+            }
+            tutorialArrowButton={index === 4} // 첫번째 셀의 화살표에만 true
+          />
+        );
+      })}
+      {/* {mandalaList.map((item, index) => {
         const isCenter = 0 === index;
         const isEditing = editingCellId === item.goalId;
         const hasSubGoals =
@@ -94,6 +119,7 @@ export default function MandalaGrid() {
             .some((sub) => sub.content && sub.content.trim() !== "");
         return (
           <Fragment key={`main-${index}`}>
+          
             <MandalaContainer
               className={`w-full h-full
               ${isCenter && "border-primary text-primary font-semibold"}
@@ -119,8 +145,8 @@ export default function MandalaGrid() {
               tutorialArrowButton={index === 4} // 첫번째 셀의 화살표에만 true
             />
           </Fragment>
-        );
-      })}
+        ); */}
+      {/* })} */}
       {isModalOpen && (
         <MandalaModal
           isModalVisible={isModalOpen}

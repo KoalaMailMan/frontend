@@ -20,9 +20,9 @@ export default function FullMandalaView() {
   );
   const onClose = useMandalaStore((state) => state.setFullVisible);
   const mandaraGridRef = useRef<HTMLDivElement | null>(null);
-
+  const layout = useMandalaStore((state) => state.flatData?.layout);
   const { data } = useMandalaData();
-
+  console.log(layout);
   const addPositionProperty = useMemo(() => {
     return mandalaList.map((item, idx) => {
       const isCenter = 0 === idx;
@@ -119,7 +119,7 @@ export default function FullMandalaView() {
       const index = findByIdWithGoalIndex(id);
       console.log("Editing:", id, "at index:", index, "value:", value);
       if (data) {
-        handleCellChange(id, value, serverToUI(data));
+        // handleCellChange(id, value, serverToUI(data));
       } else {
         handleCellChange(id, value);
       }
@@ -173,7 +173,7 @@ export default function FullMandalaView() {
                 aspectRatio: "1 / 1",
               }}
             >
-              {grid.map((subBlock, blockIdx) => {
+              {/* {grid.map((subBlock, blockIdx) => {
                 return (
                   <div
                     key={`main-${blockIdx}`}
@@ -211,7 +211,55 @@ export default function FullMandalaView() {
                     })}
                   </div>
                 );
-              })}
+              })} */}
+              {layout.subs.map((subIds, blockIdx) => (
+                <div
+                  key={`block-${blockIdx}`}
+                  className={cn(
+                    "grid grid-cols-3 gap-1",
+                    getGridClasses(blockIdx)
+                  )}
+                >
+                  {subIds.map((goalId, subIdx) => (
+                    <MandalaContainer
+                      key={goalId}
+                      goalId={goalId}
+                      isCenter={blockIdx === 0 && subIdx === 0}
+                      compact={true}
+                      disabled={false}
+                      editingCellId={editingFullCellId}
+                      className={cn(findbyCSS("sub"), getGridClasses(subIdx))}
+                    />
+                  ))}
+                </div>
+              ))}
+              {/* {grid.map((subBlock, blockIdx) => (
+                <div key={`main-${blockIdx}`}>
+                  {subBlock.map((sub, subIdx) => (
+                    <MandalaContainer
+                      key={sub.goalId}
+                      goalId={sub.goalId} // id만 내려줌
+                      compact={true}
+                      type={sub.type}
+                      item={sub}
+                      isCenter={true}
+                      isEditing={false}
+                      disabled={false}
+                      isEmpty={!sub.content && sub.content.trim() !== ""}
+                      className={cn(
+                        "",
+                        findbyCSS((sub.type as Type) || "sub"),
+                        getGridClasses(subIdx)
+                      )}
+                      onStartEdit={() => handleSubStartEdit(sub.goalId)}
+                      onContentChange={(value) =>
+                        handleContentChange(sub.goalId, value)
+                      }
+                      onCancelEdit={handleModalClose}
+                    />
+                  ))}
+                </div>
+              ))} */}
             </div>
           </div>
         </div>
