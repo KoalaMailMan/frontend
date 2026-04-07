@@ -1,6 +1,5 @@
 import {
   useMandalaStore,
-  type DataOption,
   type MainGoal,
   type MandalaType,
   type SubGoal,
@@ -8,6 +7,12 @@ import {
 } from "@/lib/stores/mandalaStore";
 import { moveItem } from "../utills/\bindex";
 import { parseCellId } from "./parseCellId";
+import type {
+  MandalaLayout,
+  MandalaMap,
+  ServerMandalaType,
+  ServerMandalaTypeWithoutReminder,
+} from "./type";
 
 // export const handleMandalaData = async () => {
 //   const accessToken = useAuthStore.getState().accessToken;
@@ -126,46 +131,21 @@ export const emptyDummyData = {
   },
 };
 
-// 서버 데이터용 타입
-export type ServerMandalaType = {
-  data: {
-    core: {
-      goalId?: number;
-      content?: string;
-      status?: "DONE" | "UNDONE";
-      mains?: ServerMainGoal[];
-    };
-    mandalartId?: number | undefined;
-    reminderOption?: DataOption;
-  };
+const USE_FLAT_STRUCTURE = false;
+
+export const serverToUI = (serverData: ServerMandalaType["data"]) => {
+  if (USE_FLAT_STRUCTURE) {
+    return toFlatStructure(serverData.core); // 신버전
+  }
+  return toLegacyStructure(serverData); // 기존 로직 그대로
 };
 
-export type ServerMainGoal = {
-  goalId?: number;
-  position: number;
-  content?: string;
-  status?: "DONE" | "UNDONE";
-  subs: ServerSubGoal[];
-};
-
-export type ServerSubGoal = {
-  goalId?: number;
-  position: number;
-  content: string;
-  status: "DONE" | "UNDONE";
-};
-
-type ServerMandalaData = Omit<ServerMandalaType["data"], "reminderOption">;
-
-export type ServerMandalaTypeWithoutReminder = {
-  data: ServerMandalaData;
-};
 /**
  * 서버 데이터를 UI 데이터로 변환
  * core를 0번 main으로, 서버 mains는 그대로 1~8번
  * core의 subs도 추가 생성
  */
-export const serverToUI = (
+export const toLegacyStructure = (
   serverData: ServerMandalaType["data"]
 ): MandalaType => {
   const uiMains: MainGoal[] = [];
@@ -430,7 +410,6 @@ export const uiToServer = ({
   } else {
     result = buildFromScratch(currentData);
   }
-  console.log(result);
 
   // if (id != null) {
   //   result.data.mandalartId = id;
@@ -664,18 +643,18 @@ export const uiToServer = ({
   return result;
 };
 
-export const handlePrefixDuplication = (id: string) => {
-  const parts = id.split("-");
+// export const handlePrefixDuplication = (id: string) => {
+//   const parts = id.split("-");
 
-  const deduped = parts.filter((p, i, arr) => {
-    if (i === 0) return true;
-    return !(p === arr[i - 1] && (p === "main" || p === "sub"));
-  });
+//   const deduped = parts.filter((p, i, arr) => {
+//     if (i === 0) return true;
+//     return !(p === arr[i - 1] && (p === "main" || p === "sub"));
+//   });
 
-  // "sub-main-3-0" → ["sub","main","3","0"] → filter → ["sub","3","0"]
-  // "main-main-5"   → ["main","main","5"] → filter → ["main","5"]
-  return deduped.join("-");
-};
+//   // "sub-main-3-0" → ["sub","main","3","0"] → filter → ["sub","3","0"]
+//   // "main-main-5"   → ["main","main","5"] → filter → ["main","5"]
+//   return deduped.join("-");
+// };
 
 export const getNextCellId = (
   editingCellId: string,
@@ -933,4 +912,62 @@ export const applyChangesToServer = (
   });
 
   return result;
+};
+
+export const toFlatStructure = (
+  core: ServerMandalaType["data"]["core"]
+): { layout: MandalaLayout; cells: MandalaMap } => {
+  const cells: MandalaMap = {};
+  const mains: MandalaLayout["mains"] = ["core-0"];
+  const subs: MandalaLayout["subs"] = {};
+  const grid: MandalaLayout["grid"] = [];
+
+  cells["core-0"] = {
+    goalId: "core-0",
+    content: core.content || "",
+    status: core.status || "UNDONE",
+  };
+
+  for (let i = 0; i <= 8; i++) {
+    const mainId = `main-${i}`;
+    const mainData = core.mains?.find((m) => m.position === i);
+    if (i !== 0) {
+      mains.push(mainId);
+
+      cells[mainId] = {
+        goalId: mainId,
+        content: mainData?.content || "",
+        status: mainData?.status || "UNDONE",
+        position: i,
+      };
+    }
+
+    const subIds: string[] = [];
+
+    for (let j = 0; j <= 8; j++) {
+      if (i === 0 && j === 0) {
+        const subId = `core-0`;
+
+        subIds.push(subId);
+        continue;
+      }
+
+      const subId = `sub-${i}-${j}`;
+
+      subIds.push(subId);
+      const subData = mainData?.subs?.find((s) => s.position === j);
+
+      cells[subId] = {
+        goalId: subId,
+        content: subData?.content || "",
+        status: subData?.status || "UNDONE",
+        position: j,
+      };
+    }
+    subs[mainId] = subIds;
+
+    grid.push(subIds);
+  }
+
+  return { layout: { core: "core-0", mains, subs, grid }, cells };
 };
