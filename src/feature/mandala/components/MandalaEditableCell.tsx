@@ -1,30 +1,43 @@
 import { useMandalaStore, type Status } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
-import { forwardRef } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useMemo,
+  type TextareaHTMLAttributes,
+} from "react";
+import type { CellData } from "../service/type";
+import { useShallow } from "zustand/react/shallow";
 
 type MandalaEditableCellProps = {
+  goalId: string;
+  // cell: CellData;
   isCenter: boolean;
-  compact: boolean;
-  content: string;
-  status: Status;
+  compact?: boolean;
   disabled: boolean;
-  onContentChange: (value: string) => void;
+  onContentChange: (
+    e: React.FormEvent<HTMLTextAreaElement>,
+    value: string
+  ) => void;
   onCancel: () => void;
 };
 function MandalaEditableCell(
   {
+    goalId,
+    // cell,
     compact,
     isCenter,
-    content,
-    status,
     disabled,
     onContentChange,
     onCancel,
   }: MandalaEditableCellProps,
   ref: React.Ref<HTMLTextAreaElement>
 ) {
-  if (status === "DONE") return;
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
+  const cell = useMandalaStore(
+    useShallow((state) => state.flatData.cells[goalId])
+  );
+  // if (status === "DONE") return;
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -33,6 +46,15 @@ function MandalaEditableCell(
       onCancel();
     }
   };
+  useEffect(() => {
+    console.log("EditableCell 마운트");
+    return () => console.log("EditableCell 언마운트");
+  }, []);
+
+  const isEditing = useMandalaStore(
+    useShallow((state) => !state.isFullOpen && state.editingCellId === goalId)
+  );
+  if (!isEditing) return null;
 
   return (
     <div
@@ -49,25 +71,33 @@ function MandalaEditableCell(
     >
       <textarea
         ref={ref}
+        // autoFocus
+        // onFocus={(e) => {
+        //   console.log(e);
+        //   e.target.select();
+        //   e.target.style.height = "auto";
+        //   e.target.style.height = e.target.scrollHeight + "px";
+        // }}
         className={cn(
           "w-full h-full resize-none border-none outline-none bg-transparent text-center leading-tight",
           compact ? "text-xs" : "text-sm"
         )}
         style={{ minHeight: "20px" }}
         maxLength={40}
-        value={content}
-        onChange={(e) => onContentChange(e.target.value)}
-        onBlur={onCancel}
+        value={cell.content}
+        onChange={(e) => onContentChange(e, e.target.value)}
+        onMouseDown={(e) => e.stopPropagation()}
+        onBlur={(e) => {
+          // 내부 이동이면 무시
+          if (e.relatedTarget && e.currentTarget.contains(e.relatedTarget)) {
+            return;
+          }
+          onCancel();
+        }}
         onKeyDown={handleKeyDown}
         disabled={disabled}
       />
-      {/* {!isCenter && compact && (
-        <div className="absolute bottom-1 right-1 text-xs text-gray-400">
-          {content.length}/40
-        </div>
-      )} */}
     </div>
   );
 }
-
 export default forwardRef(MandalaEditableCell);

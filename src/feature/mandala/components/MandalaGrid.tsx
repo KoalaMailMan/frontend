@@ -7,6 +7,8 @@ import useGridTabNavigation from "../hooks/useGridTabNavigation";
 import { getNextCellId, serverToUI, toLegacyStructure } from "../service";
 import { useEffect, useRef } from "react";
 import useMandalaData from "../hooks/useMandalaData";
+import GridCell from "./grid/GridCell";
+import { cn } from "@/lib/utils";
 
 export default function MandalaGrid() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
@@ -20,6 +22,7 @@ export default function MandalaGrid() {
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
   const timer = useRef<NodeJS.Timeout | null>(null);
 
+  const flatData = useMandalaStore((state) => state.flatData);
   const layout = useMandalaStore((state) => state.flatData?.layout);
 
   useGridTabNavigation({
@@ -84,31 +87,59 @@ export default function MandalaGrid() {
   }, []);
 
   return (
-    <div className="grid grid-cols-3 gap-1 max-w-lg mx-auto aspect-square">
+    <div className="grid grid-cols-3 grid-rows-3 gap-1 max-w-lg mx-auto aspect-square">
       {layout?.mains.map((goalId, index) => {
         const isCenter = index === 0;
 
         return (
-          <MandalaContainer
-            className={`w-full h-full
+          <div
+            className={cn("w-full h-full", getGridClasses(index))}
+            // onClick={() => setEditingCell(goalId)}
+          >
+            <GridCell
+              key={goalId}
+              goalId={goalId}
+              dashboard="main"
+              isCenter={isCenter}
+              disabled={false}
+              data-tutorial={
+                // 0번째 중앙의 핵심 목표
+                index === 0 ? "center-cell" : index === 4 ? "main-cells" : ""
+              }
+              tutorialArrowButton={index === 4} // 첫번째 셀의 화살표에만 true
+              className={
+                isCenter ? "border-primary text-primary font-semibold" : ""
+              }
+            />
+          </div>
+        );
+      })}
+      {/* {layout?.mains.map((goalId, index) => {
+        const isCenter = index === 0;
+
+        return (
+          <div onClick={() => setEditingCell(goalId)}>
+            <MandalaContainer
+              className={`w-full h-full
           ${isCenter && "border-primary text-primary font-semibold"}
           ${getGridClasses(index)}
         `}
-            key={goalId}
-            goalId={goalId}
-            isCenter={isCenter}
-            compact={false}
-            disabled={false}
-            // editingCellId={editingCellId}
-            // onDetailClick={() => handleDetailClick(goalId)}
-            data-tutorial={
-              // 0번째 중앙의 핵심 목표
-              index === 0 ? "center-cell" : index === 4 ? "main-cells" : ""
-            }
-            tutorialArrowButton={index === 4} // 첫번째 셀의 화살표에만 true
-          />
+              key={goalId}
+              goalId={goalId}
+              isCenter={isCenter}
+              compact={false}
+              disabled={false}
+              editingCellId={editingCellId}
+              onDetailClick={() => handleDetailClick(goalId)}
+              data-tutorial={
+                // 0번째 중앙의 핵심 목표
+                index === 0 ? "center-cell" : index === 4 ? "main-cells" : ""
+              }
+              tutorialArrowButton={index === 4} // 첫번째 셀의 화살표에만 true
+            />
+          </div>
         );
-      })}
+      })} */}
       {/* {mandalaList.map((item, index) => {
         const isCenter = 0 === index;
         const isEditing = editingCellId === item.goalId;
@@ -153,7 +184,6 @@ export default function MandalaGrid() {
           items={
             getData(findByIdWithGoalIndex(modalCellId as string)) as SubGoal[]
           }
-          compact={false}
           // onContentChange={handleSubContentChange}
           onRemove={handleContentChange}
           // onCancelEdit={handleModalClose}

@@ -17,11 +17,12 @@ import useGridTabNavigation from "../hooks/useGridTabNavigation";
 import { getNextCellId, serverToUI } from "../service";
 import UseSubsGoalNavigation from "../hooks/ueSubsGoalNavigation";
 import useMandalaData from "../hooks/useMandalaData";
+import ModalCell from "./modal/ModalCell";
+import { useShallow } from "zustand/react/shallow";
 
 type Props = {
   isModalVisible: boolean;
   items: SubGoal[];
-  compact: boolean;
   // onContentChange: (value: string) => void;
   onRemove: (id: string, value: string) => void;
   // onCancelEdit: () => void;
@@ -30,7 +31,6 @@ type Props = {
 export default function MandalaModal({
   isModalVisible,
   items,
-  compact,
   // onContentChange,
   onRemove,
 }: // onCancelEdit,
@@ -42,14 +42,29 @@ Props) {
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
 
   const positionRef = useRef<HTMLDivElement | null>(null);
+  const editingCellId = useMandalaStore((state) => state.editingCellId);
   const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
+  const setEditingCell = useMandalaStore((state) => state.setEditingCell);
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
   const setModalCellId = useMandalaStore((state) => state.setModalCellId);
 
   const modalCellId = useMandalaStore((state) => state.modalCellId);
   const handleCellChange = useMandalaStore((state) => state.handleCellChange);
-  const layout = useMandalaStore((state) => state.flatData?.layout);
+  const subs = useMandalaStore(
+    (state) => state.flatData?.layout.subs[modalCellId as string]
+  );
+
+  const sub = useMandalaStore(
+    (state) => editingCellId && state.flatData.cells[editingCellId]
+  );
+
+  useEffect(() => {
+    console.log(items);
+    console.log(subs[0]);
+    console.log(sub);
+    console.log(useMandalaStore.getState().flatData);
+  }, [editingCellId]);
 
   const { data } = useMandalaData();
 
@@ -236,20 +251,53 @@ Props) {
                     {isStreaming && (
                       <div className="w-full h-full absolute bg-white opacity-80 z-[1]" />
                     )}
-                    {layout?.mains.map((goalId, index) => {
+                    {subs?.map((goalId, index) => {
                       const isCenter = index === 0;
                       return (
-                        <MandalaContainer
-                          key={goalId}
-                          goalId={goalId}
-                          isCenter={isCenter}
-                          compact={false}
-                          disabled={false}
-                          // editingCellId={editingSubCellId}
-                          // onDetailClick={() => handleDetailClick(goalId)}
-                        />
+                        <div
+                          className={cn(
+                            " w-full h-full",
+                            getGridClasses(index)
+                          )}
+                          // onClick={() => setEditingCell(goalId)}
+                        >
+                          <ModalCell
+                            key={goalId}
+                            dashboard="sub"
+                            goalId={goalId}
+                            isCenter={isCenter}
+                            disabled={false}
+                            className={cn(
+                              "md:min-w-[125px] w-full h-full",
+                              isCenter
+                                ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
+                                : ""
+                            )}
+                          />
+                        </div>
                       );
                     })}
+                    {/* {subs?.map((goalId, index) => {
+                      const isCenter = index === 0;
+                      return (
+                        <div onClick={() => console.log("Testset")}>
+                          <MandalaContainer
+                            key={goalId}
+                            goalId={goalId}
+                            isCenter={isCenter}
+                            compact={false}
+                            disabled={isCenter ? isStreaming : false}
+                            className={cn(
+                              "md:min-w-[125px] w-full h-full",
+                              getGridClasses(index),
+                              isCenter
+                                ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
+                                : ""
+                            )}
+                          />
+                        </div>
+                      );
+                    })} */}
                     {/* {items.map((sub, index) => {
                       const isCenter = centerIndex === index;
                       const isEditing = editingSubCellId === sub.goalId;

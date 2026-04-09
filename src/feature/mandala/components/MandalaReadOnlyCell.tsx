@@ -6,34 +6,35 @@ import {
 } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CheckIcon from "./icon/CheckIcon";
 import { toast } from "sonner";
 import { koalaSeal } from "../const/url";
+import type { CellData } from "../service/type";
+import { useShallow } from "zustand/react/shallow";
 
 type MandalaReadOnlyCellProps = {
+  goalId: string;
+  // cell: CellData;
   className?: string;
   type?: string;
-  id: string;
   isCenter: boolean;
-  content: string;
-  status: Status;
-  compact: boolean;
+  compact?: boolean;
   disabled: boolean;
   isEmpty: boolean;
   "data-tutorial"?: string;
   tutorialArrowButton?: boolean; // 튜토리얼용 화살표 버튼 식별자
   onCellClick: () => void;
-  onDetailClick?: (id: string | number) => void;
+  onDetailClick?: () => void;
+  onGoalClick?: () => void;
   onRemove?: (id: SubGoal["goalId"]) => void;
 };
-export default function MandalaReadOnlyCell({
+export default React.memo(function MandalaReadOnlyCell({
+  goalId,
+  // cell,
   className,
   type,
-  id,
   isCenter,
-  content,
-  status,
   compact,
   disabled,
   isEmpty,
@@ -41,11 +42,17 @@ export default function MandalaReadOnlyCell({
   tutorialArrowButton = false,
   onCellClick,
   onDetailClick,
+  onGoalClick,
 }: MandalaReadOnlyCellProps) {
   const [isHovered, setIsHovered] = useState(false);
   const toggleGoalStatus = useMandalaStore((state) => state.toggleGoalStatus);
   const allGoalComplete = useMandalaStore((state) => state.allGoalComplete);
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
+  const setModalVisible = useMandalaStore((state) => state.setModalVisible);
+  const cell = useMandalaStore(
+    useShallow((state) => state.flatData.cells[goalId])
+  );
+
   const display = compact
     ? ""
     : isModalOpen
@@ -56,6 +63,11 @@ export default function MandalaReadOnlyCell({
     ? "핵심 목표를 입력하세요"
     : "주요 목표를 입력하세요";
 
+  const isEditing = useMandalaStore(
+    useShallow((state) => !state.isFullOpen && state.editingCellId === goalId)
+  );
+  console.log(isEditing);
+  if (isEditing) return null;
   return (
     <div
       className={cn(
@@ -74,7 +86,11 @@ export default function MandalaReadOnlyCell({
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={onCellClick}
+      onClick={() => {
+        onCellClick();
+        console.log("test");
+        setIsHovered(false);
+      }}
       data-tutorial={dataTutorial}
     >
       <span
@@ -84,10 +100,10 @@ export default function MandalaReadOnlyCell({
           isCenter && type !== "main-center" && type !== "sub"
             ? "font-semibold text-primary"
             : "text-gray-400",
-          content && "text-[#333333]"
+          cell.content && "text-[#333333]"
         )}
       >
-        {content || display}
+        {cell.content || display}
       </span>
 
       {!isCenter && !compact && !isModalOpen && (
@@ -95,14 +111,17 @@ export default function MandalaReadOnlyCell({
           variant="ghost"
           size="sm"
           className={cn(
-            "z-9 absolute top-1 right-1 w-6 h-6 p-0 transition-all pixel-button rounded-sm ",
+            "z-9 absolute top-1 right-1 w-6 h-6 p-0 transition-all pixel-button rounded-sm transition-all",
             isHovered ? "opacity-100 bg-primary/20" : "opacity-60 "
           )}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (onDetailClick) onDetailClick(id);
-            setIsHovered(false);
-          }}
+          onClick={onDetailClick}
+          // onClick={(e) => {
+          //   e.stopPropagation();
+          //   console.log("Test");
+          //   setModalVisible(true);
+          //   if (onDetailClick) onDetailClick(goalId);
+          //   setIsHovered(false);
+          // }}
           title="세부목표 설정"
           data-tutorial={
             tutorialArrowButton ? "tutorial-arrow-button" : undefined
@@ -118,19 +137,20 @@ export default function MandalaReadOnlyCell({
           size="none"
           className={cn(
             "z-1 absolute top-[5.5px] right-[7px] size-[22px] rounded-[1px]",
-            status === "DONE" ? "" : "bg-[#FAFAFA]"
+            cell.status === "DONE" ? "" : "bg-[#FAFAFA]"
           )}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!content) return toast("세부 목표를 입력해주세요!");
-            toggleGoalStatus(id);
-            allGoalComplete(id);
-          }}
+          onClick={onGoalClick}
+          // onClick={(e) => {
+          //   e.stopPropagation();
+          //   if (!content) return toast("세부 목표를 입력해주세요!");
+          //   toggleGoalStatus(goalId);
+          //   allGoalComplete(goalId);
+          // }}
         >
-          <CheckIcon fill={status === "DONE" ? "#3A3A3A" : "#E3E3E3"} />
+          <CheckIcon fill={cell.status === "DONE" ? "#3A3A3A" : "#E3E3E3"} />
         </Button>
       )}
-      {!compact && status === "DONE" && (
+      {!compact && cell.status === "DONE" && (
         <div
           className="absolute w-full h-full p-1 shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.05)] "
           style={{ backgroundColor: "rgba(219, 219, 219, 0.6)" }}
@@ -140,4 +160,4 @@ export default function MandalaReadOnlyCell({
       )}
     </div>
   );
-}
+});
