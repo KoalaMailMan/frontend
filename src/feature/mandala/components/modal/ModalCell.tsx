@@ -23,13 +23,11 @@ export default React.memo(function ModalCell({
   const cell = useMandalaStore(
     useShallow((state) => state.flatData.cells[goalId])
   );
-  const isFullOpen = useMandalaStore(useShallow((state) => state.isFullOpen));
-  const isEditing = useMandalaStore(
-    useShallow(
-      (state) =>
-        `${dashboard}-${state.editingCellId}` === `${dashboard}-${goalId}`
-    )
+  const editingContext = useMandalaStore(
+    useShallow((state) => state.editingContext)
   );
+  const isFullOpen = useMandalaStore(useShallow((state) => state.isFullOpen));
+  const isEditing = useMandalaStore(useShallow((state) => state.editingCellId));
   const editingCellId = useMandalaStore(
     useShallow((state) => !state.isFullOpen && state.editingCellId)
   );
@@ -39,6 +37,9 @@ export default React.memo(function ModalCell({
 
   const setEditingCell = useMandalaStore(
     useShallow((state) => state.setEditingCell)
+  );
+  const setEditingContext = useMandalaStore(
+    useShallow((state) => state.setEditingContext)
   );
   const setModalCellId = useMandalaStore(
     useShallow((state) => state.setModalCellId)
@@ -52,13 +53,14 @@ export default React.memo(function ModalCell({
   const handleCellClick = useCallback(() => {
     console.log("클릭:", goalId);
     setEditingCell(goalId);
-    console.log(useMandalaStore.getState().editingCellId);
+    console.log(editingContext);
   }, [goalId, setEditingCell]);
 
   const handleDetailClick = useCallback(() => {
-    setEditingCell(null);
-    setModalCellId(goalId);
-    setModalVisible(true);
+    // setEditingCell(null);
+    console.log(editingContext);
+    // setModalCellId(goalId);
+    // setModalVisible(true);
   }, [goalId, setEditingCell, setModalCellId, setModalVisible]);
 
   const handleContentChange = useCallback(
@@ -73,22 +75,23 @@ export default React.memo(function ModalCell({
     },
     [goalId, handleCellChange]
   );
-  const onCancel = useCallback(() => {
-    if (dashboard === "sub") {
-      // edit/read 컴포넌트를 재사용하여 사용하므로
-      // editingCell의 초기화가 연동됨.
-      // 한 화면에 main/sub, main/full 두 개 이하의 컴포넌트가 렌더링되어
-      // blur 이벤트가 두 번 이상 발생하므로 조건부 처리가 필수적임.
-      setEditingCell(null);
-    }
+  const onCancel = useCallback((e) => {
+    console.log(editingContext);
+    // if (editingContext === "sub") {
+    setEditingCell(null);
+    console.log(e.target);
+    console.log(textareaRef.current?.contains(e.target));
+    // edit/read 컴포넌트를 재사용하여 사용하므로
+    // editingCell의 초기화가 연동됨.
+    // 한 화면에 main/sub, main/full 두 개 이하의 컴포넌트가 렌더링되어
+    // blur 이벤트가 두 번 이상 발생하므로 조건부 처리가 필수적임.
+    setEditingContext("main");
+    // }
+    console.log("test 여기 모달");
   }, []);
 
   useEffect(() => {
-    console.log({
-      editingCellId,
-      isFullOpen,
-      result: !isFullOpen && editingCellId === goalId,
-    });
+    // setEditingCell(null);
     requestAnimationFrame(() => {
       if (isEditing && textareaRef.current) {
         console.log("포커스!");
@@ -124,7 +127,7 @@ export default React.memo(function ModalCell({
         disabled={disabled}
         isEmpty={!cell.content}
         onCellClick={handleCellClick}
-        onDetailClick={handleDetailClick}
+        // onDetailClick={handleDetailClick}
       />
     </>
   );

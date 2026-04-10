@@ -28,6 +28,16 @@ export default React.memo(function GridCell({
   const isEditing = useMandalaStore(
     useShallow((state) => !state.isFullOpen && state.editingCellId === goalId)
   );
+  const isComponents = useMandalaStore(
+    useShallow((state) => state.isModalOpen || state.isFullOpen)
+  );
+  const isModalOpen = useMandalaStore(useShallow((state) => state.isModalOpen));
+  const editingCellId = useMandalaStore(
+    useShallow((state) => state.editingCellId)
+  );
+  const editingContext = useMandalaStore(
+    useShallow((state) => state.editingContext)
+  );
   const setEditingCell = useMandalaStore(
     useShallow((state) => state.setEditingCell)
   );
@@ -37,6 +47,9 @@ export default React.memo(function GridCell({
   const setModalVisible = useMandalaStore(
     useShallow((state) => state.setModalVisible)
   );
+  const setEditingContext = useMandalaStore(
+    useShallow((state) => state.setEditingContext)
+  );
   const handleCellChange = useMandalaStore(
     useShallow((state) => state.handleCellChange)
   );
@@ -45,16 +58,17 @@ export default React.memo(function GridCell({
     [goalId, setEditingCell]
   );
   const handleDetailClick = useCallback(() => {
+    console.log("모달 오픈이요");
     setEditingCell(null);
     setModalCellId(goalId);
     setModalVisible(true);
+    setEditingContext("sub");
   }, [goalId, setModalCellId, setModalVisible]);
 
   const handleContentChange = useCallback(
     (e: React.FormEvent, value: string) => {
       console.log(value);
       handleCellChange(goalId, value);
-      (e.target as HTMLTextAreaElement).focus();
       if (textareaRef.current) {
         const textarea = textareaRef.current;
         textarea.style.height = "auto";
@@ -63,11 +77,18 @@ export default React.memo(function GridCell({
     },
     [goalId, handleCellChange]
   );
-  const onCancel = useCallback(() => {
-    if (dashboard === "main") {
-      setEditingCell(null);
-      console.log("Test");
-    }
+  const onCancel = useCallback((e) => {
+    const next = e.relatedTarget as HTMLElement | null;
+
+    // 1. 내가 현재 editing 셀이 아니면 무시
+    if (useMandalaStore.getState().editingCellId !== goalId) return;
+
+    // 2. editable 영역 내부 이동이면 무시
+    if (next?.closest("[data-editable-cell]")) return;
+
+    // 3. 진짜 외부 blur만 처리
+    setEditingCell(null);
+    setEditingContext("main");
   }, []);
 
   useEffect(() => {
