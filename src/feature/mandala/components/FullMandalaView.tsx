@@ -1,14 +1,20 @@
 import Button from "@/feature/ui/Button";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { ImageIcon, X } from "lucide-react";
-import { Fragment, useMemo, useRef } from "react";
+import { Fragment, useEffect, useMemo, useRef } from "react";
 import MandalaContainer from "./MandalaContainer";
 import { cn } from "@/lib/utils";
 import { captureAndDownload } from "../utills/image";
-import { findbyCSS, getGridClasses, type Type } from "../utills/css";
+import {
+  findbyCSS,
+  getCellType,
+  getGridClasses,
+  type Type,
+} from "../utills/css";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
 import { getNextCellId, serverToUI } from "../service";
 import useMandalaData from "../hooks/useMandalaData";
+import FullCell from "./full/FullCell";
 
 export default function FullMandalaView() {
   const mandalaList = useMandalaStore((state) => state.data.core.mains);
@@ -18,11 +24,15 @@ export default function FullMandalaView() {
   const setEditingFullCell = useMandalaStore(
     (state) => state.setEditingFullCell
   );
+  const setEditingCell = useMandalaStore((state) => state.setEditingCell);
   const onClose = useMandalaStore((state) => state.setFullVisible);
   const mandaraGridRef = useRef<HTMLDivElement | null>(null);
   const layout = useMandalaStore((state) => state.flatData?.layout);
   const { data } = useMandalaData();
-  console.log(layout);
+  useEffect(() => {
+    // 마운트 후  null 처리를 통해 포커스 해지
+    setEditingCell(null);
+  }, []);
   const addPositionProperty = useMemo(() => {
     return mandalaList.map((item, idx) => {
       const isCenter = 0 === idx;
@@ -212,7 +222,8 @@ export default function FullMandalaView() {
                   </div>
                 );
               })} */}
-              {layout.subs.map((subIds, blockIdx) => (
+
+              {layout.grid.map((subIds, blockIdx) => (
                 <div
                   key={`block-${blockIdx}`}
                   className={cn(
@@ -220,17 +231,22 @@ export default function FullMandalaView() {
                     getGridClasses(blockIdx)
                   )}
                 >
-                  {subIds.map((goalId, subIdx) => (
-                    <MandalaContainer
-                      key={goalId}
-                      goalId={goalId}
-                      isCenter={blockIdx === 0 && subIdx === 0}
-                      compact={true}
-                      disabled={false}
-                      editingCellId={editingFullCellId}
-                      className={cn(findbyCSS("sub"), getGridClasses(subIdx))}
-                    />
-                  ))}
+                  {subIds.map((goalId, subIdx) => {
+                    const type = getCellType(blockIdx, subIdx);
+                    return (
+                      <FullCell
+                        key={goalId}
+                        goalId={goalId}
+                        isCenter={blockIdx === 0 && subIdx === 0}
+                        disabled={false}
+                        className={cn(
+                          "",
+                          findbyCSS((type as Type) || "sub"),
+                          getGridClasses(subIdx)
+                        )}
+                      />
+                    );
+                  })}
                 </div>
               ))}
               {/* {grid.map((subBlock, blockIdx) => (
