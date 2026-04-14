@@ -19,7 +19,7 @@ type MandalaEditableCellProps = {
     e: React.FormEvent<HTMLTextAreaElement>,
     value: string
   ) => void;
-  onCancel: () => void;
+  // onCancel: () => void;
 };
 function MandalaEditableCell(
   {
@@ -29,35 +29,38 @@ function MandalaEditableCell(
     isCenter,
     disabled,
     onContentChange,
-    onCancel,
-  }: MandalaEditableCellProps,
+  }: // onCancel,
+  MandalaEditableCellProps,
   ref: React.Ref<HTMLTextAreaElement>
 ) {
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
   const cell = useMandalaStore(
     useShallow((state) => state.flatData.cells[goalId])
   );
+  const cancelEditing = useMandalaStore((state) => state.cancelEditing);
   // if (status === "DONE") return;
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      onCancel();
+      cancelEditing("enter");
     } else if (e.key === "Escape") {
-      onCancel();
+      cancelEditing("escape");
     }
   };
   useEffect(() => {
     console.log("EditableCell 마운트");
+    console.log("cell", cell);
     return () => console.log("EditableCell 언마운트");
   }, []);
 
-  const isEditing = useMandalaStore(
-    useShallow((state) => !state.isFullOpen && state.editingCellId === goalId)
-  );
-  if (!isEditing) return null;
+  // const isEditing = useMandalaStore(
+  //   useShallow((state) => state.editingCellId === goalId)
+  // );
+  // if (!isEditing) return null;
 
   return (
     <div
+      data-editable-cell
       data-mandala-cell={isModalOpen && "editing"}
       className={cn(
         "w-full h-full border-2 border-primary bg-white flex items-center justify-center relative rounded-lg",
@@ -87,13 +90,7 @@ function MandalaEditableCell(
         value={cell.content}
         onChange={(e) => onContentChange(e, e.target.value)}
         onMouseDown={(e) => e.stopPropagation()}
-        onBlur={(e) => {
-          // 내부 이동이면 무시
-          if (e.relatedTarget && e.currentTarget.contains(e.relatedTarget)) {
-            return;
-          }
-          onCancel();
-        }}
+        onBlur={(e) => cancelEditing("blur", e)}
         onKeyDown={handleKeyDown}
         disabled={disabled}
       />

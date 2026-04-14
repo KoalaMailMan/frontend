@@ -63,11 +63,10 @@ export default React.memo(function MandalaReadOnlyCell({
     ? "핵심 목표를 입력하세요"
     : "주요 목표를 입력하세요";
 
-  const isEditing = useMandalaStore(
-    useShallow((state) => !state.isFullOpen && state.editingCellId === goalId)
-  );
-  console.log(isEditing);
-  if (isEditing) return null;
+  // const isEditing = useMandalaStore(
+  //   useShallow((state) => !state.isFullOpen && state.editingCellId === goalId)
+  // );
+  // if (isEditing) return null;
   return (
     <div
       className={cn(
@@ -76,7 +75,7 @@ export default React.memo(function MandalaReadOnlyCell({
         isCenter &&
           type === "center" &&
           "border-primary text-primary-foreground font-semibold",
-        isEmpty && "text-gray-400",
+        // isEmpty && "text-gray-400",
         disabled && isCenter && "cursor-not-allowed opacity-50",
         className
       )}
@@ -88,7 +87,6 @@ export default React.memo(function MandalaReadOnlyCell({
       onMouseLeave={() => setIsHovered(false)}
       onClick={() => {
         onCellClick();
-        console.log("test");
         setIsHovered(false);
       }}
       data-tutorial={dataTutorial}
