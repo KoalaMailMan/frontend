@@ -34,8 +34,9 @@ export default function MandalaGrid() {
   const { data } = useMandalaData();
 
   const handleContentChange = (goalId: string, value: string) => {
+    console.log(data);
     if (data) {
-      handleCellChange(goalId, value, toLegacyStructure(data));
+      handleCellChange(goalId, value, data);
     } else {
       handleCellChange(goalId, value);
     }
@@ -87,31 +88,31 @@ export default function MandalaGrid() {
   }, []);
 
   return (
-    <div className="grid grid-cols-3 grid-rows-3 gap-1 max-w-lg mx-auto aspect-square">
+    <div className="grid grid-cols-3 gap-1 max-w-lg mx-auto aspect-square">
       {layout?.mains.map((goalId, index) => {
         const isCenter = index === 0;
+        const subIds = layout.subs[goalId];
+        const hasSubGoals = subIds?.some(
+          (subId) => flatData.cells[subId]?.content
+        );
 
         return (
-          <div
-            className={cn("w-full h-full", getGridClasses(index))}
-            // onClick={() => setEditingCell(goalId)}
-          >
-            <GridCell
-              key={goalId}
-              goalId={goalId}
-              dashboard="main"
-              isCenter={isCenter}
-              disabled={false}
-              data-tutorial={
-                // 0번째 중앙의 핵심 목표
-                index === 0 ? "center-cell" : index === 4 ? "main-cells" : ""
-              }
-              tutorialArrowButton={index === 4} // 첫번째 셀의 화살표에만 true
-              className={
-                isCenter ? "border-primary text-primary font-semibold" : ""
-              }
-            />
-          </div>
+          <GridCell
+            key={goalId}
+            goalId={goalId}
+            isCenter={isCenter}
+            disabled={false}
+            data-tutorial={
+              // 0번째 중앙의 핵심 목표
+              index === 0 ? "center-cell" : index === 4 ? "main-cells" : ""
+            }
+            tutorialArrowButton={index === 4} // 첫번째 셀의 화살표에만 true
+            className={`w-full h-full
+              ${isCenter && "border-primary text-primary font-semibold"}
+              ${hasSubGoals ? "ring-2 ring-primary/50 bg-primary/5" : ""}
+              ${getGridClasses(index)}
+            `}
+          />
         );
       })}
       {/* {layout?.mains.map((goalId, index) => {
