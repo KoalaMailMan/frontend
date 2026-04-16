@@ -26,3 +26,13 @@ export const findbyCSS = (type: Type) => {
   if (typeObj[type]) return typeObj[type];
   return typeObj["sub"];
 };
+
+export const getCellType = (blockIdx: number, subIdx: number): Type => {
+  if (blockIdx === 0 && subIdx === 0) return "center";
+
+  if (subIdx === 0) return "main-center";
+
+  if (blockIdx === 0) return "main";
+
+  return "sub";
+};
