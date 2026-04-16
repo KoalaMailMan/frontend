@@ -3,6 +3,7 @@ import { useShallow } from "zustand/react/shallow";
 import MandalaReadOnlyCell from "../MandalaReadOnlyCell";
 import MandalaEditableCell from "../MandalaEditableCell";
 import React, { useCallback, useEffect, useRef } from "react";
+import useMandalaData from "../../hooks/useMandalaData";
 
 type ModalCellProps = {
   className?: string;
@@ -17,6 +18,7 @@ export default React.memo(function ModalCell({
   isCenter,
   disabled,
 }: ModalCellProps) {
+  const { data } = useMandalaData();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const cell = useMandalaStore(
     useShallow((state) => state.flatData.cells[goalId])
@@ -42,7 +44,7 @@ export default React.memo(function ModalCell({
   const handleContentChange = useCallback(
     (e: React.FormEvent, value: string) => {
       console.log(value);
-      handleCellChange(goalId, value);
+      handleCellChange(goalId, value, data);
       if (textareaRef.current) {
         const textarea = textareaRef.current;
         textarea.style.height = "auto";
@@ -106,28 +108,28 @@ export default React.memo(function ModalCell({
       // onDetailClick={handleDetailClick}
     />
   );
-  return (
-    <>
-      <MandalaEditableCell
-        ref={textareaRef}
-        goalId={goalId}
-        // cell={cell}
-        compact={true}
-        isCenter={isCenter}
-        disabled={disabled}
-        onContentChange={handleContentChange}
-      />
-      <MandalaReadOnlyCell
-        className={className}
-        goalId={goalId}
-        // cell={cell}
-        compact={true}
-        isCenter={isCenter}
-        disabled={disabled}
-        isEmpty={!cell.content}
-        onCellClick={handleCellClick}
-        // onDetailClick={handleDetailClick}
-      />
-    </>
-  );
+  // return (
+  //   <>
+  //     <MandalaEditableCell
+  //       ref={textareaRef}
+  //       goalId={goalId}
+  //       // cell={cell}
+  //       compact={true}
+  //       isCenter={isCenter}
+  //       disabled={disabled}
+  //       onContentChange={handleContentChange}
+  //     />
+  //     <MandalaReadOnlyCell
+  //       className={className}
+  //       goalId={goalId}
+  //       // cell={cell}
+  //       compact={true}
+  //       isCenter={isCenter}
+  //       disabled={disabled}
+  //       isEmpty={!cell.content}
+  //       onCellClick={handleCellClick}
+  //       // onDetailClick={handleDetailClick}
+  //     />
+  //   </>
+  // );
 });

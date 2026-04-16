@@ -3,10 +3,10 @@ import { useShallow } from "zustand/react/shallow";
 import MandalaReadOnlyCell from "../MandalaReadOnlyCell";
 import MandalaEditableCell from "../MandalaEditableCell";
 import React, { useCallback, useEffect, useRef } from "react";
+import useMandalaData from "../../hooks/useMandalaData";
 
 type GridCellProps = {
   className?: string;
-  dashboard: string;
   goalId: string;
   isCenter: boolean;
   disabled: boolean;
@@ -15,28 +15,19 @@ type GridCellProps = {
 
 export default React.memo(function GridCell({
   className,
-  dashboard,
   goalId,
   isCenter,
   disabled,
   tutorialArrowButton,
 }: GridCellProps) {
+  const { data } = useMandalaData();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const cell = useMandalaStore(
     useShallow((state) => state.flatData.cells[goalId])
   );
+  const editingCellId = useMandalaStore((state) => state.editingCellId);
   const isEditing = useMandalaStore(
-    useShallow((state) => !state.isFullOpen && state.editingCellId === goalId)
-  );
-  const isComponents = useMandalaStore(
-    useShallow((state) => state.isModalOpen || state.isFullOpen)
-  );
-  const isModalOpen = useMandalaStore(useShallow((state) => state.isModalOpen));
-  const editingCellId = useMandalaStore(
-    useShallow((state) => state.editingCellId)
-  );
-  const editingContext = useMandalaStore(
-    useShallow((state) => state.editingContext)
+    useShallow((state) => state.editingCellId === goalId)
   );
   const setEditingCell = useMandalaStore(
     useShallow((state) => state.setEditingCell)
@@ -47,8 +38,8 @@ export default React.memo(function GridCell({
   const setModalVisible = useMandalaStore(
     useShallow((state) => state.setModalVisible)
   );
-  const setEditingContext = useMandalaStore(
-    useShallow((state) => state.setEditingContext)
+  const cancelEditing = useMandalaStore(
+    useShallow((state) => state.cancelEditing)
   );
   const handleCellChange = useMandalaStore(
     useShallow((state) => state.handleCellChange)
@@ -58,17 +49,15 @@ export default React.memo(function GridCell({
     [goalId, setEditingCell]
   );
   const handleDetailClick = useCallback(() => {
-    console.log("모달 오픈이요");
     setEditingCell(null);
     setModalCellId(goalId);
     setModalVisible(true);
-    setEditingContext("sub");
   }, [goalId, setModalCellId, setModalVisible]);
 
   const handleContentChange = useCallback(
     (e: React.FormEvent, value: string) => {
-      console.log(value);
-      handleCellChange(goalId, value);
+      console.log(data);
+      handleCellChange(goalId, value, data);
       if (textareaRef.current) {
         const textarea = textareaRef.current;
         textarea.style.height = "auto";
@@ -77,19 +66,6 @@ export default React.memo(function GridCell({
     },
     [goalId, handleCellChange]
   );
-  const onCancel = useCallback((e) => {
-    const next = e.relatedTarget as HTMLElement | null;
-
-    // 1. 내가 현재 editing 셀이 아니면 무시
-    if (useMandalaStore.getState().editingCellId !== goalId) return;
-
-    // 2. editable 영역 내부 이동이면 무시
-    if (next?.closest("[data-editable-cell]")) return;
-
-    // 3. 진짜 외부 blur만 처리
-    setEditingCell(null);
-    setEditingContext("main");
-  }, []);
 
   useEffect(() => {
     if (isEditing && textareaRef.current) {
@@ -102,28 +78,67 @@ export default React.memo(function GridCell({
     }
   }, [isEditing]);
 
-  return (
-    <>
-      <MandalaEditableCell
-        ref={textareaRef}
-        goalId={goalId}
-        // cell={cell}
-        isCenter={isCenter}
-        disabled={disabled}
-        onContentChange={handleContentChange}
-        onCancel={onCancel}
-      />
-      <MandalaReadOnlyCell
-        className={className}
-        goalId={goalId}
-        // cell={cell}
-        isCenter={isCenter}
-        disabled={disabled}
-        isEmpty={!cell.content}
-        tutorialArrowButton={tutorialArrowButton}
-        onCellClick={handleCellClick}
-        onDetailClick={handleDetailClick}
-      />
-    </>
+  useEffect(() => {
+    function handlePointerDown(e: PointerEvent) {
+      const active = document.activeElement;
+      const target = e.target as Node;
+
+      if (textareaRef.current?.contains(target)) return;
+
+      if (active === textareaRef.current) {
+        cancelEditing("escape");
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, []);
+
+  return isEditing ? (
+    <MandalaEditableCell
+      ref={textareaRef}
+      goalId={goalId}
+      // cell={cell}
+      isCenter={isCenter}
+      disabled={disabled}
+      onContentChange={handleContentChange}
+    />
+  ) : (
+    <MandalaReadOnlyCell
+      className={className}
+      goalId={goalId}
+      // cell={cell}
+      isCenter={isCenter}
+      disabled={disabled}
+      isEmpty={!cell.content}
+      tutorialArrowButton={tutorialArrowButton}
+      onCellClick={handleCellClick}
+      onDetailClick={handleDetailClick}
+    />
   );
+  // return (
+  //   <>
+  //     <MandalaEditableCell
+  //       ref={textareaRef}
+  //       goalId={goalId}
+  //       // cell={cell}
+  //       isCenter={isCenter}
+  //       disabled={disabled}
+  //       onContentChange={handleContentChange}
+  //     />
+  //     <MandalaReadOnlyCell
+  //       className={className}
+  //       goalId={goalId}
+  //       // cell={cell}
+  //       isCenter={isCenter}
+  //       disabled={disabled}
+  //       isEmpty={!cell.content}
+  //       tutorialArrowButton={tutorialArrowButton}
+  //       onCellClick={handleCellClick}
+  //       onDetailClick={handleDetailClick}
+  //     />
+  //   </>
+  // );
 });
