@@ -1,4 +1,4 @@
-import type { MainGoal } from "@/lib/stores/mandalaStore";
+import { type MainGoal } from "@/lib/stores/mandalaStore";
 import { IntervalType } from "../const";
 
 export const findKeyByValue = (type: string) => {

@@ -40,6 +40,8 @@ export type CellData = {
   content: string;
   position?: number;
   status: Status;
+  originalId?: number | undefined;
+  subs?: Omit<CellData, "subs">;
 };
 
 export type MandalaMap = Record<string, CellData>;
