@@ -8,6 +8,7 @@ import {
 import { moveItem } from "../utills/\bindex";
 import { parseCellId } from "./parseCellId";
 import type {
+  CellData,
   MandalaLayout,
   MandalaMap,
   ServerMandalaType,
@@ -770,8 +771,8 @@ export const getDataById = (
 };
 
 export const isEqual = (
-  a: MandalaType["core"] | MainGoal | SubGoal,
-  b: MandalaType["core"] | MainGoal | SubGoal
+  a: MandalaType["core"] | MainGoal | SubGoal | CellData,
+  b: MandalaType["core"] | MainGoal | SubGoal | CellData
 ) => {
   return a.content === b.content && a.status === b.status;
 };
@@ -926,6 +927,7 @@ export const toFlatStructure = (
     goalId: "core-0",
     content: core.content || "",
     status: core.status || "UNDONE",
+    originalId: core.goalId || undefined,
   };
 
   for (let i = 0; i <= 8; i++) {
@@ -939,6 +941,7 @@ export const toFlatStructure = (
         content: mainData?.content || "",
         status: mainData?.status || "UNDONE",
         position: i,
+        originalId: mainData?.goalId || undefined,
       };
     }
 
@@ -947,7 +950,16 @@ export const toFlatStructure = (
     for (let j = 0; j <= 8; j++) {
       if (i === 0 && j === 0) {
         const subId = `core-0`;
-
+        subIds.push(subId);
+        continue;
+      }
+      if (i === 0) {
+        const subId = `main-${j}`;
+        subIds.push(subId);
+        continue;
+      }
+      if (j === 0) {
+        const subId = `main-${i}`;
         subIds.push(subId);
         continue;
       }
@@ -962,6 +974,7 @@ export const toFlatStructure = (
         content: subData?.content || "",
         status: subData?.status || "UNDONE",
         position: j,
+        originalId: subData?.goalId || undefined,
       };
     }
     subs[mainId] = subIds;
