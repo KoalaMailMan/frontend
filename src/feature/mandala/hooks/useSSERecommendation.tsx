@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
+import type { CellData } from "../service/type";
 
 type UseSSERecommendationOptions = {
   goal: string;
-  subs: SubGoal[];
+  subs: SubGoal[] | CellData[];
   getAccessToken: () => Promise<string | undefined | null>;
   onComplete?: (items?: string[] | number) => void;
   onError?: (error: string) => void;
@@ -67,7 +68,7 @@ export default function useSSERecommendation({
 
     const chunk = Queue.current.shift();
     if (chunk) {
-      applyRecommendationChunk(subs, chunk);
+      applyRecommendationChunk(subs[0].goalId, chunk);
     }
 
     timer.current = setTimeout(() => {
@@ -106,7 +107,9 @@ export default function useSSERecommendation({
 
   const startStream = useCallback(
     async (count: number) => {
+      // return;
       if (!goal || goal.trim() === "") {
+        console.log(goal, subs);
         console.warn("유효하지 않은 매개변수: 주요 목표 설정 안됨.");
         setError("주요 목표를 작성해주세요.");
         return;
@@ -132,7 +135,7 @@ export default function useSSERecommendation({
       // 초기화
       setError(null);
       // setRawChunks([]);
-      initRecommendationTargets(subs);
+      initRecommendationTargets(subs[0].goalId);
 
       const existingGoals = subs
         .slice(1)

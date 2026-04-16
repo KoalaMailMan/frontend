@@ -1,6 +1,6 @@
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import MandalaContainer from "./MandalaContainer";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createPortal } from "react-dom";
 import Button from "@/feature/ui/Button";
@@ -14,7 +14,7 @@ import { ensureAccessToken } from "@/feature/auth/service";
 import QuestionIcon from "./icon/QuestionIcon";
 import LoadingSpiner from "@/feature/ui/LoadingSpiner";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId, serverToUI } from "../service";
+import { getNextCellId, serverToUI, toLegacyStructure } from "../service";
 import UseSubsGoalNavigation from "../hooks/ueSubsGoalNavigation";
 import useMandalaData from "../hooks/useMandalaData";
 import ModalCell from "./modal/ModalCell";
@@ -54,17 +54,12 @@ Props) {
   const subs = useMandalaStore(
     (state) => state.flatData?.layout.subs[modalCellId as string]
   );
+  const cells = useMandalaStore(useShallow((state) => state.flatData.cells));
+  // const mains = useMandalaStore((state) => state.flatData?.layout.subs);
 
-  const sub = useMandalaStore(
-    (state) => editingCellId && state.flatData.cells[editingCellId]
-  );
-
-  useEffect(() => {
-    console.log(items);
-    console.log(subs[0]);
-    console.log(sub);
-    console.log(useMandalaStore.getState().flatData);
-  }, [editingCellId]);
+  const subItems = useMemo(() => {
+    return subs.map((sub) => cells[sub]);
+  }, []);
 
   const { data } = useMandalaData();
 
@@ -82,8 +77,8 @@ Props) {
   UseSubsGoalNavigation();
 
   const { startStream, isStreaming } = useSSERecommendation({
-    goal: items[0].content,
-    subs: items,
+    goal: subItems[0].content,
+    subs: subItems,
     getAccessToken,
     onComplete: (items) => {
       if (Array.isArray(items)) {
@@ -117,16 +112,6 @@ Props) {
     setModalCellId(null);
     setModalVisible(false);
     handleSubCancelEdit();
-  };
-
-  const handleSubContentChange = (value: string) => {
-    if (modalCellId) {
-      if (data) {
-        handleCellChange(editingSubCellId as string, value, serverToUI(data));
-      } else {
-        handleCellChange(editingSubCellId as string, value);
-      }
-    }
   };
 
   const handleRecommend = () => {
@@ -180,7 +165,10 @@ Props) {
 
   //   return () => {};
   // }, [recommendation, isStreaming, items]);
-
+  useEffect(() => {
+    // 마운트 후  null 처리를 통해 포커스 해지
+    setEditingCell(null);
+  }, []);
   useEffect(() => {
     const element = positionRef.current;
     const observer = new ResizeObserver(([entry]) => {
@@ -254,27 +242,19 @@ Props) {
                     {subs?.map((goalId, index) => {
                       const isCenter = index === 0;
                       return (
-                        <div
+                        <ModalCell
+                          key={goalId}
+                          goalId={goalId}
+                          isCenter={isCenter}
+                          disabled={false}
                           className={cn(
-                            " w-full h-full",
-                            getGridClasses(index)
+                            "md:min-w-[125px] w-full h-full",
+                            getGridClasses(index),
+                            isCenter
+                              ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
+                              : ""
                           )}
-                          // onClick={() => setEditingCell(goalId)}
-                        >
-                          <ModalCell
-                            key={goalId}
-                            dashboard="sub"
-                            goalId={goalId}
-                            isCenter={isCenter}
-                            disabled={false}
-                            className={cn(
-                              "md:min-w-[125px] w-full h-full",
-                              isCenter
-                                ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
-                                : ""
-                            )}
-                          />
-                        </div>
+                        />
                       );
                     })}
                     {/* {subs?.map((goalId, index) => {
