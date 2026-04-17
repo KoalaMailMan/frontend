@@ -1,5 +1,5 @@
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
-import MandalaContainer from "./MandalaContainer";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createPortal } from "react-dom";
@@ -14,27 +14,17 @@ import { ensureAccessToken } from "@/feature/auth/service";
 import QuestionIcon from "./icon/QuestionIcon";
 import LoadingSpiner from "@/feature/ui/LoadingSpiner";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId, serverToUI, toLegacyStructure } from "../service";
+import { getNextCellId } from "../service";
 import UseSubsGoalNavigation from "../hooks/ueSubsGoalNavigation";
-import useMandalaData from "../hooks/useMandalaData";
+
 import ModalCell from "./modal/ModalCell";
 import { useShallow } from "zustand/react/shallow";
 
 type Props = {
   isModalVisible: boolean;
-  items: SubGoal[];
-  // onContentChange: (value: string) => void;
-  onRemove: (id: string, value: string) => void;
-  // onCancelEdit: () => void;
 };
 
-export default function MandalaModal({
-  isModalVisible,
-  items,
-  // onContentChange,
-  onRemove,
-}: // onCancelEdit,
-Props) {
+export default function MandalaModal({ isModalVisible }: Props) {
   // modal 컴포넌트 상태 관리
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -42,26 +32,21 @@ Props) {
   const setAuthOpen = useAuthStore((state) => state.setAuthOpen);
 
   const positionRef = useRef<HTMLDivElement | null>(null);
-  const editingCellId = useMandalaStore((state) => state.editingCellId);
   const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
-  const setEditingCell = useMandalaStore((state) => state.setEditingCell);
+
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
   const setModalCellId = useMandalaStore((state) => state.setModalCellId);
 
   const modalCellId = useMandalaStore((state) => state.modalCellId);
-  const handleCellChange = useMandalaStore((state) => state.handleCellChange);
   const subs = useMandalaStore(
     (state) => state.flatData?.layout.subs[modalCellId as string]
   );
   const cells = useMandalaStore(useShallow((state) => state.flatData.cells));
-  // const mains = useMandalaStore((state) => state.flatData?.layout.subs);
 
   const subItems = useMemo(() => {
     return subs.map((sub) => cells[sub]);
   }, []);
-
-  const { data } = useMandalaData();
 
   const [width, setWidth] = useState(0);
   const [isQuestion, setIsQuestion] = useState(false);
@@ -97,11 +82,6 @@ Props) {
   });
 
   // 상태 관리 함수들
-  const handleSubStartEdit = (goalId: string) => {
-    const sub = items.find((sub) => sub.goalId === goalId);
-    if (sub?.status === "DONE") return;
-    setEditingSubCell(goalId);
-  };
 
   const handleSubCancelEdit = () => {
     setEditingSubCell(null);
@@ -151,24 +131,6 @@ Props) {
     }
   };
 
-  // useEffect(() => {
-  //   if (!isStreaming) return;
-
-  //   if (recommendation.length === 0) return;
-
-  //   const last = recommendation[recommendation.length - 1];
-  //   if (last.includes("[ERROR]")) return;
-  //   const latest = recommendation.at(-1);
-  //   if (latest) {
-  //     applyRecommendationChunk(items, latest);
-  //   }
-
-  //   return () => {};
-  // }, [recommendation, isStreaming, items]);
-  useEffect(() => {
-    // 마운트 후  null 처리를 통해 포커스 해지
-    setEditingCell(null);
-  }, []);
   useEffect(() => {
     const element = positionRef.current;
     const observer = new ResizeObserver(([entry]) => {
@@ -257,52 +219,6 @@ Props) {
                         />
                       );
                     })}
-                    {/* {subs?.map((goalId, index) => {
-                      const isCenter = index === 0;
-                      return (
-                        <div onClick={() => console.log("Testset")}>
-                          <MandalaContainer
-                            key={goalId}
-                            goalId={goalId}
-                            isCenter={isCenter}
-                            compact={false}
-                            disabled={isCenter ? isStreaming : false}
-                            className={cn(
-                              "md:min-w-[125px] w-full h-full",
-                              getGridClasses(index),
-                              isCenter
-                                ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
-                                : ""
-                            )}
-                          />
-                        </div>
-                      );
-                    })} */}
-                    {/* {items.map((sub, index) => {
-                      const isCenter = centerIndex === index;
-                      const isEditing = editingSubCellId === sub.goalId;
-                      return (
-                        <MandalaContainer
-                          key={`sub-${index}-${sub.goalId}`}
-                          isCenter={isCenter}
-                          item={sub}
-                          isEditing={isEditing}
-                          compact={compact}
-                          disabled={isCenter ? isStreaming : false}
-                          isEmpty={!sub.content || !sub.content.trim()}
-                          onStartEdit={() => handleSubStartEdit(sub.goalId)}
-                          onContentChange={handleSubContentChange}
-                          onCancelEdit={handleSubCancelEdit}
-                          className={cn(
-                            "md:min-w-[125px] w-full h-full",
-                            getGridClasses(index),
-                            isCenter
-                              ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
-                              : ""
-                          )}
-                        />
-                      );
-                    })} */}
                   </div>
                 </div>
               </div>

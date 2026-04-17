@@ -100,7 +100,6 @@ export default React.memo(function GridCell({
     <MandalaEditableCell
       ref={textareaRef}
       goalId={goalId}
-      // cell={cell}
       isCenter={isCenter}
       disabled={disabled}
       onContentChange={handleContentChange}
@@ -109,7 +108,6 @@ export default React.memo(function GridCell({
     <MandalaReadOnlyCell
       className={className}
       goalId={goalId}
-      // cell={cell}
       isCenter={isCenter}
       disabled={disabled}
       isEmpty={!cell.content}
@@ -118,27 +116,4 @@ export default React.memo(function GridCell({
       onDetailClick={handleDetailClick}
     />
   );
-  // return (
-  //   <>
-  //     <MandalaEditableCell
-  //       ref={textareaRef}
-  //       goalId={goalId}
-  //       // cell={cell}
-  //       isCenter={isCenter}
-  //       disabled={disabled}
-  //       onContentChange={handleContentChange}
-  //     />
-  //     <MandalaReadOnlyCell
-  //       className={className}
-  //       goalId={goalId}
-  //       // cell={cell}
-  //       isCenter={isCenter}
-  //       disabled={disabled}
-  //       isEmpty={!cell.content}
-  //       tutorialArrowButton={tutorialArrowButton}
-  //       onCellClick={handleCellClick}
-  //       onDetailClick={handleDetailClick}
-  //     />
-  //   </>
-  // );
 });

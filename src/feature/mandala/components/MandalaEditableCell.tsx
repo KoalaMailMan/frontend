@@ -1,17 +1,10 @@
-import { useMandalaStore, type Status } from "@/lib/stores/mandalaStore";
+import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
-import {
-  forwardRef,
-  useEffect,
-  useMemo,
-  type TextareaHTMLAttributes,
-} from "react";
-import type { CellData } from "../service/type";
+import { forwardRef } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 type MandalaEditableCellProps = {
   goalId: string;
-  // cell: CellData;
   isCenter: boolean;
   compact?: boolean;
   disabled: boolean;
@@ -19,18 +12,15 @@ type MandalaEditableCellProps = {
     e: React.FormEvent<HTMLTextAreaElement>,
     value: string
   ) => void;
-  // onCancel: () => void;
 };
 function MandalaEditableCell(
   {
     goalId,
-    // cell,
     compact,
     isCenter,
     disabled,
     onContentChange,
-  }: // onCancel,
-  MandalaEditableCellProps,
+  }: MandalaEditableCellProps,
   ref: React.Ref<HTMLTextAreaElement>
 ) {
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
@@ -47,17 +37,6 @@ function MandalaEditableCell(
       cancelEditing("escape");
     }
   };
-  useEffect(() => {
-    console.log("EditableCell 마운트");
-    console.log("cell", cell);
-    return () => console.log("EditableCell 언마운트");
-  }, []);
-
-  // const isEditing = useMandalaStore(
-  //   useShallow((state) => state.editingCellId === goalId)
-  // );
-  // if (!isEditing) return null;
-
   return (
     <div
       data-editable-cell

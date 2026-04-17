@@ -1,26 +1,14 @@
-import { Fragment } from "react/jsx-runtime";
-import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
-import MandalaContainer from "./MandalaContainer";
+import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import MandalaModal from "./MandalaModal";
 import { getGridClasses } from "../utills/css";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId, serverToUI, toLegacyStructure } from "../service";
-import { useEffect, useRef } from "react";
-import useMandalaData from "../hooks/useMandalaData";
+import { getNextCellId } from "../service";
 import GridCell from "./grid/GridCell";
-import { cn } from "@/lib/utils";
 
 export default function MandalaGrid() {
-  const mandalaList = useMandalaStore((state) => state.data.core.mains);
-  const modalCellId = useMandalaStore((state) => state.modalCellId);
   const editingCellId = useMandalaStore((state) => state.editingCellId);
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
-  const getData = useMandalaStore((state) => state.getData);
-  const handleCellChange = useMandalaStore((state) => state.handleCellChange);
   const setEditingCell = useMandalaStore((state) => state.setEditingCell);
-  const setModalCellId = useMandalaStore((state) => state.setModalCellId);
-  const setModalVisible = useMandalaStore((state) => state.setModalVisible);
-  const timer = useRef<NodeJS.Timeout | null>(null);
 
   const flatData = useMandalaStore((state) => state.flatData);
   const layout = useMandalaStore((state) => state.flatData?.layout);
@@ -30,62 +18,6 @@ export default function MandalaGrid() {
     setEditingId: setEditingCell,
     getNextId: getNextCellId,
   });
-
-  const { data } = useMandalaData();
-
-  const handleContentChange = (goalId: string, value: string) => {
-    console.log(data);
-    if (data) {
-      handleCellChange(goalId, value, data);
-    } else {
-      handleCellChange(goalId, value);
-    }
-  };
-
-  const handleStartEdit = (goalId: string) => {
-    const main = mandalaList.find((main) => main.goalId === goalId);
-    if (main?.status === "DONE") return;
-    setEditingCell(goalId);
-  };
-
-  const handleCancelEdit = () => {
-    setEditingCell(null);
-  };
-
-  const handleDetailClick = (goalId: string) => {
-    setModalCellId(goalId);
-    setModalVisible(true);
-  };
-
-  // const handleModalClose = () => {
-  //   setModalCellId(null);
-  //   setEditingSubCell(null);
-  //   setModalVisible(false);
-  // };
-
-  // const handleSubContentChange = (value: string) => {
-  //   if (modalCellId) {
-  //     if (data) {
-  //       handleCellChange(editingSubCellId as string, value, serverToUI(data));
-  //     } else {
-  //       handleCellChange(editingSubCellId as string, value);
-  //     }
-  //   }
-  // };
-
-  const findByIdWithGoalIndex = (id: string) => {
-    const index = mandalaList.findIndex((item) => item.goalId === id);
-    return index === -1 ? 0 : index;
-  };
-
-  useEffect(() => {
-    return () => {
-      if (timer.current) {
-        clearTimeout(timer.current);
-        timer.current = null;
-      }
-    };
-  }, []);
 
   return (
     <div className="grid grid-cols-3 gap-1 max-w-lg mx-auto aspect-square">
@@ -115,81 +47,8 @@ export default function MandalaGrid() {
           />
         );
       })}
-      {/* {layout?.mains.map((goalId, index) => {
-        const isCenter = index === 0;
 
-        return (
-          <div onClick={() => setEditingCell(goalId)}>
-            <MandalaContainer
-              className={`w-full h-full
-          ${isCenter && "border-primary text-primary font-semibold"}
-          ${getGridClasses(index)}
-        `}
-              key={goalId}
-              goalId={goalId}
-              isCenter={isCenter}
-              compact={false}
-              disabled={false}
-              editingCellId={editingCellId}
-              onDetailClick={() => handleDetailClick(goalId)}
-              data-tutorial={
-                // 0번째 중앙의 핵심 목표
-                index === 0 ? "center-cell" : index === 4 ? "main-cells" : ""
-              }
-              tutorialArrowButton={index === 4} // 첫번째 셀의 화살표에만 true
-            />
-          </div>
-        );
-      })} */}
-      {/* {mandalaList.map((item, index) => {
-        const isCenter = 0 === index;
-        const isEditing = editingCellId === item.goalId;
-        const hasSubGoals =
-          index !== 0 &&
-          item.subs
-            .slice(1)
-            .some((sub) => sub.content && sub.content.trim() !== "");
-        return (
-          <Fragment key={`main-${index}`}>
-          
-            <MandalaContainer
-              className={`w-full h-full
-              ${isCenter && "border-primary text-primary font-semibold"}
-              ${hasSubGoals ? "ring-2 ring-primary/50 bg-primary/5" : ""}
-              ${getGridClasses(index)}
-            `}
-              isCenter={isCenter}
-              item={item}
-              isEditing={isEditing}
-              compact={false}
-              disabled={false}
-              isEmpty={!item.content || item.content.trim() === ""}
-              onStartEdit={() => handleStartEdit(item.goalId)}
-              onContentChange={(value) =>
-                handleContentChange(item.goalId, value)
-              }
-              onCancelEdit={handleCancelEdit}
-              onDetailClick={() => handleDetailClick(item.goalId)}
-              data-tutorial={
-                // 0번째 중앙의 핵심 목표
-                index === 0 ? "center-cell" : index === 4 ? "main-cells" : ""
-              }
-              tutorialArrowButton={index === 4} // 첫번째 셀의 화살표에만 true
-            />
-          </Fragment>
-        ); */}
-      {/* })} */}
-      {isModalOpen && (
-        <MandalaModal
-          isModalVisible={isModalOpen}
-          items={
-            getData(findByIdWithGoalIndex(modalCellId as string)) as SubGoal[]
-          }
-          // onContentChange={handleSubContentChange}
-          onRemove={handleContentChange}
-          // onCancelEdit={handleModalClose}
-        />
-      )}
+      {isModalOpen && <MandalaModal isModalVisible={isModalOpen} />}
     </div>
   );
 }

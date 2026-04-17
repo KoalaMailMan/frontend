@@ -1,8 +1,7 @@
 import Button from "@/feature/ui/Button";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { ImageIcon, X } from "lucide-react";
-import { Fragment, useEffect, useMemo, useRef } from "react";
-import MandalaContainer from "./MandalaContainer";
+import { useRef } from "react";
 import { cn } from "@/lib/utils";
 import { captureAndDownload } from "../utills/image";
 import {
@@ -12,133 +11,24 @@ import {
   type Type,
 } from "../utills/css";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId, serverToUI } from "../service";
-import useMandalaData from "../hooks/useMandalaData";
+import { getNextCellId } from "../service";
 import FullCell from "./full/FullCell";
 
 export default function FullMandalaView() {
-  const mandalaList = useMandalaStore((state) => state.data.core.mains);
-  const isFullOpen = useMandalaStore((state) => state.isFullOpen);
   const editingFullCellId = useMandalaStore((state) => state.editingFullCellId);
-  const handleCellChange = useMandalaStore((state) => state.handleCellChange);
   const setEditingFullCell = useMandalaStore(
     (state) => state.setEditingFullCell
   );
-  const setEditingCell = useMandalaStore((state) => state.setEditingCell);
   const onClose = useMandalaStore((state) => state.setFullVisible);
   const mandaraGridRef = useRef<HTMLDivElement | null>(null);
   const layout = useMandalaStore((state) => state.flatData?.layout);
-  const { data } = useMandalaData();
-  useEffect(() => {
-    // 마운트 후  null 처리를 통해 포커스 해지
-    setEditingCell(null);
-  }, []);
-  const addPositionProperty = useMemo(() => {
-    return mandalaList.map((item, idx) => {
-      const isCenter = 0 === idx;
-      const type = isCenter ? "center" : "main";
-      const content = item.content;
-      const goalId = item.goalId;
-      const position = item.position;
-
-      const newSubs = item.subs.map((sub, subIdx) => {
-        const isSubCenter = 0 === subIdx;
-        const typeSub = isSubCenter ? "main-center" : "sub";
-        const contentSub = sub.content;
-        const newId = sub.goalId.split("-");
-        const goalIdSub =
-          isSubCenter && !sub.goalId.startsWith("core")
-            ? newId[0] + "-center-" + newId[1]
-            : sub.goalId;
-        const positionSub = sub.position;
-
-        return {
-          type: typeSub,
-          content: contentSub,
-          goalId: goalIdSub,
-          position: positionSub,
-          status: item.status,
-        };
-      });
-      return {
-        type,
-        content,
-        goalId,
-        position,
-        status: item.status,
-        subs: newSubs,
-      };
-    });
-  }, [mandalaList]);
-
-  const grid = useMemo(() => {
-    const result: (typeof addPositionProperty)[0]["subs"][] = [];
-    for (let i = 0; i < addPositionProperty.length; i++) {
-      const main = addPositionProperty[i];
-
-      if (i === 0) {
-        // center
-        const newSubs = main.subs.map((sub, j) => ({
-          ...sub,
-          type: j === 0 ? "center" : "main",
-        }));
-        result.push(newSubs);
-        continue;
-      }
-
-      result.push([...main.subs]);
-    }
-    return result;
-  }, [addPositionProperty, editingFullCellId]);
 
   useGridTabNavigation({
     editingId: editingFullCellId,
     setEditingId: setEditingFullCell,
     getNextId: getNextCellId,
-    data: grid,
   });
 
-  const handleSubStartEdit = (goalId: string) => {
-    setEditingFullCell(goalId);
-  };
-
-  const findByIdWithGoalIndex = (id: string) => {
-    const index = [0, 0];
-
-    for (let i = 0; i < mandalaList.length; i++) {
-      const item = mandalaList[i];
-      if (item.goalId === id) {
-        index[0] = i;
-        break;
-      }
-      for (let j = 0; j < item.subs.length; j++) {
-        const sub = item.subs[j];
-        if (sub.goalId === id) {
-          index[0] = i;
-          index[1] = j;
-          break;
-        }
-      }
-    }
-
-    return index;
-  };
-
-  const handleContentChange = (id: string, value: string) => {
-    if (isFullOpen && editingFullCellId) {
-      const index = findByIdWithGoalIndex(id);
-      console.log("Editing:", id, "at index:", index, "value:", value);
-      if (data) {
-        // handleCellChange(id, value, serverToUI(data));
-      } else {
-        handleCellChange(id, value);
-      }
-    }
-  };
-
-  const handleModalClose = () => {
-    setEditingFullCell(null);
-  };
   return (
     <div
       className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4"
@@ -183,46 +73,6 @@ export default function FullMandalaView() {
                 aspectRatio: "1 / 1",
               }}
             >
-              {/* {grid.map((subBlock, blockIdx) => {
-                return (
-                  <div
-                    key={`main-${blockIdx}`}
-                    className={cn(
-                      "grid grid-cols-3 gap-1 aspect-square text-xs",
-                      getGridClasses(blockIdx)
-                    )}
-                  >
-                    {subBlock.map((sub, subIdx) => {
-                      const isCenter = blockIdx === 0 && subIdx === 0;
-                      const isEditing = sub.goalId === editingFullCellId;
-                      return (
-                        <Fragment key={`main-${blockIdx}-${subIdx}`}>
-                          <MandalaContainer
-                            type={sub.type}
-                            item={sub}
-                            isCenter={isCenter}
-                            isEditing={isEditing}
-                            compact={true}
-                            disabled={false}
-                            isEmpty={!sub.content && sub.content.trim() !== ""}
-                            className={cn(
-                              "",
-                              findbyCSS((sub.type as Type) || "sub"),
-                              getGridClasses(subIdx)
-                            )}
-                            onStartEdit={() => handleSubStartEdit(sub.goalId)}
-                            onContentChange={(value) =>
-                              handleContentChange(sub.goalId, value)
-                            }
-                            onCancelEdit={handleModalClose}
-                          />
-                        </Fragment>
-                      );
-                    })}
-                  </div>
-                );
-              })} */}
-
               {layout.grid.map((subIds, blockIdx) => (
                 <div
                   key={`block-${blockIdx}`}
@@ -249,33 +99,6 @@ export default function FullMandalaView() {
                   })}
                 </div>
               ))}
-              {/* {grid.map((subBlock, blockIdx) => (
-                <div key={`main-${blockIdx}`}>
-                  {subBlock.map((sub, subIdx) => (
-                    <MandalaContainer
-                      key={sub.goalId}
-                      goalId={sub.goalId} // id만 내려줌
-                      compact={true}
-                      type={sub.type}
-                      item={sub}
-                      isCenter={true}
-                      isEditing={false}
-                      disabled={false}
-                      isEmpty={!sub.content && sub.content.trim() !== ""}
-                      className={cn(
-                        "",
-                        findbyCSS((sub.type as Type) || "sub"),
-                        getGridClasses(subIdx)
-                      )}
-                      onStartEdit={() => handleSubStartEdit(sub.goalId)}
-                      onContentChange={(value) =>
-                        handleContentChange(sub.goalId, value)
-                      }
-                      onCancelEdit={handleModalClose}
-                    />
-                  ))}
-                </div>
-              ))} */}
             </div>
           </div>
         </div>

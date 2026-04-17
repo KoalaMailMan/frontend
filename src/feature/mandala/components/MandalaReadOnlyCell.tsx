@@ -1,16 +1,10 @@
 import Button from "@/feature/ui/Button";
-import {
-  useMandalaStore,
-  type Status,
-  type SubGoal,
-} from "@/lib/stores/mandalaStore";
+import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useState } from "react";
 import CheckIcon from "./icon/CheckIcon";
-import { toast } from "sonner";
 import { koalaSeal } from "../const/url";
-import type { CellData } from "../service/type";
 import { useShallow } from "zustand/react/shallow";
 
 type MandalaReadOnlyCellProps = {
@@ -31,13 +25,11 @@ type MandalaReadOnlyCellProps = {
 };
 export default React.memo(function MandalaReadOnlyCell({
   goalId,
-  // cell,
   className,
   type,
   isCenter,
   compact,
   disabled,
-  isEmpty,
   "data-tutorial": dataTutorial,
   tutorialArrowButton = false,
   onCellClick,
@@ -45,10 +37,7 @@ export default React.memo(function MandalaReadOnlyCell({
   onGoalClick,
 }: MandalaReadOnlyCellProps) {
   const [isHovered, setIsHovered] = useState(false);
-  const toggleGoalStatus = useMandalaStore((state) => state.toggleGoalStatus);
-  const allGoalComplete = useMandalaStore((state) => state.allGoalComplete);
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
-  const setModalVisible = useMandalaStore((state) => state.setModalVisible);
   const cell = useMandalaStore(
     useShallow((state) => state.flatData.cells[goalId])
   );
@@ -63,10 +52,6 @@ export default React.memo(function MandalaReadOnlyCell({
     ? "핵심 목표를 입력하세요"
     : "주요 목표를 입력하세요";
 
-  // const isEditing = useMandalaStore(
-  //   useShallow((state) => !state.isFullOpen && state.editingCellId === goalId)
-  // );
-  // if (isEditing) return null;
   return (
     <div
       className={cn(
@@ -113,13 +98,6 @@ export default React.memo(function MandalaReadOnlyCell({
             isHovered ? "opacity-100 bg-primary/20" : "opacity-60 "
           )}
           onClick={onDetailClick}
-          // onClick={(e) => {
-          //   e.stopPropagation();
-          //   console.log("Test");
-          //   setModalVisible(true);
-          //   if (onDetailClick) onDetailClick(goalId);
-          //   setIsHovered(false);
-          // }}
           title="세부목표 설정"
           data-tutorial={
             tutorialArrowButton ? "tutorial-arrow-button" : undefined
@@ -138,12 +116,6 @@ export default React.memo(function MandalaReadOnlyCell({
             cell.status === "DONE" ? "" : "bg-[#FAFAFA]"
           )}
           onClick={onGoalClick}
-          // onClick={(e) => {
-          //   e.stopPropagation();
-          //   if (!content) return toast("세부 목표를 입력해주세요!");
-          //   toggleGoalStatus(goalId);
-          //   allGoalComplete(goalId);
-          // }}
         >
           <CheckIcon fill={cell.status === "DONE" ? "#3A3A3A" : "#E3E3E3"} />
         </Button>

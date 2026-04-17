@@ -13,14 +13,6 @@ type UseSSERecommendationOptions = {
 
 const EventSource = EventSourcePolyfill;
 
-// export const parseSSEChunks = (rawData: string[]) => {
-//   return rawData
-//     .join("")
-//     .split(/\s*,\s*/g)
-//     .map((item) => item.replace("__COMPLETE__", ""))
-//     .filter((item) => item.length > 0);
-// };
-
 const splitSSEChunk = (chunk: string) => {
   const Queue: string[] = [];
 
@@ -107,7 +99,6 @@ export default function useSSERecommendation({
 
   const startStream = useCallback(
     async (count: number) => {
-      // return;
       if (!goal || goal.trim() === "") {
         console.log(goal, subs);
         console.warn("유효하지 않은 매개변수: 주요 목표 설정 안됨.");
@@ -134,7 +125,6 @@ export default function useSSERecommendation({
 
       // 초기화
       setError(null);
-      // setRawChunks([]);
       initRecommendationTargets(subs[0].goalId);
 
       const existingGoals = subs
@@ -207,7 +197,6 @@ export default function useSSERecommendation({
         });
         const errorMsg = "스트림 연결 오류";
         cleanupStream();
-        // clearQueue();
         onError?.(errorMsg);
         eventSource.close();
       };
@@ -229,8 +218,6 @@ export default function useSSERecommendation({
     clearQueue();
   }, []);
 
-  // const parsed = useMemo(() => parseSSEChunks(rawChunks), [rawChunks]);
-
   useEffect(() => {
     return () => {
       cleanupStream();
@@ -242,17 +229,10 @@ export default function useSSERecommendation({
     clearQueue();
   }, [isProcessing]);
 
-  // useEffect(() => {
-  //   if (!isStreaming && !error && parsed.length > 0) {
-  //     onComplete?.(parsed);
-  //   }
-  // }, [isStreaming, error, parsed, onComplete]);
-
   return {
     startStream,
     stopStream,
     error,
     isStreaming,
-    // recommendation: parsed,
   };
 }

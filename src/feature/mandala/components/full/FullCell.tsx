@@ -89,7 +89,6 @@ export default React.memo(function ModalCell({
     <MandalaEditableCell
       ref={textareaRef}
       goalId={goalId}
-      // cell={cell}
       compact={true}
       isCenter={isCenter}
       disabled={disabled}
@@ -99,37 +98,11 @@ export default React.memo(function ModalCell({
     <MandalaReadOnlyCell
       className={className}
       goalId={goalId}
-      // cell={cell}
       compact={true}
       isCenter={isCenter}
       disabled={disabled}
       isEmpty={!cell.content}
       onCellClick={handleCellClick}
-      // onDetailClick={handleDetailClick}
     />
   );
-  // return (
-  //   <>
-  //     <MandalaEditableCell
-  //       ref={textareaRef}
-  //       goalId={goalId}
-  //       // cell={cell}
-  //       compact={true}
-  //       isCenter={isCenter}
-  //       disabled={disabled}
-  //       onContentChange={handleContentChange}
-  //     />
-  //     <MandalaReadOnlyCell
-  //       className={className}
-  //       goalId={goalId}
-  //       // cell={cell}
-  //       compact={true}
-  //       isCenter={isCenter}
-  //       disabled={disabled}
-  //       isEmpty={!cell.content}
-  //       onCellClick={handleCellClick}
-  //       // onDetailClick={handleDetailClick}
-  //     />
-  //   </>
-  // );
 });
