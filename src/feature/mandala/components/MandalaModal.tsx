@@ -19,6 +19,7 @@ import UseSubsGoalNavigation from "../hooks/ueSubsGoalNavigation";
 
 import ModalCell from "./modal/ModalCell";
 import { useShallow } from "zustand/react/shallow";
+import type { CellData } from "../service/type";
 
 type Props = {
   isModalVisible: boolean;
@@ -37,6 +38,7 @@ export default function MandalaModal({ isModalVisible }: Props) {
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
   const setModalCellId = useMandalaStore((state) => state.setModalCellId);
+  const handleCellChange = useMandalaStore((state) => state.handleCellChange);
 
   const modalCellId = useMandalaStore((state) => state.modalCellId);
   const subs = useMandalaStore(
@@ -105,16 +107,16 @@ export default function MandalaModal({ isModalVisible }: Props) {
       return;
     }
 
-    const emptyCount = validateEmptyGoals(items);
+    const emptyCount = validateEmptyGoals(subItems);
     if (emptyCount) {
       startStream(emptyCount);
     }
   };
 
-  const getEmptySubGoalCount = (subs: SubGoal[]) =>
+  const getEmptySubGoalCount = (subs: SubGoal[] | CellData[]) =>
     subs.slice(0, 9).filter((sub) => !sub.content.trim()).length;
 
-  const validateEmptyGoals = (subs: SubGoal[]) => {
+  const validateEmptyGoals = (subs: SubGoal[] | CellData[]) => {
     const hasEmptyGoals = subs.some((main) => !main.content.trim());
     const emptyCount = getEmptySubGoalCount(subs);
     if (!emptyCount)
@@ -123,12 +125,8 @@ export default function MandalaModal({ isModalVisible }: Props) {
     return emptyCount && hasEmptyGoals ? emptyCount : 0;
   };
 
-  const removeSubGoalValue = (state: SubGoal["goalId"] | SubGoal[]) => {
-    if (typeof state === "string") {
-      onRemove(state, "");
-    } else if (typeof state === "object") {
-      state.forEach((sub, index) => index !== 0 && onRemove(sub.goalId, ""));
-    }
+  const removeSubGoalValue = (goalIds: string[]) => {
+    goalIds.forEach((goalId) => handleCellChange(goalId, ""));
   };
 
   useEffect(() => {
@@ -187,7 +185,7 @@ export default function MandalaModal({ isModalVisible }: Props) {
             세부 목표 설정
           </p>
           <p className="w-full h-[26px] flex justify-center items-center text-[10px] font-normal leading-[17.5px] text-[#666666]">
-            <span> {items[centerIndex]?.content || "주요 목표"}</span>를
+            <span> {subItems[centerIndex]?.content || "주요 목표"}</span>를
             달성하기 위한 구체적인 세부 목표을 세워보세요
           </p>
         </div>
@@ -233,7 +231,7 @@ export default function MandalaModal({ isModalVisible }: Props) {
               </div>
               <p
                 className="w-full h-[18px] flex justify-center text-[10px] leading-[180%] font-semibold text-[#999999]"
-                onClick={() => removeSubGoalValue(items)}
+                onClick={() => removeSubGoalValue(subs)}
               >
                 맞춤 목표 모두 지우기
               </p>
