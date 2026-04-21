@@ -661,82 +661,104 @@ export const getNextCellId = (
   editingCellId: string,
   data?: Omit<SubGoal, "originalId">[][]
 ) => {
-  let mandalart: MainGoal[] = useMandalaStore.getState().data.core.mains;
-  if (editingCellId.startsWith("sub")) {
-    const chunk = editingCellId.split("-");
-    const position =
-      chunk[1] === "center" || chunk[1] === "core" ? chunk[2] : chunk[1];
-    const index = mandalart.findIndex((main) => {
-      if (position === "0") return main.goalId === `core-${position}`;
-      return main.goalId === `main-${position}`;
-    });
-    if (data !== undefined) {
-      // 전체보기 만다라트
-      const currentList = data[index];
-      const ids = moveItem(
-        currentList.map((sub: SubGoal) => sub.goalId),
-        0,
-        4
-      );
-      const currentIndex = ids.indexOf(editingCellId);
-      if (currentIndex === -1) return null;
-      if (currentIndex >= 0) {
-        if (currentIndex === ids.length - 1) {
-          if (index === 4) {
-            const nextMainIndex = 0;
-            const nextList = data[nextMainIndex];
-            return nextList[1]?.goalId ?? null;
-          }
-          if (index === 0) {
-            const nextMainIndex = 5;
-            const nextList = data[nextMainIndex];
-            if (!nextList) return null;
+  const layout = useMandalaStore.getState().flatData.layout;
 
-            return nextList[1]?.goalId ?? null;
-          }
-          if (index === 8) {
-            const nextMainIndex = 1;
-            const nextList = data[nextMainIndex];
-            if (!nextList) return null;
-
-            return nextList[1]?.goalId ?? null;
-          }
-          const nextMainIndex = index + 1;
-          const nextList = data[nextMainIndex];
-          if (!nextList) return null;
-
-          return nextList[1]?.goalId ?? null;
-        }
-        return ids[currentIndex + 1];
-      }
-    }
-    const ids = moveItem(
-      mandalart[index].subs.map((sub) => sub.goalId),
-      0,
-      4
-    );
-
-    const subIndex = ids.findIndex((id) => id === editingCellId);
-    if (subIndex < 0) return null;
-    if (subIndex === ids.length - 1) {
-      return ids[0];
-    } else if (subIndex >= 0) {
-      return ids[subIndex + 1];
-    }
-  } else {
-    const ids = moveItem(
-      mandalart.map((main) => main.goalId),
-      0,
-      4
-    );
-    const mainIndex = ids.findIndex((id) => id === editingCellId);
-    if (mainIndex < 0) return null;
-    if (mainIndex === ids.length - 1) {
-      return ids[0];
-    } else if (mainIndex >= 0) {
-      return ids[mainIndex + 1];
-    }
+  if (editingCellId.startsWith("main") || editingCellId === "core-0") {
+    const ids = moveItem(layout.mains, 0, 4);
+    const currentIndex = ids.indexOf(editingCellId);
+    if (currentIndex === -1) return null;
+    return ids[(currentIndex + 1) % ids.length];
   }
+
+  if (editingCellId.startsWith("sub")) {
+    const chunk = editingCellId.split("-"); // ["sub", "1", "2"]
+    const mainPosition = chunk[1];
+    const subPosition = chunk[2];
+
+    const mainId = mainPosition === "0" ? "core-0" : `main-${mainPosition}`;
+    const subIds = layout.subs[mainId];
+    if (!subIds) return null;
+
+    const currentIndex = subIds.indexOf(editingCellId);
+    if (currentIndex === -1) return null;
+    return subIds[(currentIndex + 1) % subIds.length];
+  }
+  // let mandalart: MainGoal[] = useMandalaStore.getState().data.core.mains;
+  // if (editingCellId.startsWith("sub")) {
+  //   const chunk = editingCellId.split("-");
+  //   const position =
+  //     chunk[1] === "center" || chunk[1] === "core" ? chunk[2] : chunk[1];
+  //   const index = mandalart.findIndex((main) => {
+  //     if (position === "0") return main.goalId === `core-${position}`;
+  //     return main.goalId === `main-${position}`;
+  //   });
+  //   if (data !== undefined) {
+  //     // 전체보기 만다라트
+  //     const currentList = data[index];
+  //     const ids = moveItem(
+  //       currentList.map((sub: SubGoal) => sub.goalId),
+  //       0,
+  //       4
+  //     );
+  //     const currentIndex = ids.indexOf(editingCellId);
+  //     if (currentIndex === -1) return null;
+  //     if (currentIndex >= 0) {
+  //       if (currentIndex === ids.length - 1) {
+  //         if (index === 4) {
+  //           const nextMainIndex = 0;
+  //           const nextList = data[nextMainIndex];
+  //           return nextList[1]?.goalId ?? null;
+  //         }
+  //         if (index === 0) {
+  //           const nextMainIndex = 5;
+  //           const nextList = data[nextMainIndex];
+  //           if (!nextList) return null;
+
+  //           return nextList[1]?.goalId ?? null;
+  //         }
+  //         if (index === 8) {
+  //           const nextMainIndex = 1;
+  //           const nextList = data[nextMainIndex];
+  //           if (!nextList) return null;
+
+  //           return nextList[1]?.goalId ?? null;
+  //         }
+  //         const nextMainIndex = index + 1;
+  //         const nextList = data[nextMainIndex];
+  //         if (!nextList) return null;
+
+  //         return nextList[1]?.goalId ?? null;
+  //       }
+  //       return ids[currentIndex + 1];
+  //     }
+  //   }
+  //   const ids = moveItem(
+  //     mandalart[index].subs.map((sub) => sub.goalId),
+  //     0,
+  //     4
+  //   );
+
+  //   const subIndex = ids.findIndex((id) => id === editingCellId);
+  //   if (subIndex < 0) return null;
+  //   if (subIndex === ids.length - 1) {
+  //     return ids[0];
+  //   } else if (subIndex >= 0) {
+  //     return ids[subIndex + 1];
+  //   }
+  // } else {
+  //   const ids = moveItem(
+  //     mandalart.map((main) => main.goalId),
+  //     0,
+  //     4
+  //   );
+  //   const mainIndex = ids.findIndex((id) => id === editingCellId);
+  //   if (mainIndex < 0) return null;
+  //   if (mainIndex === ids.length - 1) {
+  //     return ids[0];
+  //   } else if (mainIndex >= 0) {
+  //     return ids[mainIndex + 1];
+  //   }
+  // }
   return null;
 };
 
