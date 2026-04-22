@@ -11,12 +11,10 @@ import { persist } from "zustand/middleware";
 import { parseCellId } from "@/feature/mandala/service/parseCellId";
 import { getSyncTargets } from "@/feature/mandala/service/getSyncTargets";
 import {
-  getChangedCellId,
   getChangedCellIdFlat,
   normalizeToTrackId,
 } from "@/feature/mandala/service/changedCellId";
 import type {
-  CellData,
   MandalaFlatType,
   ServerMandalaType,
 } from "@/feature/mandala/service/type";
@@ -86,7 +84,10 @@ type Actions = {
   getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
   setMandalartId: (id: number) => void;
   allGoalComplete: (id: string) => void;
-  toggleGoalStatus: (id: string) => void;
+  toggleAndCheckComplete: (
+    id: string,
+    rawData?: ServerMandalaType["data"]
+  ) => void;
   handleCellChange: (
     cellId: string,
     value: string,
@@ -223,56 +224,63 @@ export const useMandalaStore = create<States & Actions>()(
           }
           return state;
         }),
-      toggleGoalStatus: (id: string) =>
+      toggleAndCheckComplete: (
+        id: string,
+        rawData?: ServerMandalaType["data"]
+      ) =>
         set((state) => {
-          const newState = state.data.core.mains.map((main: MainGoal) => {
-            if (main.goalId === id) {
-              return {
-                ...main,
-                status:
-                  main.status === "DONE"
-                    ? ("UNDONE" as Status)
-                    : ("DONE" as Status),
-              };
-            } else {
-              const updatedSubs = main.subs.map((sub) => {
-                if (sub.goalId === id) {
-                  return {
-                    ...sub,
-                    status:
-                      sub.status === "DONE"
-                        ? ("UNDONE" as Status)
-                        : ("DONE" as Status),
-                  };
-                }
-                return sub;
-              });
-              return {
-                ...main,
-                subs: updatedSubs,
-              };
-            }
-          });
+          state.flatData.cells[id].status =
+            state.flatData.cells[id].status === "DONE" ? "UNDONE" : "DONE";
 
-          return {
-            ...state,
-            data: {
-              ...state.data,
-              core: {
-                ...state.data.core,
-                mains: newState,
-              },
-            },
-            changedCells: new Set(state.changedCells).add(id),
-          };
+          if (rawData) {
+            const changedId = getChangedCellIdFlat({
+              cellId: id,
+              rawData,
+              cells: state.flatData.cells,
+            });
+            if (changedId) {
+              state.changedCells.add(changedId);
+            } else {
+              state.changedCells.delete(id);
+            }
+          }
+
+          if (id.startsWith("sub")) {
+            const mainPosition = id.split("-")[1];
+            const mainId = `main-${mainPosition}`;
+            const subIds = state.flatData.layout.subs[mainId];
+
+            const allComplete = subIds
+              .slice(1)
+              .every((subId) => state.flatData.cells[subId].status === "DONE");
+
+            state.flatData.cells[mainId].status = allComplete
+              ? "DONE"
+              : "UNDONE";
+
+            if (rawData) {
+              const changedId = getChangedCellIdFlat({
+                cellId: mainId,
+                rawData,
+                cells: state.flatData.cells,
+              });
+              if (changedId) {
+                state.changedCells.add(mainId);
+              } else {
+                state.changedCells.delete(mainId);
+              }
+            }
+          }
         }),
-      cancelEditing: (reason, e, goalId) =>
+      cancelEditing: (reason: CancelReason, e?: React.SyntheticEvent) =>
         set((state) => {
           if (reason === "blur") {
+            // 아래의 분기 처리 코드를 삭제하게 되면,
+            // 전체(full) 대시보드에서 blur가 일어나 핵심 목표에 포커스가 되지 않는 문제 발생
             const next = (e as React.FocusEvent)
               ?.relatedTarget as HTMLElement | null;
 
-            if (get().editingCellId !== goalId) return;
+            if (state.editingCellId == null) return;
             if (next?.closest("[data-editable-cell]")) return;
           }
 
@@ -286,7 +294,6 @@ export const useMandalaStore = create<States & Actions>()(
           if (cellId == null) return state;
           if (!state.data) return state;
           if (!state.data.core.mains) return state;
-          const coreList = state.data.core;
 
           const findIndex = parseCellId(cellId);
           const targets = getSyncTargets(findIndex);
@@ -307,7 +314,6 @@ export const useMandalaStore = create<States & Actions>()(
             }
           });
           // flatData cells 업데이트 추가
-          const nextCells = { ...state.flatData.cells };
 
           targets.forEach((target) => {
             const { mainIndex, subIndex } = target;
@@ -334,9 +340,6 @@ export const useMandalaStore = create<States & Actions>()(
           });
           console.log(queryData);
           if (queryData) {
-            const nextChangedCells = new Set(state.changedCells);
-            const mains = [];
-
             const updatedCellId = getChangedCellIdFlat({
               cellId,
               rawData: queryData,
