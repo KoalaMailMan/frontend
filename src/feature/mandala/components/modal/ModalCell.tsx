@@ -4,6 +4,7 @@ import MandalaReadOnlyCell from "../MandalaReadOnlyCell";
 import MandalaEditableCell from "../MandalaEditableCell";
 import React, { useCallback, useEffect, useRef } from "react";
 import useMandalaData from "../../hooks/useMandalaData";
+import { toast } from "sonner";
 
 type ModalCellProps = {
   className?: string;
@@ -32,17 +33,20 @@ export default React.memo(function ModalCell({
   const setEditingCell = useMandalaStore(
     useShallow((state) => state.setEditingSubCell)
   );
+  const toggleAndCheckComplete = useMandalaStore(
+    useShallow((state) => state.toggleAndCheckComplete)
+  );
   const handleCellChange = useMandalaStore(
     useShallow((state) => state.handleCellChange)
   );
   const handleCellClick = useCallback(() => {
+    if (cell.status === "DONE") return;
     setEditingCell(goalId);
   }, [goalId, setEditingCell]);
 
   const { data } = useMandalaData();
   const handleContentChange = useCallback(
-    (e: React.FormEvent, value: string) => {
-      console.log(value);
+    (value: string) => {
       handleCellChange(goalId, value, data);
       if (textareaRef.current) {
         const textarea = textareaRef.current;
@@ -52,7 +56,14 @@ export default React.memo(function ModalCell({
     },
     [goalId, handleCellChange]
   );
-
+  const onGoalClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (cell.content.trim() === "") {
+      return toast.info("목표를 설정하고 완료 버튼을 눌러주세요!");
+    }
+    setEditingCell(null);
+    toggleAndCheckComplete(goalId);
+  };
   useEffect(() => {
     requestAnimationFrame(() => {
       if (isEditing && textareaRef.current) {
@@ -84,7 +95,7 @@ export default React.memo(function ModalCell({
     };
   }, []);
 
-  return isEditing ? (
+  return isEditing && cell.status !== "DONE" ? (
     <MandalaEditableCell
       ref={textareaRef}
       goalId={goalId}
@@ -100,6 +111,7 @@ export default React.memo(function ModalCell({
       disabled={disabled}
       isEmpty={!cell.content}
       onCellClick={handleCellClick}
+      onGoalClick={onGoalClick}
     />
   );
 });
