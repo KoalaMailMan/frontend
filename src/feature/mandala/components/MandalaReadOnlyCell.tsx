@@ -6,6 +6,10 @@ import React, { useState } from "react";
 import CheckIcon from "./icon/CheckIcon";
 import { koalaSeal } from "../const/url";
 import { useShallow } from "zustand/react/shallow";
+import {
+  tutorialArrowCells,
+  tutorialCellMap,
+} from "@/feature/tutorial/service";
 
 type MandalaReadOnlyCellProps = {
   goalId: string;
@@ -20,7 +24,7 @@ type MandalaReadOnlyCellProps = {
   tutorialArrowButton?: boolean; // 튜토리얼용 화살표 버튼 식별자
   onCellClick: () => void;
   onDetailClick?: () => void;
-  onGoalClick?: () => void;
+  onGoalClick?: (e: React.MouseEvent) => void;
   onRemove?: (id: SubGoal["goalId"]) => void;
 };
 export default React.memo(function MandalaReadOnlyCell({
@@ -74,7 +78,7 @@ export default React.memo(function MandalaReadOnlyCell({
         onCellClick();
         setIsHovered(false);
       }}
-      data-tutorial={dataTutorial}
+      data-tutorial={tutorialCellMap[goalId]}
     >
       <span
         className={cn(
@@ -100,7 +104,7 @@ export default React.memo(function MandalaReadOnlyCell({
           onClick={onDetailClick}
           title="세부목표 설정"
           data-tutorial={
-            tutorialArrowButton ? "tutorial-arrow-button" : undefined
+            tutorialArrowCells.has(goalId) ? "tutorial-arrow-button" : undefined
           }
           aria-label="세부 목표 설정창 열기"
         >
