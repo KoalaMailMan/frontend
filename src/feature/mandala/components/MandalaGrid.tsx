@@ -34,11 +34,6 @@ export default function MandalaGrid() {
             goalId={goalId}
             isCenter={isCenter}
             disabled={false}
-            data-tutorial={
-              // 0번째 중앙의 핵심 목표
-              index === 0 ? "center-cell" : index === 4 ? "main-cells" : ""
-            }
-            tutorialArrowButton={index === 4} // 첫번째 셀의 화살표에만 true
             className={`w-full h-full
               ${isCenter && "border-primary text-primary font-semibold"}
               ${hasSubGoals ? "ring-2 ring-primary/50 bg-primary/5" : ""}

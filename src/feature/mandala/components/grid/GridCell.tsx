@@ -10,7 +10,6 @@ type GridCellProps = {
   goalId: string;
   isCenter: boolean;
   disabled: boolean;
-  tutorialArrowButton?: boolean;
 };
 
 export default React.memo(function GridCell({
@@ -18,7 +17,6 @@ export default React.memo(function GridCell({
   goalId,
   isCenter,
   disabled,
-  tutorialArrowButton,
 }: GridCellProps) {
   const { data } = useMandalaData();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -109,7 +107,6 @@ export default React.memo(function GridCell({
       isCenter={isCenter}
       disabled={disabled}
       isEmpty={!cell.content}
-      tutorialArrowButton={tutorialArrowButton}
       onCellClick={handleCellClick}
       onDetailClick={handleDetailClick}
     />
