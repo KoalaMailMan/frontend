@@ -1,20 +1,27 @@
 import { create } from "zustand";
+import { immer } from "zustand/middleware/immer";
 import {
   emptyDummyData,
-  serverToUI,
+  toFlatStructure,
   toggleStatus,
-  type ServerMandalaType,
+  toLegacyStructure,
 } from "@/feature/mandala/service";
 import { findIdIndex, findKeyByValue } from "@/feature/mandala/utills/\bindex";
 import { persist } from "zustand/middleware";
 import { parseCellId } from "@/feature/mandala/service/parseCellId";
 import { getSyncTargets } from "@/feature/mandala/service/getSyncTargets";
 import {
-  getChangedCellId,
+  getChangedCellIdFlat,
   normalizeToTrackId,
 } from "@/feature/mandala/service/changedCellId";
+import type {
+  MandalaFlatType,
+  ServerMandalaType,
+} from "@/feature/mandala/service/type";
 
 export type Status = "DONE" | "UNDONE";
+export type EditingContext = "main" | "full" | "sub" | null;
+export type CancelReason = "blur" | "escape" | "enter";
 
 export type MandalaType<T = string> = {
   core: {
@@ -49,6 +56,7 @@ export type DataOption = {
 };
 type States = {
   data: MandalaType;
+  flatData: MandalaFlatType;
   mandalartId: number | null;
   reminderOption: DataOption;
   editingCellId: string | null;
@@ -64,6 +72,7 @@ type States = {
   recommendationCursor: number;
   currentRecommendationText: string;
   isServiceIntroOpen: boolean;
+  editingContext: string | null;
 } & PersistedState;
 
 type PersistedState = {
@@ -75,15 +84,18 @@ type Actions = {
   getData: (index?: number | undefined) => MainGoal[] | SubGoal[];
   setMandalartId: (id: number) => void;
   allGoalComplete: (id: string) => void;
-  toggleGoalStatus: (id: string) => void;
+  toggleAndCheckComplete: (
+    id: string,
+    rawData?: ServerMandalaType["data"]
+  ) => void;
   handleCellChange: (
     cellId: string,
     value: string,
-    queryData?: MandalaType
+    queryData?: ServerMandalaType["data"]
   ) => void;
-  initRecommendationTargets: (subs: SubGoal[]) => void;
+  initRecommendationTargets: (mainId: string) => void;
   resetRecommendationText: () => void;
-  applyRecommendationChunk: (subs: SubGoal[], value: string) => void;
+  applyRecommendationChunk: (mainId: string, value: string) => void;
   setReminderOption: (options: DataOption) => void;
   setReminderEnabled: (enabled: boolean) => void;
   setRemindInterval: (interval: string) => void;
@@ -97,11 +109,18 @@ type Actions = {
   setEmptyState: (state: boolean) => void;
   resetChangedCells: () => void;
   setServiceIntroVisible: (visible: boolean) => void;
+  setEditingContext: (state: EditingContext) => void;
   clearMandalart: () => void;
+  cancelEditing: (
+    reason: CancelReason,
+    e?: React.SyntheticEvent,
+    goalId?: string
+  ) => void;
 };
 
 const initialState = {
-  data: serverToUI(emptyDummyData.data),
+  data: toLegacyStructure(emptyDummyData.data),
+  flatData: toFlatStructure(emptyDummyData.data.core),
   mandalartId: null,
   editingCellId: null,
   editingSubCellId: null,
@@ -121,20 +140,26 @@ const initialState = {
     remindInterval: "3month",
     remindScheduledAt: null,
   },
+  editingContext: "grid",
 };
 
 export const useMandalaStore = create<States & Actions>()(
   persist(
-    (set, get) => ({
+    immer((set, get) => ({
       ...initialState,
 
+      setEditingContext: (state) => set(() => ({ editingContext: state })),
       getData: (index) => {
         if (index != null) {
           return get().data?.core?.mains?.[index]?.subs ?? [];
         }
         return (get().data && get().data?.core.mains) || [];
       },
-      setData: (newData) => set(() => ({ data: serverToUI(newData) })),
+      setData: (newData) =>
+        set(() => ({
+          data: toLegacyStructure(newData),
+          flatData: toFlatStructure(newData.core),
+        })),
       setMandalartId: (id) => set(() => ({ mandalartId: id })),
       setReminderOption: (options) =>
         set(() => ({
@@ -145,7 +170,10 @@ export const useMandalaStore = create<States & Actions>()(
         })),
       setReminderEnabled: (enabled) =>
         set((state) => ({
-          reminderOption: { ...state.reminderOption, reminderEnabled: enabled },
+          reminderOption: {
+            ...state.reminderOption,
+            reminderEnabled: enabled,
+          },
         })),
       setRemindInterval: (interval) =>
         set((state) => ({
@@ -196,177 +224,234 @@ export const useMandalaStore = create<States & Actions>()(
           }
           return state;
         }),
-      toggleGoalStatus: (id: string) =>
+      toggleAndCheckComplete: (
+        id: string,
+        rawData?: ServerMandalaType["data"]
+      ) =>
         set((state) => {
-          const newState = state.data.core.mains.map((main: MainGoal) => {
-            if (main.goalId === id) {
-              return {
-                ...main,
-                status:
-                  main.status === "DONE"
-                    ? ("UNDONE" as Status)
-                    : ("DONE" as Status),
-              };
+          state.flatData.cells[id].status =
+            state.flatData.cells[id].status === "DONE" ? "UNDONE" : "DONE";
+
+          if (rawData) {
+            const changedId = getChangedCellIdFlat({
+              cellId: id,
+              rawData,
+              cells: state.flatData.cells,
+            });
+            if (changedId) {
+              state.changedCells.add(changedId);
             } else {
-              const updatedSubs = main.subs.map((sub) => {
-                if (sub.goalId === id) {
-                  return {
-                    ...sub,
-                    status:
-                      sub.status === "DONE"
-                        ? ("UNDONE" as Status)
-                        : ("DONE" as Status),
-                  };
-                }
-                return sub;
-              });
-              return {
-                ...main,
-                subs: updatedSubs,
-              };
+              state.changedCells.delete(id);
             }
-          });
+          }
 
-          return {
-            ...state,
-            data: {
-              ...state.data,
-              core: {
-                ...state.data.core,
-                mains: newState,
-              },
-            },
-            changedCells: new Set(state.changedCells).add(id),
-          };
+          if (id.startsWith("sub")) {
+            const mainPosition = id.split("-")[1];
+            const mainId = `main-${mainPosition}`;
+            const subIds = state.flatData.layout.subs[mainId];
+
+            const allComplete = subIds
+              .slice(1)
+              .every((subId) => state.flatData.cells[subId].status === "DONE");
+
+            state.flatData.cells[mainId].status = allComplete
+              ? "DONE"
+              : "UNDONE";
+
+            if (rawData) {
+              const changedId = getChangedCellIdFlat({
+                cellId: mainId,
+                rawData,
+                cells: state.flatData.cells,
+              });
+              if (changedId) {
+                state.changedCells.add(mainId);
+              } else {
+                state.changedCells.delete(mainId);
+              }
+            }
+          }
         }),
+      cancelEditing: (reason: CancelReason, e?: React.SyntheticEvent) =>
+        set((state) => {
+          if (reason === "blur") {
+            // 아래의 분기 처리 코드를 삭제하게 되면,
+            // 전체(full) 대시보드에서 blur가 일어나 핵심 목표에 포커스가 되지 않는 문제 발생
+            const next = (e as React.FocusEvent)
+              ?.relatedTarget as HTMLElement | null;
 
+            if (state.editingCellId == null) return;
+            if (next?.closest("[data-editable-cell]")) return;
+          }
+
+          state.editingCellId = null;
+          state.editingSubCellId = null;
+          state.editingFullCellId = null;
+        }),
       handleCellChange: (cellId, value, queryData) =>
         set((state) => {
           console.log("Store handleCellChange:", cellId, value, queryData);
           if (cellId == null) return state;
           if (!state.data) return state;
           if (!state.data.core.mains) return state;
-          const coreList = structuredClone(state.data.core);
 
           const findIndex = parseCellId(cellId);
           const targets = getSyncTargets(findIndex);
+
           if (targets == null || targets?.length <= 0) return state;
           targets.forEach((target) => {
             if (target.mainIndex === 0 && "subIndex" in target === false) {
-              coreList.content = value;
+              state.data.core.content = value;
             }
             if ("subIndex" in target) {
               // sub 업데이트
-              coreList.mains[target.mainIndex].subs[
+              state.data.core.mains[target.mainIndex].subs[
                 target.subIndex as number
               ].content = value;
             } else {
               // main 업데이트
-              coreList.mains[target.mainIndex].content = value;
+              state.data.core.mains[target.mainIndex].content = value;
             }
           });
+          // flatData cells 업데이트 추가
 
+          targets.forEach((target) => {
+            const { mainIndex, subIndex } = target;
+            console.log(mainIndex, subIndex);
+            if (mainIndex === 0 && !subIndex) {
+              state.flatData.cells["core-0"] = {
+                ...state.flatData.cells["core-0"],
+                content: value,
+              };
+            }
+            if (subIndex) {
+              const cellId = "sub-" + mainIndex + "-" + subIndex;
+              state.flatData.cells[cellId] = {
+                ...state.flatData.cells[cellId],
+                content: value,
+              };
+            } else if (mainIndex) {
+              const cellId = "main-" + mainIndex;
+              state.flatData.cells[cellId] = {
+                ...state.flatData.cells[cellId],
+                content: value,
+              };
+            }
+          });
+          console.log(queryData);
           if (queryData) {
-            const nextChangedCells = new Set(state.changedCells);
-            const updatedCellId = getChangedCellId({
+            const updatedCellId = getChangedCellIdFlat({
               cellId,
               rawData: queryData,
-              updatedData: coreList.mains,
+              cells: state.flatData.cells,
             });
+
+            // const updatedCellId = getChangedCellId({
+            //   cellId,
+            //   rawData: queryData,
+            //   updatedData: state.data.core.mains,
+            // });
+            console.log(state.changedCells, updatedCellId);
+
             if (updatedCellId) {
-              nextChangedCells.add(updatedCellId);
+              state.changedCells.add(updatedCellId);
             } else {
               const trackId = normalizeToTrackId(cellId);
-              if (trackId) nextChangedCells.delete(trackId);
+              if (trackId) state.changedCells.delete(trackId);
             }
-
-            return {
-              ...state,
-              data: {
-                ...state.data,
-                core: coreList,
-              },
-              changedCells: nextChangedCells,
-            };
           }
-
-          return {
-            ...state,
-            data: {
-              ...state.data,
-              core: coreList,
-            },
-          };
         }),
-      initRecommendationTargets: (subs) =>
+      initRecommendationTargets: (mainId) =>
         set((state) => {
-          const mainId = subs[0].goalId.split("-")[1];
-          const mainIndex = state.data.core.mains.findIndex(
-            (sub) => sub.goalId === `main-${mainId}`
-          );
-          if (mainIndex === -1) return state;
-          const subsArr = state.data.core.mains[mainIndex].subs;
+          const subIds = state.flatData.layout.subs[mainId];
+          if (!subIds) return;
 
-          const emptyIndexes = subsArr
-            .map((sub, index) =>
-              sub.position !== 0 && !sub.content.trim() ? index : null
-            )
+          const emptyIndexes = subIds
+            .map((subId, index) => {
+              const sub = state.flatData.cells[subId];
+
+              return sub.position !== 0 && !sub?.content.trim() ? index : null;
+            })
             .filter((v): v is number => v !== null);
+          state.emptySubIndexes = emptyIndexes;
+          state.recommendationCursor = 0;
+          // const mainId = subs[0].goalId.split("-")[1];
+          // const mainIndex = state.data.core.mains.findIndex(
+          //   (sub) => sub.goalId === `main-${mainId}`
+          // );
+          // if (mainIndex === -1) return state;
+          // const subsArr = state.data.core.mains[mainIndex].subs;
 
-          return {
-            ...state,
-            emptySubIndexes: emptyIndexes,
-            recommendationCursor: 0,
-          };
+          // const emptyIndexes = subsArr
+          //   .map((sub, index) =>
+          //     sub.position !== 0 && !sub.content.trim() ? index : null
+          //   )
+          //   .filter((v): v is number => v !== null);
+
+          // return {
+          //   ...state,
+          //   emptySubIndexes: emptyIndexes,
+          //   recommendationCursor: 0,
+          // };
         }),
       resetRecommendationText: () =>
         set(() => ({
           currentRecommendationText: "",
         })),
-      applyRecommendationChunk: (subs, chunk) =>
+      applyRecommendationChunk: (mainId, chunk) =>
         set((state) => {
           const cursor = state.recommendationCursor;
-          const targetIndex = state.emptySubIndexes[cursor];
+          const subIds = state.flatData.layout.subs[mainId];
+          // const targetIndex = state.emptySubIndexes[cursor];
+          const targetSubId = subIds?.[state.emptySubIndexes[cursor]];
+          if (!targetSubId) return;
 
-          if (targetIndex == null) return state;
+          // if (targetIndex == null) return state;
 
-          const mainId = subs[0].goalId.split("-")[1];
-          const mainIndex = state.data.core.mains.findIndex(
-            (sub) => sub.goalId === `main-${mainId}`
-          );
-          if (mainIndex === -1) return state;
+          // const mainId = subs[0].goalId.split("-")[1];
+          // const mainIndex = state.data.core.mains.findIndex(
+          //   (sub) => sub.goalId === `main-${mainId}`
+          // );
+          // if (mainIndex === -1) return state;
 
-          const subsArr = state.data.core.mains[mainIndex].subs;
-          const target = subsArr[targetIndex];
+          // const subsArr = state.data.core.mains[mainIndex].subs;
+          // const target = subsArr[targetIndex];
 
           const hasComma = chunk.includes(",");
-          let newText = state.currentRecommendationText;
+          // let newText = state.currentRecommendationText;
 
           if (hasComma) {
-            return {
-              ...state,
-              recommendationCursor: cursor + 1,
-              currentRecommendationText: "",
-            };
+            state.currentRecommendationText = "";
+            state.recommendationCursor = cursor + 1;
+            //   return {
+            //     ...state,
+            //     recommendationCursor: cursor + 1,
+            //     currentRecommendationText: "",
+            //   };
           } else {
-            newText = state.currentRecommendationText + chunk;
-            const newSubs = [...subsArr];
-            newSubs[targetIndex] = { ...target, content: newText };
+            const newText = state.currentRecommendationText + chunk;
+            state.flatData.cells[targetSubId].content = newText;
+            state.currentRecommendationText = newText;
+            state.changedCells.add(targetSubId);
 
-            return {
-              ...state,
-              data: {
-                ...state.data,
-                core: {
-                  ...state.data.core,
-                  mains: state.data.core.mains.map((main, index) =>
-                    index === mainIndex ? { ...main, subs: newSubs } : main
-                  ),
-                },
-              },
-              currentRecommendationText: newText,
-              changedCells: new Set([...state.changedCells, target.goalId]),
-            };
+            //   newText = state.currentRecommendationText + chunk;
+            //   const newSubs = [...subsArr];
+            //   newSubs[targetIndex] = { ...target, content: newText };
+
+            //   return {
+            //     ...state,
+            //     data: {
+            //       ...state.data,
+            //       core: {
+            //         ...state.data.core,
+            //         mains: state.data.core.mains.map((main, index) =>
+            //           index === mainIndex ? { ...main, subs: newSubs } : main
+            //         ),
+            //       },
+            //     },
+            //     currentRecommendationText: newText,
+            //     changedCells: new Set([...state.changedCells, target.goalId]),
+            //   };
           }
         }),
 
@@ -388,7 +473,7 @@ export const useMandalaStore = create<States & Actions>()(
         set(() => ({
           ...initialState,
         })),
-    }),
+    })),
     {
       name: "mandalart",
       partialize: (state): PersistedState => ({

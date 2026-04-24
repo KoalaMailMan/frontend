@@ -1,6 +1,6 @@
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
-import MandalaContainer from "./MandalaContainer";
-import { useCallback, useEffect, useRef, useState } from "react";
+
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { createPortal } from "react-dom";
 import Button from "@/feature/ui/Button";
@@ -14,27 +14,18 @@ import { ensureAccessToken } from "@/feature/auth/service";
 import QuestionIcon from "./icon/QuestionIcon";
 import LoadingSpiner from "@/feature/ui/LoadingSpiner";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId, serverToUI } from "../service";
+import { getNextSubCellId } from "../service";
 import UseSubsGoalNavigation from "../hooks/ueSubsGoalNavigation";
-import useMandalaData from "../hooks/useMandalaData";
+
+import ModalCell from "./modal/ModalCell";
+import { useShallow } from "zustand/react/shallow";
+import type { CellData } from "../service/type";
 
 type Props = {
   isModalVisible: boolean;
-  items: SubGoal[];
-  compact: boolean;
-  // onContentChange: (value: string) => void;
-  onRemove: (id: string, value: string) => void;
-  // onCancelEdit: () => void;
 };
 
-export default function MandalaModal({
-  isModalVisible,
-  items,
-  compact,
-  // onContentChange,
-  onRemove,
-}: // onCancelEdit,
-Props) {
+export default function MandalaModal({ isModalVisible }: Props) {
   // modal 컴포넌트 상태 관리
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const accessToken = useAuthStore((state) => state.accessToken);
@@ -43,14 +34,20 @@ Props) {
 
   const positionRef = useRef<HTMLDivElement | null>(null);
   const editingSubCellId = useMandalaStore((state) => state.editingSubCellId);
+
   const setEditingSubCell = useMandalaStore((state) => state.setEditingSubCell);
   const setModalVisible = useMandalaStore((state) => state.setModalVisible);
   const setModalCellId = useMandalaStore((state) => state.setModalCellId);
-
-  const modalCellId = useMandalaStore((state) => state.modalCellId);
   const handleCellChange = useMandalaStore((state) => state.handleCellChange);
 
-  const { data } = useMandalaData();
+  const modalCellId = useMandalaStore((state) => state.modalCellId);
+  const subs = useMandalaStore(
+    (state) => state.flatData?.layout.subs[modalCellId as string] ?? []
+  );
+  const cells = useMandalaStore(useShallow((state) => state.flatData.cells));
+  const subItems = useMemo(() => {
+    return subs.map((sub) => cells[sub]);
+  }, []);
 
   const [width, setWidth] = useState(0);
   const [isQuestion, setIsQuestion] = useState(false);
@@ -61,13 +58,13 @@ Props) {
   useGridTabNavigation({
     editingId: editingSubCellId,
     setEditingId: setEditingSubCell,
-    getNextId: getNextCellId,
+    getNextId: getNextSubCellId,
   });
   UseSubsGoalNavigation();
 
   const { startStream, isStreaming } = useSSERecommendation({
-    goal: items[0].content,
-    subs: items,
+    goal: subItems[0].content,
+    subs: subItems,
     getAccessToken,
     onComplete: (items) => {
       if (Array.isArray(items)) {
@@ -86,11 +83,6 @@ Props) {
   });
 
   // 상태 관리 함수들
-  const handleSubStartEdit = (goalId: string) => {
-    const sub = items.find((sub) => sub.goalId === goalId);
-    if (sub?.status === "DONE") return;
-    setEditingSubCell(goalId);
-  };
 
   const handleSubCancelEdit = () => {
     setEditingSubCell(null);
@@ -101,16 +93,6 @@ Props) {
     setModalCellId(null);
     setModalVisible(false);
     handleSubCancelEdit();
-  };
-
-  const handleSubContentChange = (value: string) => {
-    if (modalCellId) {
-      if (data) {
-        handleCellChange(editingSubCellId as string, value, serverToUI(data));
-      } else {
-        handleCellChange(editingSubCellId as string, value);
-      }
-    }
   };
 
   const handleRecommend = () => {
@@ -124,16 +106,16 @@ Props) {
       return;
     }
 
-    const emptyCount = validateEmptyGoals(items);
+    const emptyCount = validateEmptyGoals(subItems);
     if (emptyCount) {
       startStream(emptyCount);
     }
   };
 
-  const getEmptySubGoalCount = (subs: SubGoal[]) =>
+  const getEmptySubGoalCount = (subs: SubGoal[] | CellData[]) =>
     subs.slice(0, 9).filter((sub) => !sub.content.trim()).length;
 
-  const validateEmptyGoals = (subs: SubGoal[]) => {
+  const validateEmptyGoals = (subs: SubGoal[] | CellData[]) => {
     const hasEmptyGoals = subs.some((main) => !main.content.trim());
     const emptyCount = getEmptySubGoalCount(subs);
     if (!emptyCount)
@@ -142,28 +124,9 @@ Props) {
     return emptyCount && hasEmptyGoals ? emptyCount : 0;
   };
 
-  const removeSubGoalValue = (state: SubGoal["goalId"] | SubGoal[]) => {
-    if (typeof state === "string") {
-      onRemove(state, "");
-    } else if (typeof state === "object") {
-      state.forEach((sub, index) => index !== 0 && onRemove(sub.goalId, ""));
-    }
+  const removeSubGoalValue = (goalIds: string[]) => {
+    goalIds.forEach((goalId) => handleCellChange(goalId, ""));
   };
-
-  // useEffect(() => {
-  //   if (!isStreaming) return;
-
-  //   if (recommendation.length === 0) return;
-
-  //   const last = recommendation[recommendation.length - 1];
-  //   if (last.includes("[ERROR]")) return;
-  //   const latest = recommendation.at(-1);
-  //   if (latest) {
-  //     applyRecommendationChunk(items, latest);
-  //   }
-
-  //   return () => {};
-  // }, [recommendation, isStreaming, items]);
 
   useEffect(() => {
     const element = positionRef.current;
@@ -221,7 +184,7 @@ Props) {
             세부 목표 설정
           </p>
           <p className="w-full h-[26px] flex justify-center items-center text-[10px] font-normal leading-[17.5px] text-[#666666]">
-            <span> {items[centerIndex]?.content || "주요 목표"}</span>를
+            <span> {subItems[centerIndex]?.content || "주요 목표"}</span>를
             달성하기 위한 구체적인 세부 목표을 세워보세요
           </p>
         </div>
@@ -235,21 +198,14 @@ Props) {
                     {isStreaming && (
                       <div className="w-full h-full absolute bg-white opacity-80 z-[1]" />
                     )}
-                    {items.map((sub, index) => {
-                      const isCenter = centerIndex === index;
-                      const isEditing = editingSubCellId === sub.goalId;
+                    {subs?.map((goalId, index) => {
+                      const isCenter = index === 0;
                       return (
-                        <MandalaContainer
-                          key={`sub-${index}-${sub.goalId}`}
+                        <ModalCell
+                          key={goalId}
+                          goalId={goalId}
                           isCenter={isCenter}
-                          item={sub}
-                          isEditing={isEditing}
-                          compact={compact}
-                          disabled={isCenter ? isStreaming : false}
-                          isEmpty={!sub.content || !sub.content.trim()}
-                          onStartEdit={() => handleSubStartEdit(sub.goalId)}
-                          onContentChange={handleSubContentChange}
-                          onCancelEdit={handleSubCancelEdit}
+                          disabled={false}
                           className={cn(
                             "md:min-w-[125px] w-full h-full",
                             getGridClasses(index),
@@ -274,7 +230,7 @@ Props) {
               </div>
               <p
                 className="w-full h-[18px] flex justify-center text-[10px] leading-[180%] font-semibold text-[#999999]"
-                onClick={() => removeSubGoalValue(items)}
+                onClick={() => removeSubGoalValue(subs)}
               >
                 맞춤 목표 모두 지우기
               </p>

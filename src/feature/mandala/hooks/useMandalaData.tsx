@@ -1,7 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
 import { getMandalaAPI } from "../api/mandalart/getMandala";
-import { emptyDummyData, type ServerMandalaType } from "../service";
+import { emptyDummyData } from "../service";
 import { useAuthStore } from "@/lib/stores/authStore";
+import type { ServerMandalaType } from "../service/type";
 
 export default function useMandalaData() {
   const accessToken = useAuthStore((state) => state.accessToken);

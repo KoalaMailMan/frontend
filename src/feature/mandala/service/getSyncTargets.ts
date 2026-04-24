@@ -37,7 +37,6 @@ export const getSyncTargets = (
   if (cellId.type === "sub") {
     const mainIndex = cellId.mainIndex;
     const subIndex = cellId.subIndex;
-    console.log(mainIndex, subIndex);
 
     if (mainIndex <= -1 || mainIndex >= 9) return null;
     if (subIndex <= -1 || subIndex >= 9) return null;

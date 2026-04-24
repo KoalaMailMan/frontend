@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import type { ServerMandalaType } from "../service";
 import { createMandalaAPI } from "../api/mandalart/createMandala";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { queryClient } from "@/lib/utils";
 import { toast } from "sonner";
+import type { ServerMandalaType } from "../service/type";
 
 export default function useSaveMandala() {
   const accessToken = useAuthStore((state) => state.accessToken);

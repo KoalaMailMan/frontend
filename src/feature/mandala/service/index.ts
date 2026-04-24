@@ -1,6 +1,5 @@
 import {
   useMandalaStore,
-  type DataOption,
   type MainGoal,
   type MandalaType,
   type SubGoal,
@@ -8,6 +7,13 @@ import {
 } from "@/lib/stores/mandalaStore";
 import { moveItem } from "../utills/\bindex";
 import { parseCellId } from "./parseCellId";
+import type {
+  CellData,
+  MandalaLayout,
+  MandalaMap,
+  ServerMandalaType,
+  ServerMandalaTypeWithoutReminder,
+} from "./type";
 
 // export const handleMandalaData = async () => {
 //   const accessToken = useAuthStore.getState().accessToken;
@@ -126,46 +132,21 @@ export const emptyDummyData = {
   },
 };
 
-// 서버 데이터용 타입
-export type ServerMandalaType = {
-  data: {
-    core: {
-      goalId?: number;
-      content?: string;
-      status?: "DONE" | "UNDONE";
-      mains?: ServerMainGoal[];
-    };
-    mandalartId?: number | undefined;
-    reminderOption?: DataOption;
-  };
+const USE_FLAT_STRUCTURE = false;
+
+export const serverToUI = (serverData: ServerMandalaType["data"]) => {
+  if (USE_FLAT_STRUCTURE) {
+    return toFlatStructure(serverData.core); // 신버전
+  }
+  return toLegacyStructure(serverData); // 기존 로직 그대로
 };
 
-export type ServerMainGoal = {
-  goalId?: number;
-  position: number;
-  content?: string;
-  status?: "DONE" | "UNDONE";
-  subs: ServerSubGoal[];
-};
-
-export type ServerSubGoal = {
-  goalId?: number;
-  position: number;
-  content: string;
-  status: "DONE" | "UNDONE";
-};
-
-type ServerMandalaData = Omit<ServerMandalaType["data"], "reminderOption">;
-
-export type ServerMandalaTypeWithoutReminder = {
-  data: ServerMandalaData;
-};
 /**
  * 서버 데이터를 UI 데이터로 변환
  * core를 0번 main으로, 서버 mains는 그대로 1~8번
  * core의 subs도 추가 생성
  */
-export const serverToUI = (
+export const toLegacyStructure = (
   serverData: ServerMandalaType["data"]
 ): MandalaType => {
   const uiMains: MainGoal[] = [];
@@ -430,7 +411,6 @@ export const uiToServer = ({
   } else {
     result = buildFromScratch(currentData);
   }
-  console.log(result);
 
   // if (id != null) {
   //   result.data.mandalartId = id;
@@ -664,100 +644,86 @@ export const uiToServer = ({
   return result;
 };
 
-export const handlePrefixDuplication = (id: string) => {
-  const parts = id.split("-");
+// export const handlePrefixDuplication = (id: string) => {
+//   const parts = id.split("-");
 
-  const deduped = parts.filter((p, i, arr) => {
-    if (i === 0) return true;
-    return !(p === arr[i - 1] && (p === "main" || p === "sub"));
-  });
+//   const deduped = parts.filter((p, i, arr) => {
+//     if (i === 0) return true;
+//     return !(p === arr[i - 1] && (p === "main" || p === "sub"));
+//   });
 
-  // "sub-main-3-0" → ["sub","main","3","0"] → filter → ["sub","3","0"]
-  // "main-main-5"   → ["main","main","5"] → filter → ["main","5"]
-  return deduped.join("-");
+//   // "sub-main-3-0" → ["sub","main","3","0"] → filter → ["sub","3","0"]
+//   // "main-main-5"   → ["main","main","5"] → filter → ["main","5"]
+//   return deduped.join("-");
+// };
+
+export const getNextMainCellId = (editingCellId: string) => {
+  const layout = useMandalaStore.getState().flatData.layout;
+  const ids = moveItem(layout.mains, 0, 4);
+  const currentIndex = ids.indexOf(editingCellId);
+  if (currentIndex === -1) return null;
+  return ids[(currentIndex + 1) % ids.length];
 };
 
-export const getNextCellId = (
-  editingCellId: string,
-  data?: Omit<SubGoal, "originalId">[][]
-) => {
-  let mandalart: MainGoal[] = useMandalaStore.getState().data.core.mains;
-  if (editingCellId.startsWith("sub")) {
-    const chunk = editingCellId.split("-");
-    const position =
-      chunk[1] === "center" || chunk[1] === "core" ? chunk[2] : chunk[1];
-    const index = mandalart.findIndex((main) => {
-      if (position === "0") return main.goalId === `core-${position}`;
-      return main.goalId === `main-${position}`;
-    });
-    if (data !== undefined) {
-      // 전체보기 만다라트
-      const currentList = data[index];
-      const ids = moveItem(
-        currentList.map((sub: SubGoal) => sub.goalId),
-        0,
-        4
-      );
-      const currentIndex = ids.indexOf(editingCellId);
-      if (currentIndex === -1) return null;
-      if (currentIndex >= 0) {
-        if (currentIndex === ids.length - 1) {
-          if (index === 4) {
-            const nextMainIndex = 0;
-            const nextList = data[nextMainIndex];
-            return nextList[1]?.goalId ?? null;
-          }
-          if (index === 0) {
-            const nextMainIndex = 5;
-            const nextList = data[nextMainIndex];
-            if (!nextList) return null;
+export const getNextSubCellId = (editingCellId: string) => {
+  const layout = useMandalaStore.getState().flatData.layout;
+  const chunk = editingCellId.split("-"); // ["sub", "1", "2"]
+  const mainPosition = chunk[1];
 
-            return nextList[1]?.goalId ?? null;
-          }
-          if (index === 8) {
-            const nextMainIndex = 1;
-            const nextList = data[nextMainIndex];
-            if (!nextList) return null;
+  const mainId = mainPosition === "0" ? "core-0" : `main-${mainPosition}`;
+  const subIds = layout.subs[mainId];
+  if (!subIds) return null;
 
-            return nextList[1]?.goalId ?? null;
-          }
-          const nextMainIndex = index + 1;
-          const nextList = data[nextMainIndex];
-          if (!nextList) return null;
+  const reordered = [
+    ...subIds.slice(1, 5), // 1~4
+    mainId, // center (0번째)
+    ...subIds.slice(5), // 5~8
+  ];
+  let currentIndex = reordered.indexOf(editingCellId);
+  if (currentIndex === -1) return null;
 
-          return nextList[1]?.goalId ?? null;
-        }
-        return ids[currentIndex + 1];
-      }
-    }
-    const ids = moveItem(
-      mandalart[index].subs.map((sub) => sub.goalId),
-      0,
-      4
-    );
+  const result = reordered[(currentIndex + 1) % reordered.length];
+  return result;
+};
 
-    const subIndex = ids.findIndex((id) => id === editingCellId);
-    if (subIndex < 0) return null;
-    if (subIndex === ids.length - 1) {
-      return ids[0];
-    } else if (subIndex >= 0) {
-      return ids[subIndex + 1];
-    }
-  } else {
-    const ids = moveItem(
-      mandalart.map((main) => main.goalId),
-      0,
-      4
-    );
-    const mainIndex = ids.findIndex((id) => id === editingCellId);
-    if (mainIndex < 0) return null;
-    if (mainIndex === ids.length - 1) {
-      return ids[0];
-    } else if (mainIndex >= 0) {
-      return ids[mainIndex + 1];
-    }
+export const getNextFullCellId = (editingCellId: string) => {
+  const chunk = editingCellId.split("-");
+  const currentType = chunk[0]; // "sub" or "main"
+  const isCenter = chunk[1].startsWith("center"); // "main-cetner-1"
+  const currentMainPos = parseInt(isCenter ? chunk[2] : chunk[1]); // "1"
+
+  // 현재 그룹 내에서의 다음 셀을 일단 가져옴
+  const next = getNextSubCellId(editingCellId);
+
+  // 정중앙 목표에서 탈출
+  if (currentType === "core") {
+    return `main-center-5`;
   }
-  return null;
+  if (isCenter) {
+    // 정중앙 목표
+    if (currentMainPos === 4) {
+      return `core-0`;
+    }
+    // 메인 목표에서 탈출
+    if (currentMainPos === 8) {
+      return `sub-5-1`;
+    }
+    return `main-center-${currentMainPos + 1}`;
+  }
+  // sub-X-8에서 블록 탈출
+  if (currentType === "sub" && chunk[2] === "8") {
+    const layout = useMandalaStore.getState().flatData.layout;
+
+    // sub-4-8 → core 블록의 main-center-1로
+    if (currentMainPos === 4) return "main-center-1";
+
+    // sub-8-8 → sub-1-1로 순환
+    if (currentMainPos === 8) return layout.subs["main-1"]?.[1] ?? null;
+
+    return layout.subs[`main-${currentMainPos + 1}`]?.[1] ?? null;
+  }
+
+  return next;
 };
 
 export const toggleStatus = (
@@ -791,8 +757,8 @@ export const getDataById = (
 };
 
 export const isEqual = (
-  a: MandalaType["core"] | MainGoal | SubGoal,
-  b: MandalaType["core"] | MainGoal | SubGoal
+  a: MandalaType["core"] | MainGoal | SubGoal | CellData,
+  b: MandalaType["core"] | MainGoal | SubGoal | CellData
 ) => {
   return a.content === b.content && a.status === b.status;
 };
@@ -933,4 +899,79 @@ export const applyChangesToServer = (
   });
 
   return result;
+};
+
+export const toFlatStructure = (
+  core: ServerMandalaType["data"]["core"]
+): { layout: MandalaLayout; cells: MandalaMap } => {
+  const cells: MandalaMap = {};
+  const mains: MandalaLayout["mains"] = ["core-0"];
+  const subs: MandalaLayout["subs"] = {};
+  const grid: MandalaLayout["grid"] = [];
+
+  cells["core-0"] = {
+    goalId: "core-0",
+    content: core.content || "",
+    status: core.status || "UNDONE",
+    originalId: core.goalId || undefined,
+  };
+
+  for (let i = 0; i <= 8; i++) {
+    const mainId = `main-${i}`;
+    const mainData = core.mains?.find((m) => m.position === i);
+    if (i !== 0) {
+      mains.push(mainId);
+
+      cells[mainId] = {
+        goalId: mainId,
+        content: mainData?.content || "",
+        status: mainData?.status || "UNDONE",
+        position: i,
+        originalId: mainData?.goalId || undefined,
+      };
+    }
+
+    const subIds: string[] = [];
+
+    for (let j = 0; j <= 8; j++) {
+      if (i === 0 && j === 0) {
+        const subId = `core-0`;
+        subIds.push(subId);
+        continue;
+      }
+      if (i === 0) {
+        const subId = `main-center-${j}`;
+        subIds.push(subId);
+        continue;
+      }
+      if (j === 0) {
+        const subId = `main-${i}`;
+        subIds.push(subId);
+        continue;
+      }
+
+      const subId = `sub-${i}-${j}`;
+
+      subIds.push(subId);
+      const subData = mainData?.subs?.find((s) => s.position === j);
+
+      cells[subId] = {
+        goalId: subId,
+        content: subData?.content || "",
+        status: subData?.status || "UNDONE",
+        position: j,
+        originalId: subData?.goalId || undefined,
+      };
+    }
+    subs[mainId] = subIds;
+
+    grid.push(subIds);
+  }
+
+  return { layout: { mains, subs, grid }, cells };
+};
+export const normalizeCellId = (goalId: string): string => {
+  if (goalId.startsWith("sub")) return goalId;
+  // main-center-1 → main-1
+  return goalId.replace("-center-", "-");
 };
