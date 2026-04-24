@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api/client";
-import type { ServerMandalaType } from "../../service";
+import type { ServerMandalaType } from "../../service/type";
 
 export const getMandalaAPI = async () => {
   const MANDALA_URL = "/api/mandalart";
