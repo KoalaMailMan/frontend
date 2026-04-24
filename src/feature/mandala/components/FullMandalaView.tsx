@@ -11,7 +11,7 @@ import {
   type Type,
 } from "../utills/css";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId } from "../service";
+import { getNextFullCellId } from "../service";
 import FullCell from "./full/FullCell";
 
 export default function FullMandalaView() {
@@ -26,7 +26,7 @@ export default function FullMandalaView() {
   useGridTabNavigation({
     editingId: editingFullCellId,
     setEditingId: setEditingFullCell,
-    getNextId: getNextCellId,
+    getNextId: getNextFullCellId,
   });
 
   return (
@@ -88,7 +88,6 @@ export default function FullMandalaView() {
                         key={goalId}
                         goalId={goalId}
                         isCenter={blockIdx === 0 && subIdx === 0}
-                        disabled={false}
                         className={cn(
                           "",
                           findbyCSS((type as Type) || "sub"),

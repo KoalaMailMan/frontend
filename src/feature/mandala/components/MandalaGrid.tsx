@@ -2,7 +2,7 @@ import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import MandalaModal from "./MandalaModal";
 import { getGridClasses } from "../utills/css";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId } from "../service";
+import { getNextMainCellId } from "../service";
 import GridCell from "./grid/GridCell";
 
 export default function MandalaGrid() {
@@ -16,7 +16,7 @@ export default function MandalaGrid() {
   useGridTabNavigation({
     editingId: editingCellId,
     setEditingId: setEditingCell,
-    getNextId: getNextCellId,
+    getNextId: getNextMainCellId,
   });
 
   return (

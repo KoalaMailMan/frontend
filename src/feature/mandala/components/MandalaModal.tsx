@@ -14,7 +14,7 @@ import { ensureAccessToken } from "@/feature/auth/service";
 import QuestionIcon from "./icon/QuestionIcon";
 import LoadingSpiner from "@/feature/ui/LoadingSpiner";
 import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextCellId } from "../service";
+import { getNextSubCellId } from "../service";
 import UseSubsGoalNavigation from "../hooks/ueSubsGoalNavigation";
 
 import ModalCell from "./modal/ModalCell";
@@ -42,10 +42,9 @@ export default function MandalaModal({ isModalVisible }: Props) {
 
   const modalCellId = useMandalaStore((state) => state.modalCellId);
   const subs = useMandalaStore(
-    (state) => state.flatData?.layout.subs[modalCellId as string]
+    (state) => state.flatData?.layout.subs[modalCellId as string] ?? []
   );
   const cells = useMandalaStore(useShallow((state) => state.flatData.cells));
-
   const subItems = useMemo(() => {
     return subs.map((sub) => cells[sub]);
   }, []);
@@ -59,7 +58,7 @@ export default function MandalaModal({ isModalVisible }: Props) {
   useGridTabNavigation({
     editingId: editingSubCellId,
     setEditingId: setEditingSubCell,
-    getNextId: getNextCellId,
+    getNextId: getNextSubCellId,
   });
   UseSubsGoalNavigation();
 
