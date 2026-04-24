@@ -74,10 +74,10 @@ export default ({ mode }: { mode: string }) => {
           secure: false,
         },
       },
-      // https: {
-      //   key: fs.readFileSync("./localhost-key.pem"),
-      //   cert: fs.readFileSync("./localhost.pem"),
-      // },
+      https: {
+        key: fs.readFileSync("./localhost-key.pem"),
+        cert: fs.readFileSync("./localhost.pem"),
+      },
       host: true,
       port: 3000,
       allowedHosts: [".ngrok-free.app"],
