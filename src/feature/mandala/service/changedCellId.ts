@@ -20,7 +20,6 @@ export const getChangedCellId = ({
   const next = getDataById(updatedData, cellId)! ?? updatedData[0];
 
   const isChanged = !isEqual(original, next);
-  console.log(original, next, isChanged);
 
   if (!isChanged) return null;
   return normalizeToTrackId(cellId);
@@ -49,8 +48,6 @@ export const getChangedCellIdFlat = ({
 
   const original = originalCells[cellId];
   const next = cells[cellId];
-  console.log(original, next);
-  // if (!original || !next) return null;
   const isChanged = !isEqual(original, next);
 
   return isChanged ? cellId : null;
