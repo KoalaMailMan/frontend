@@ -13,15 +13,12 @@ import {
 
 type MandalaReadOnlyCellProps = {
   goalId: string;
-  // cell: CellData;
   className?: string;
   type?: string;
   isCenter: boolean;
   compact?: boolean;
   disabled: boolean;
   isEmpty: boolean;
-  "data-tutorial"?: string;
-  tutorialArrowButton?: boolean; // 튜토리얼용 화살표 버튼 식별자
   onCellClick: () => void;
   onDetailClick?: () => void;
   onGoalClick?: (e: React.MouseEvent) => void;
@@ -34,8 +31,6 @@ export default React.memo(function MandalaReadOnlyCell({
   isCenter,
   compact,
   disabled,
-  "data-tutorial": dataTutorial,
-  tutorialArrowButton = false,
   onCellClick,
   onDetailClick,
   onGoalClick,
