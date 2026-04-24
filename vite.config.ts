@@ -1,7 +1,6 @@
 /// <reference types="vitest/config" />
 
 import path from "path";
-import fs from "fs";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
@@ -74,10 +73,10 @@ export default ({ mode }: { mode: string }) => {
           secure: false,
         },
       },
-      https: {
-        key: fs.readFileSync("./localhost-key.pem"),
-        cert: fs.readFileSync("./localhost.pem"),
-      },
+      // https: {
+      //   key: fs.readFileSync("./localhost-key.pem"),
+      //   cert: fs.readFileSync("./localhost.pem"),
+      // },
       host: true,
       port: 3000,
       allowedHosts: [".ngrok-free.app"],
