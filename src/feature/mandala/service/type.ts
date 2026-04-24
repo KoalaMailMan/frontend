@@ -47,7 +47,6 @@ export type CellData = {
 export type MandalaMap = Record<string, CellData>;
 
 export type MandalaLayout = {
-  core: string;
   mains: string[];
   subs: Record<string, string[]>;
   grid: string[][];
