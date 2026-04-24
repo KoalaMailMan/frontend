@@ -4,25 +4,27 @@ import MandalaReadOnlyCell from "../MandalaReadOnlyCell";
 import MandalaEditableCell from "../MandalaEditableCell";
 import React, { useCallback, useEffect, useRef } from "react";
 import useMandalaData from "../../hooks/useMandalaData";
+import { normalizeCellId } from "../../service";
+import { toast } from "sonner";
 
 type ModalCellProps = {
   className?: string;
   goalId: string;
   isCenter: boolean;
-  disabled: boolean;
 };
 
 export default React.memo(function ModalCell({
   className,
   goalId,
   isCenter,
-  disabled,
 }: ModalCellProps) {
   const { data } = useMandalaData();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const normalizedId = normalizeCellId(goalId);
   const cell = useMandalaStore(
-    useShallow((state) => state.flatData.cells[goalId])
+    useShallow((state) => state.flatData.cells[normalizedId])
   );
+  const disabled = cell?.status === "DONE";
   const isEditing = useMandalaStore(
     useShallow((state) => state.editingFullCellId === goalId)
   );
@@ -37,35 +39,35 @@ export default React.memo(function ModalCell({
     useShallow((state) => state.handleCellChange)
   );
   const handleCellClick = useCallback(() => {
-    console.log(goalId);
+    if (disabled) return toast.info("이미 완료한 목표는 수정할 수 없어요!");
     setEditingCell(goalId);
   }, [goalId, setEditingCell]);
 
   const handleContentChange = useCallback(
-    (e: React.FormEvent, value: string) => {
+    (value: string) => {
       console.log(value);
-      handleCellChange(goalId, value, data);
-      if (textareaRef.current) {
-        const textarea = textareaRef.current;
-        textarea.style.height = "auto";
-        textarea.style.height = textarea.scrollHeight + "px";
-      }
+      handleCellChange(normalizeCellId(goalId), value, data);
+      // if (textareaRef.current) {
+      //   const textarea = textareaRef.current;
+      //   textarea.style.height = "auto";
+      //   textarea.style.height = textarea.scrollHeight + "px";
+      // }
     },
     [goalId, handleCellChange]
   );
 
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      if (isEditing && textareaRef.current) {
-        textareaRef.current.focus();
-        textareaRef.current.select();
+  // useEffect(() => {
+  //   requestAnimationFrame(() => {
+  //     if (isEditing && textareaRef.current) {
+  //       textareaRef.current.focus();
+  //       textareaRef.current.select();
 
-        const textarea = textareaRef.current;
-        textarea.style.height = "auto";
-        textarea.style.height = textarea.scrollHeight + "px";
-      }
-    });
-  }, [isEditing]);
+  //       const textarea = textareaRef.current;
+  //       textarea.style.height = "auto";
+  //       textarea.style.height = textarea.scrollHeight + "px";
+  //     }
+  //   });
+  // }, [isEditing]);
 
   useEffect(() => {
     function handlePointerDown(e: PointerEvent) {
@@ -88,7 +90,7 @@ export default React.memo(function ModalCell({
   return isEditing ? (
     <MandalaEditableCell
       ref={textareaRef}
-      goalId={goalId}
+      goalId={normalizedId}
       compact={true}
       isCenter={isCenter}
       disabled={disabled}
@@ -97,7 +99,7 @@ export default React.memo(function ModalCell({
   ) : (
     <MandalaReadOnlyCell
       className={className}
-      goalId={goalId}
+      goalId={normalizedId}
       compact={true}
       isCenter={isCenter}
       disabled={disabled}

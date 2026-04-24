@@ -48,11 +48,11 @@ export default React.memo(function ModalCell({
   const handleContentChange = useCallback(
     (value: string) => {
       handleCellChange(goalId, value, data);
-      if (textareaRef.current) {
-        const textarea = textareaRef.current;
-        textarea.style.height = "auto";
-        textarea.style.height = textarea.scrollHeight + "px";
-      }
+      // if (textareaRef.current) {
+      //   const textarea = textareaRef.current;
+      //   textarea.style.height = "auto";
+      //   textarea.style.height = textarea.scrollHeight + "px";
+      // }
     },
     [goalId, handleCellChange]
   );
@@ -64,18 +64,18 @@ export default React.memo(function ModalCell({
     setEditingCell(null);
     toggleAndCheckComplete(goalId);
   };
-  useEffect(() => {
-    requestAnimationFrame(() => {
-      if (isEditing && textareaRef.current) {
-        textareaRef.current.focus();
-        textareaRef.current.select();
+  // useEffect(() => {
+  //   requestAnimationFrame(() => {
+  //     if (isEditing && textareaRef.current) {
+  //       textareaRef.current.focus();
+  //       textareaRef.current.select();
 
-        const textarea = textareaRef.current;
-        textarea.style.height = "auto";
-        textarea.style.height = textarea.scrollHeight + "px";
-      }
-    });
-  }, [isEditing]);
+  //       const textarea = textareaRef.current;
+  //       textarea.style.height = "auto";
+  //       textarea.style.height = textarea.scrollHeight + "px";
+  //     }
+  //   });
+  // }, [isEditing]);
 
   useEffect(() => {
     function handlePointerDown(e: PointerEvent) {

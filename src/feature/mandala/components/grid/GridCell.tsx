@@ -25,7 +25,6 @@ export default React.memo(function GridCell({
   const cell = useMandalaStore(
     useShallow((state) => state.flatData.cells[goalId])
   );
-  const editingCellId = useMandalaStore((state) => state.editingCellId);
   const isEditing = useMandalaStore(
     useShallow((state) => state.editingCellId === goalId)
   );
@@ -55,28 +54,27 @@ export default React.memo(function GridCell({
   }, [goalId, setModalCellId, setModalVisible]);
 
   const handleContentChange = useCallback(
-    (e: React.FormEvent, value: string) => {
-      console.log(data);
+    (value: string) => {
       handleCellChange(goalId, value, data);
-      if (textareaRef.current) {
-        const textarea = textareaRef.current;
-        textarea.style.height = "auto";
-        textarea.style.height = textarea.scrollHeight + "px";
-      }
+      // if (textareaRef.current) {
+      //   const textarea = textareaRef.current;
+      //   textarea.style.height = "auto";
+      //   textarea.style.height = textarea.scrollHeight + "px";
+      // }
     },
     [goalId, handleCellChange]
   );
 
-  useEffect(() => {
-    if (isEditing && textareaRef.current) {
-      textareaRef.current.focus();
-      textareaRef.current.select();
+  // useEffect(() => {
+  //   if (isEditing && textareaRef.current) {
+  //     textareaRef.current.focus();
+  //     textareaRef.current.select();
 
-      const textarea = textareaRef.current;
-      textarea.style.height = "auto";
-      textarea.style.height = textarea.scrollHeight + "px";
-    }
-  }, [isEditing]);
+  //     const textarea = textareaRef.current;
+  //     textarea.style.height = "auto";
+  //     textarea.style.height = textarea.scrollHeight + "px";
+  //   }
+  // }, [isEditing]);
 
   useEffect(() => {
     function handlePointerDown(e: PointerEvent) {

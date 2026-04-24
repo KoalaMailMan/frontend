@@ -8,10 +8,7 @@ type MandalaEditableCellProps = {
   isCenter: boolean;
   compact?: boolean;
   disabled: boolean;
-  onContentChange: (
-    e: React.FormEvent<HTMLTextAreaElement>,
-    value: string
-  ) => void;
+  onContentChange: (value: string) => void;
 };
 function MandalaEditableCell(
   {
@@ -28,7 +25,6 @@ function MandalaEditableCell(
     useShallow((state) => state.flatData.cells[goalId])
   );
   const cancelEditing = useMandalaStore((state) => state.cancelEditing);
-  // if (status === "DONE") return;
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
@@ -37,6 +33,7 @@ function MandalaEditableCell(
       cancelEditing("escape");
     }
   };
+
   return (
     <div
       data-editable-cell
@@ -53,13 +50,12 @@ function MandalaEditableCell(
     >
       <textarea
         ref={ref}
-        // autoFocus
-        // onFocus={(e) => {
-        //   console.log(e);
-        //   e.target.select();
-        //   e.target.style.height = "auto";
-        //   e.target.style.height = e.target.scrollHeight + "px";
-        // }}
+        autoFocus
+        onFocus={(e) => {
+          e.target.select();
+          e.target.style.height = "auto";
+          e.target.style.height = e.target.scrollHeight + "px";
+        }}
         className={cn(
           "w-full h-full resize-none border-none outline-none bg-transparent text-center leading-tight",
           compact ? "text-xs" : "text-sm"
@@ -67,7 +63,7 @@ function MandalaEditableCell(
         style={{ minHeight: "20px" }}
         maxLength={40}
         value={cell.content}
-        onChange={(e) => onContentChange(e, e.target.value)}
+        onChange={(e) => onContentChange(e.target.value)}
         onMouseDown={(e) => e.stopPropagation()}
         onBlur={(e) => cancelEditing("blur", e)}
         onKeyDown={handleKeyDown}
