@@ -39,7 +39,7 @@ export default function OnboardingMobile() {
 
     if (id === "recommend") {
       setModalVisible(true);
-      setModalCellId("empty-0");
+      setModalCellId("main-1");
     } else {
       setModalCellId(null);
       setModalVisible(false);
