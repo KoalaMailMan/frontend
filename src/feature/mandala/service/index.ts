@@ -657,109 +657,73 @@ export const uiToServer = ({
 //   return deduped.join("-");
 // };
 
-export const getNextCellId = (
-  editingCellId: string,
-  data?: Omit<SubGoal, "originalId">[][]
-) => {
+export const getNextMainCellId = (editingCellId: string) => {
   const layout = useMandalaStore.getState().flatData.layout;
+  const ids = moveItem(layout.mains, 0, 4);
+  const currentIndex = ids.indexOf(editingCellId);
+  if (currentIndex === -1) return null;
+  return ids[(currentIndex + 1) % ids.length];
+};
 
-  if (editingCellId.startsWith("main") || editingCellId === "core-0") {
-    const ids = moveItem(layout.mains, 0, 4);
-    const currentIndex = ids.indexOf(editingCellId);
-    if (currentIndex === -1) return null;
-    return ids[(currentIndex + 1) % ids.length];
+export const getNextSubCellId = (editingCellId: string) => {
+  const layout = useMandalaStore.getState().flatData.layout;
+  const chunk = editingCellId.split("-"); // ["sub", "1", "2"]
+  const mainPosition = chunk[1];
+
+  const mainId = mainPosition === "0" ? "core-0" : `main-${mainPosition}`;
+  const subIds = layout.subs[mainId];
+  if (!subIds) return null;
+
+  const reordered = [
+    ...subIds.slice(1, 5), // 1~4
+    mainId, // center (0번째)
+    ...subIds.slice(5), // 5~8
+  ];
+  let currentIndex = reordered.indexOf(editingCellId);
+  if (currentIndex === -1) return null;
+
+  const result = reordered[(currentIndex + 1) % reordered.length];
+  return result;
+};
+
+export const getNextFullCellId = (editingCellId: string) => {
+  const chunk = editingCellId.split("-");
+  const currentType = chunk[0]; // "sub" or "main"
+  const isCenter = chunk[1].startsWith("center"); // "main-cetner-1"
+  const currentMainPos = parseInt(isCenter ? chunk[2] : chunk[1]); // "1"
+
+  // 현재 그룹 내에서의 다음 셀을 일단 가져옴
+  const next = getNextSubCellId(editingCellId);
+
+  // 정중앙 목표에서 탈출
+  if (currentType === "core") {
+    return `main-center-5`;
+  }
+  if (isCenter) {
+    // 정중앙 목표
+    if (currentMainPos === 4) {
+      return `core-0`;
+    }
+    // 메인 목표에서 탈출
+    if (currentMainPos === 8) {
+      return `sub-5-1`;
+    }
+    return `main-center-${currentMainPos + 1}`;
+  }
+  // sub-X-8에서 블록 탈출
+  if (currentType === "sub" && chunk[2] === "8") {
+    const layout = useMandalaStore.getState().flatData.layout;
+
+    // sub-4-8 → core 블록의 main-center-1로
+    if (currentMainPos === 4) return "main-center-1";
+
+    // sub-8-8 → sub-1-1로 순환
+    if (currentMainPos === 8) return layout.subs["main-1"]?.[1] ?? null;
+
+    return layout.subs[`main-${currentMainPos + 1}`]?.[1] ?? null;
   }
 
-  if (editingCellId.startsWith("sub")) {
-    const chunk = editingCellId.split("-"); // ["sub", "1", "2"]
-    const mainPosition = chunk[1];
-    const subPosition = chunk[2];
-
-    const mainId = mainPosition === "0" ? "core-0" : `main-${mainPosition}`;
-    const subIds = layout.subs[mainId];
-    if (!subIds) return null;
-
-    const currentIndex = subIds.indexOf(editingCellId);
-    if (currentIndex === -1) return null;
-    return subIds[(currentIndex + 1) % subIds.length];
-  }
-  // let mandalart: MainGoal[] = useMandalaStore.getState().data.core.mains;
-  // if (editingCellId.startsWith("sub")) {
-  //   const chunk = editingCellId.split("-");
-  //   const position =
-  //     chunk[1] === "center" || chunk[1] === "core" ? chunk[2] : chunk[1];
-  //   const index = mandalart.findIndex((main) => {
-  //     if (position === "0") return main.goalId === `core-${position}`;
-  //     return main.goalId === `main-${position}`;
-  //   });
-  //   if (data !== undefined) {
-  //     // 전체보기 만다라트
-  //     const currentList = data[index];
-  //     const ids = moveItem(
-  //       currentList.map((sub: SubGoal) => sub.goalId),
-  //       0,
-  //       4
-  //     );
-  //     const currentIndex = ids.indexOf(editingCellId);
-  //     if (currentIndex === -1) return null;
-  //     if (currentIndex >= 0) {
-  //       if (currentIndex === ids.length - 1) {
-  //         if (index === 4) {
-  //           const nextMainIndex = 0;
-  //           const nextList = data[nextMainIndex];
-  //           return nextList[1]?.goalId ?? null;
-  //         }
-  //         if (index === 0) {
-  //           const nextMainIndex = 5;
-  //           const nextList = data[nextMainIndex];
-  //           if (!nextList) return null;
-
-  //           return nextList[1]?.goalId ?? null;
-  //         }
-  //         if (index === 8) {
-  //           const nextMainIndex = 1;
-  //           const nextList = data[nextMainIndex];
-  //           if (!nextList) return null;
-
-  //           return nextList[1]?.goalId ?? null;
-  //         }
-  //         const nextMainIndex = index + 1;
-  //         const nextList = data[nextMainIndex];
-  //         if (!nextList) return null;
-
-  //         return nextList[1]?.goalId ?? null;
-  //       }
-  //       return ids[currentIndex + 1];
-  //     }
-  //   }
-  //   const ids = moveItem(
-  //     mandalart[index].subs.map((sub) => sub.goalId),
-  //     0,
-  //     4
-  //   );
-
-  //   const subIndex = ids.findIndex((id) => id === editingCellId);
-  //   if (subIndex < 0) return null;
-  //   if (subIndex === ids.length - 1) {
-  //     return ids[0];
-  //   } else if (subIndex >= 0) {
-  //     return ids[subIndex + 1];
-  //   }
-  // } else {
-  //   const ids = moveItem(
-  //     mandalart.map((main) => main.goalId),
-  //     0,
-  //     4
-  //   );
-  //   const mainIndex = ids.findIndex((id) => id === editingCellId);
-  //   if (mainIndex < 0) return null;
-  //   if (mainIndex === ids.length - 1) {
-  //     return ids[0];
-  //   } else if (mainIndex >= 0) {
-  //     return ids[mainIndex + 1];
-  //   }
-  // }
-  return null;
+  return next;
 };
 
 export const toggleStatus = (
@@ -976,7 +940,7 @@ export const toFlatStructure = (
         continue;
       }
       if (i === 0) {
-        const subId = `main-${j}`;
+        const subId = `main-center-${j}`;
         subIds.push(subId);
         continue;
       }
@@ -1004,5 +968,10 @@ export const toFlatStructure = (
     grid.push(subIds);
   }
 
-  return { layout: { core: "core-0", mains, subs, grid }, cells };
+  return { layout: { mains, subs, grid }, cells };
+};
+export const normalizeCellId = (goalId: string): string => {
+  if (goalId.startsWith("sub")) return goalId;
+  // main-center-1 → main-1
+  return goalId.replace("-center-", "-");
 };
