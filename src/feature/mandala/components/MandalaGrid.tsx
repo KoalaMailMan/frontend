@@ -24,10 +24,9 @@ export default function MandalaGrid() {
       {layout?.mains.map((goalId, index) => {
         const isCenter = index === 0;
         const subIds = layout.subs[goalId];
-        const hasSubGoals = subIds?.some(
-          (subId) => flatData.cells[subId]?.content
-        );
-
+        const hasSubGoals = subIds
+          ?.slice(1)
+          .some((subId) => flatData.cells[subId]?.content);
         return (
           <GridCell
             key={goalId}
