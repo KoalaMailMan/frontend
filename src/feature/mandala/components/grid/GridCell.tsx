@@ -1,7 +1,7 @@
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { useShallow } from "zustand/react/shallow";
-import MandalaReadOnlyCell from "../MandalaReadOnlyCell";
-import MandalaEditableCell from "../MandalaEditableCell";
+import MandalaReadOnlyCell from "../common/MandalaReadOnlyCell";
+import MandalaEditableCell from "../common/MandalaEditableCell";
 import React, { useCallback, useEffect, useRef } from "react";
 import useMandalaData from "../../hooks/useMandalaData";
 
@@ -53,26 +53,11 @@ export default React.memo(function GridCell({
 
   const handleContentChange = useCallback(
     (value: string) => {
+      console.log(data);
       handleCellChange(goalId, value, data);
-      // if (textareaRef.current) {
-      //   const textarea = textareaRef.current;
-      //   textarea.style.height = "auto";
-      //   textarea.style.height = textarea.scrollHeight + "px";
-      // }
     },
-    [goalId, handleCellChange]
+    [goalId, handleCellChange, data]
   );
-
-  // useEffect(() => {
-  //   if (isEditing && textareaRef.current) {
-  //     textareaRef.current.focus();
-  //     textareaRef.current.select();
-
-  //     const textarea = textareaRef.current;
-  //     textarea.style.height = "auto";
-  //     textarea.style.height = textarea.scrollHeight + "px";
-  //   }
-  // }, [isEditing]);
 
   useEffect(() => {
     function handlePointerDown(e: PointerEvent) {
