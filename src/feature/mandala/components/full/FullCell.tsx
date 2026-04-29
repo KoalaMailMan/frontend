@@ -53,7 +53,7 @@ export default React.memo(function ModalCell({
       //   textarea.style.height = textarea.scrollHeight + "px";
       // }
     },
-    [goalId, handleCellChange]
+    [goalId, handleCellChange, data]
   );
 
   // useEffect(() => {

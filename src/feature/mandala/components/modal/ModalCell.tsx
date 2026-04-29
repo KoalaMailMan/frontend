@@ -54,7 +54,7 @@ export default React.memo(function ModalCell({
       //   textarea.style.height = textarea.scrollHeight + "px";
       // }
     },
-    [goalId, handleCellChange]
+    [goalId, handleCellChange, data]
   );
   const onGoalClick = (e: React.MouseEvent) => {
     e.stopPropagation();
