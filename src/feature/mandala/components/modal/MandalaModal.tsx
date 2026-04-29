@@ -5,21 +5,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import Button from "@/feature/ui/Button";
 import { cn } from "@/lib/utils";
-import { getGridClasses } from "../utills/css";
 import { toast } from "sonner";
-import useSSERecommendation from "../hooks/useSSERecommendation";
 import X from "@/feature/tutorial/components/icons/X";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { ensureAccessToken } from "@/feature/auth/service";
-import QuestionIcon from "./icon/QuestionIcon";
 import LoadingSpiner from "@/feature/ui/LoadingSpiner";
-import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextSubCellId } from "../service";
-import UseSubsGoalNavigation from "../hooks/ueSubsGoalNavigation";
-
-import ModalCell from "./modal/ModalCell";
 import { useShallow } from "zustand/react/shallow";
-import type { CellData } from "../service/type";
+import useGridTabNavigation from "../../hooks/useGridTabNavigation";
+import UseSubsGoalNavigation from "../../hooks/ueSubsGoalNavigation";
+import useSSERecommendation from "../../hooks/useSSERecommendation";
+import { getNextSubCellId } from "../../service";
+import type { CellData } from "../../service/type";
+import ModalCell from "./ModalCell";
+import { getGridClasses } from "../../utills/css";
+import QuestionIcon from "../icon/QuestionIcon";
 
 type Props = {
   isModalVisible: boolean;
@@ -44,8 +43,12 @@ export default function MandalaModal({ isModalVisible }: Props) {
   const subs = useMandalaStore(
     (state) => state.flatData?.layout.subs[modalCellId as string] ?? []
   );
+  const mains = useMandalaStore(
+    useShallow((state) => state.flatData.layout.mains)
+  );
   const cells = useMandalaStore(useShallow((state) => state.flatData.cells));
   const subItems = useMemo(() => {
+    console.log(mains);
     return subs.map((sub) => cells[sub]);
   }, []);
 
