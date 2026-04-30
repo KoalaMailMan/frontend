@@ -45,7 +45,6 @@ export default React.memo(function ModalCell({
 
   const handleContentChange = useCallback(
     (value: string) => {
-      console.log(value);
       handleCellChange(normalizeCellId(goalId), value, data);
     },
     [goalId, handleCellChange, data]
