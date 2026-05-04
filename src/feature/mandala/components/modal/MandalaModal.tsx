@@ -157,6 +157,7 @@ export default function MandalaModal({ isModalVisible }: Props) {
     <div
       className="data-modal fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleModalClose} // 배경 클릭 시 모달 닫기
+      data-testid="modal"
     >
       {isStreaming && <LoadingSpiner />}
       <div

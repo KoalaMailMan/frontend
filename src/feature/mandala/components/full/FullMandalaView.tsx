@@ -33,6 +33,7 @@ export default function FullMandalaView() {
     <div
       className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4"
       onClick={() => onClose(false)}
+      data-testid="full-dashboard"
     >
       <div
         className="pixel-card bg-white/95 backdrop-blur-sm w-full h-full sm:max-w-7xl sm:max-h-[95vh] sm:h-auto overflow-auto"
