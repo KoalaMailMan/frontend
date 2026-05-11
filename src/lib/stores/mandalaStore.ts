@@ -54,6 +54,12 @@ export type DataOption = {
   remindInterval: string;
   remindScheduledAt: string | null;
 };
+
+/**
+ * @deprecated UI 렌더링은 flatData 사용
+ * data > 서버 전송(applyChangesToServer, buildFromScratch)용으로만 유지
+ * TODO: applyChangesToServer flatData 기반으로 교체 후 제거
+ */
 type States = {
   data: MandalaType;
   flatData: MandalaFlatType;
