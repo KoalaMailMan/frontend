@@ -2,18 +2,16 @@
 
 만다라트 기법을 활용한 목표 관리 대시보드의 프론트엔드 애플리케이션
 
-[Live](https://ringdong.kr/) | [Backend Repository](https://github.com/KoalaMailMan/koalamailman_backend)
+[Live](https://mandalart.koreankoala.com) | [Backend Repository](https://github.com/KoalaMailMan/koalamailman_backend)
 
 ## Screenshots
+
 <img width="2880" height="1750" alt="메인 홈화면" src="https://github.com/user-attachments/assets/a75674b6-db2a-4d8a-b841-561f88a64b24" />
 
 <img width="2880" height="1750" alt="대시보드 화면" src="https://github.com/user-attachments/assets/acaba5a7-9b20-47c4-91b1-7be386084c62" />
 
-
-
 만다라트 기법을 활용한 목표 관리 대시보드
 AI 기반 목표 추천과 이메일 리마인더를 제공합니다.
-
 
 ## Features
 
@@ -22,20 +20,20 @@ AI 기반 목표 추천과 이메일 리마인더를 제공합니다.
 - 목표 상태 관리 및 수정
 - 이메일 리마인더 설정
 
-
 ## 기술 스택
+
 - **Framework**: Vite + React 18 + TypeScript
 - **State Management**: Zustand
 - **Styling**: Tailwind CSS + shadcn/ui
 - **API**: Fetch API + SSE (Server-Sent Events)
 
-
 ## 실행 방법
+
 > **⚠️ Note**: 백엔드 API 서버 없이 실행 시 UI는 정상 동작하지만, 다음 기능들은 작동하지 않습니다:
+>
 > - 목표 저장/불러오기
 > - AI 목표 추천
 > - 이메일 리마인더 설정
-
 
 ```bash
 # Prerequisites: Node.js v20+
