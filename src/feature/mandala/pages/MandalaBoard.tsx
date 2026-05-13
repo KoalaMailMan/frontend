@@ -1,11 +1,9 @@
-import MandalaGrid from "../components/MandalaGrid";
 import { CardContent } from "@/feature/ui/Card";
 import { cn } from "@/lib/utils";
 import NoticeContainer from "@/feature/ui/NoticeContainer";
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import Button from "@/feature/ui/Button";
-import ReminderSetting from "../components/ReminderSetting";
-import FullMandalaView from "../components/FullMandalaView";
+
 import { useEffect } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { uiToServer } from "../service";
@@ -18,6 +16,9 @@ import { KoalaTextLogo, KoalaTextLogoSrcSet } from "../const/url";
 import useMandalaData from "../hooks/useMandalaData";
 import useSaveMandala from "../hooks/useSaveMandala";
 import { performLogout } from "@/feature/auth/hooks/useLogout";
+import MandalaGrid from "../components/grid/MandalaGrid";
+import FullMandalaView from "../components/full/FullMandalaView";
+import ReminderSetting from "../components/reminder/ReminderSetting";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;
@@ -94,7 +95,6 @@ MandaraChartProps) {
         changedCells,
         serverData: mandalartData,
       });
-
       saveMadalart.mutateAsync({ mandalartData: formattData });
     }
   };

@@ -3,8 +3,8 @@ import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import React, { useState } from "react";
-import CheckIcon from "./icon/CheckIcon";
-import { koalaSeal } from "../const/url";
+import CheckIcon from "../icon/CheckIcon";
+import { koalaSeal } from "../../const/url";
 import { useShallow } from "zustand/react/shallow";
 import {
   tutorialArrowCells,

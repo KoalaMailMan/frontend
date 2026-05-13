@@ -1,9 +1,9 @@
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
-import MandalaModal from "./MandalaModal";
-import { getGridClasses } from "../utills/css";
-import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextMainCellId } from "../service";
-import GridCell from "./grid/GridCell";
+import useGridTabNavigation from "../../hooks/useGridTabNavigation";
+import { getNextMainCellId } from "../../service";
+import GridCell from "./GridCell";
+import { getGridClasses } from "../../utills/css";
+import MandalaModal from "../modal/MandalaModal";
 
 export default function MandalaGrid() {
   const editingCellId = useMandalaStore((state) => state.editingCellId);
@@ -24,10 +24,9 @@ export default function MandalaGrid() {
       {layout?.mains.map((goalId, index) => {
         const isCenter = index === 0;
         const subIds = layout.subs[goalId];
-        const hasSubGoals = subIds?.some(
-          (subId) => flatData.cells[subId]?.content
-        );
-
+        const hasSubGoals = subIds
+          ?.slice(1)
+          .some((subId) => flatData.cells[subId]?.content);
         return (
           <GridCell
             key={goalId}

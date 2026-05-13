@@ -3,16 +3,16 @@ import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { ImageIcon, X } from "lucide-react";
 import { useRef } from "react";
 import { cn } from "@/lib/utils";
-import { captureAndDownload } from "../utills/image";
+import { captureAndDownload } from "../../utills/image";
 import {
   findbyCSS,
   getCellType,
   getGridClasses,
   type Type,
-} from "../utills/css";
-import useGridTabNavigation from "../hooks/useGridTabNavigation";
-import { getNextFullCellId } from "../service";
-import FullCell from "./full/FullCell";
+} from "../../utills/css";
+import useGridTabNavigation from "../../hooks/useGridTabNavigation";
+import { getNextFullCellId } from "../../service";
+import FullCell from "../full/FullCell";
 
 export default function FullMandalaView() {
   const editingFullCellId = useMandalaStore((state) => state.editingFullCellId);

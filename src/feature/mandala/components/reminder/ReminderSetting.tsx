@@ -13,11 +13,11 @@ import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { Select } from "@radix-ui/react-select";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { ensureAccessToken } from "@/feature/auth/service";
-import { IntervalType } from "../const";
-import RemindeIcon from "./icon/RemindeIcon";
 import X from "@/feature/tutorial/components/icons/X";
 import { cn } from "@/lib/utils";
-import useSaveReminder from "../hooks/useSaveReminder";
+import useSaveReminder from "../../hooks/useSaveReminder";
+import { IntervalType } from "../../const";
+import RemindeIcon from "../icon/RemindeIcon";
 
 export default function ReminderSetting() {
   const user = useAuthStore((state) => state.user);
