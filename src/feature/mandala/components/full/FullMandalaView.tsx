@@ -33,6 +33,7 @@ export default function FullMandalaView() {
     <div
       className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4"
       onClick={() => onClose(false)}
+      data-testid="full-dashboard"
     >
       <div
         className="pixel-card bg-white/95 backdrop-blur-sm w-full h-full sm:max-w-7xl sm:max-h-[95vh] sm:h-auto overflow-auto"
@@ -57,6 +58,7 @@ export default function FullMandalaView() {
               onClick={() => onClose(false)}
               className="pixel-button"
               aria-label="전체보기 닫기"
+              data-testid="full-dashboard-close"
             >
               <X className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>

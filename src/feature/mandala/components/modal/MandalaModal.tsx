@@ -43,12 +43,11 @@ export default function MandalaModal({ isModalVisible }: Props) {
   const subs = useMandalaStore(
     (state) => state.flatData?.layout.subs[modalCellId as string] ?? []
   );
-  const mains = useMandalaStore(
-    useShallow((state) => state.flatData.layout.mains)
-  );
+  // const mains = useMandalaStore(
+  //   useShallow((state) => state.flatData.layout.mains)
+  // );
   const cells = useMandalaStore(useShallow((state) => state.flatData.cells));
   const subItems = useMemo(() => {
-    console.log(mains);
     return subs.map((sub) => cells[sub]);
   }, []);
 
@@ -158,6 +157,7 @@ export default function MandalaModal({ isModalVisible }: Props) {
     <div
       className="data-modal fixed inset-0 bg-black/20 backdrop-blur-sm flex items-center justify-center z-50 p-4"
       onClick={handleModalClose} // 배경 클릭 시 모달 닫기
+      data-testid="modal"
     >
       {isStreaming && <LoadingSpiner />}
       <div
@@ -178,6 +178,7 @@ export default function MandalaModal({ isModalVisible }: Props) {
             className="w-[20px] h-[20px]"
             onClick={handleModalClose}
             aria-label="세부 목표 설정창 닫기"
+            data-testid="modal-close"
           >
             <X size={20} strokeColor="#B3B3B3" stroke={1} />
           </Button>

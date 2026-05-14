@@ -77,23 +77,27 @@ export default React.memo(function GridCell({
     };
   }, []);
 
-  return isEditing ? (
-    <MandalaEditableCell
-      ref={textareaRef}
-      goalId={goalId}
-      isCenter={isCenter}
-      disabled={disabled}
-      onContentChange={handleContentChange}
-    />
-  ) : (
-    <MandalaReadOnlyCell
-      className={className}
-      goalId={goalId}
-      isCenter={isCenter}
-      disabled={disabled}
-      isEmpty={!cell.content}
-      onCellClick={handleCellClick}
-      onDetailClick={handleDetailClick}
-    />
+  return (
+    <div data-testid={`cell-${goalId}`}>
+      {isEditing ? (
+        <MandalaEditableCell
+          ref={textareaRef}
+          goalId={goalId}
+          isCenter={isCenter}
+          disabled={disabled}
+          onContentChange={handleContentChange}
+        />
+      ) : (
+        <MandalaReadOnlyCell
+          className={className}
+          goalId={goalId}
+          isCenter={isCenter}
+          disabled={disabled}
+          isEmpty={!cell.content}
+          onCellClick={handleCellClick}
+          onDetailClick={handleDetailClick}
+        />
+      )}
+    </div>
   );
 });

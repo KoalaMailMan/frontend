@@ -54,6 +54,12 @@ export type DataOption = {
   remindInterval: string;
   remindScheduledAt: string | null;
 };
+
+/**
+ * @deprecated UI 렌더링은 flatData 사용
+ * data > 서버 전송(applyChangesToServer, buildFromScratch)용으로만 유지
+ * TODO: applyChangesToServer flatData 기반으로 교체 후 제거
+ */
 type States = {
   data: MandalaType;
   flatData: MandalaFlatType;
@@ -317,7 +323,6 @@ export const useMandalaStore = create<States & Actions>()(
 
           targets.forEach((target) => {
             const { mainIndex, subIndex } = target;
-            console.log(mainIndex, subIndex);
             if (mainIndex === 0 && !subIndex) {
               state.flatData.cells["core-0"] = {
                 ...state.flatData.cells["core-0"],
@@ -338,20 +343,12 @@ export const useMandalaStore = create<States & Actions>()(
               };
             }
           });
-          console.log(queryData);
           if (queryData) {
             const updatedCellId = getChangedCellIdFlat({
               cellId,
               rawData: queryData,
               cells: state.flatData.cells,
             });
-
-            // const updatedCellId = getChangedCellId({
-            //   cellId,
-            //   rawData: queryData,
-            //   updatedData: state.data.core.mains,
-            // });
-            console.log(state.changedCells, updatedCellId);
 
             if (updatedCellId) {
               state.changedCells.add(updatedCellId);
@@ -375,24 +372,6 @@ export const useMandalaStore = create<States & Actions>()(
             .filter((v): v is number => v !== null);
           state.emptySubIndexes = emptyIndexes;
           state.recommendationCursor = 0;
-          // const mainId = subs[0].goalId.split("-")[1];
-          // const mainIndex = state.data.core.mains.findIndex(
-          //   (sub) => sub.goalId === `main-${mainId}`
-          // );
-          // if (mainIndex === -1) return state;
-          // const subsArr = state.data.core.mains[mainIndex].subs;
-
-          // const emptyIndexes = subsArr
-          //   .map((sub, index) =>
-          //     sub.position !== 0 && !sub.content.trim() ? index : null
-          //   )
-          //   .filter((v): v is number => v !== null);
-
-          // return {
-          //   ...state,
-          //   emptySubIndexes: emptyIndexes,
-          //   recommendationCursor: 0,
-          // };
         }),
       resetRecommendationText: () =>
         set(() => ({
@@ -402,56 +381,20 @@ export const useMandalaStore = create<States & Actions>()(
         set((state) => {
           const cursor = state.recommendationCursor;
           const subIds = state.flatData.layout.subs[mainId];
-          // const targetIndex = state.emptySubIndexes[cursor];
+
           const targetSubId = subIds?.[state.emptySubIndexes[cursor]];
           if (!targetSubId) return;
 
-          // if (targetIndex == null) return state;
-
-          // const mainId = subs[0].goalId.split("-")[1];
-          // const mainIndex = state.data.core.mains.findIndex(
-          //   (sub) => sub.goalId === `main-${mainId}`
-          // );
-          // if (mainIndex === -1) return state;
-
-          // const subsArr = state.data.core.mains[mainIndex].subs;
-          // const target = subsArr[targetIndex];
-
           const hasComma = chunk.includes(",");
-          // let newText = state.currentRecommendationText;
 
           if (hasComma) {
             state.currentRecommendationText = "";
             state.recommendationCursor = cursor + 1;
-            //   return {
-            //     ...state,
-            //     recommendationCursor: cursor + 1,
-            //     currentRecommendationText: "",
-            //   };
           } else {
             const newText = state.currentRecommendationText + chunk;
             state.flatData.cells[targetSubId].content = newText;
             state.currentRecommendationText = newText;
             state.changedCells.add(targetSubId);
-
-            //   newText = state.currentRecommendationText + chunk;
-            //   const newSubs = [...subsArr];
-            //   newSubs[targetIndex] = { ...target, content: newText };
-
-            //   return {
-            //     ...state,
-            //     data: {
-            //       ...state.data,
-            //       core: {
-            //         ...state.data.core,
-            //         mains: state.data.core.mains.map((main, index) =>
-            //           index === mainIndex ? { ...main, subs: newSubs } : main
-            //         ),
-            //       },
-            //     },
-            //     currentRecommendationText: newText,
-            //     changedCells: new Set([...state.changedCells, target.goalId]),
-            //   };
           }
         }),
 

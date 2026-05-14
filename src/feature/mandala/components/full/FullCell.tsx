@@ -45,7 +45,6 @@ export default React.memo(function ModalCell({
 
   const handleContentChange = useCallback(
     (value: string) => {
-      console.log(value);
       handleCellChange(normalizeCellId(goalId), value, data);
     },
     [goalId, handleCellChange, data]
@@ -69,24 +68,28 @@ export default React.memo(function ModalCell({
     };
   }, []);
 
-  return isEditing ? (
-    <MandalaEditableCell
-      ref={textareaRef}
-      goalId={normalizedId}
-      compact={true}
-      isCenter={isCenter}
-      disabled={disabled}
-      onContentChange={handleContentChange}
-    />
-  ) : (
-    <MandalaReadOnlyCell
-      className={className}
-      goalId={normalizedId}
-      compact={true}
-      isCenter={isCenter}
-      disabled={disabled}
-      isEmpty={!cell.content}
-      onCellClick={handleCellClick}
-    />
+  return (
+    <div data-testid={`full-cell-${goalId}`}>
+      {isEditing ? (
+        <MandalaEditableCell
+          ref={textareaRef}
+          goalId={normalizedId}
+          compact={true}
+          isCenter={isCenter}
+          disabled={disabled}
+          onContentChange={handleContentChange}
+        />
+      ) : (
+        <MandalaReadOnlyCell
+          className={className}
+          goalId={normalizedId}
+          compact={true}
+          isCenter={isCenter}
+          disabled={disabled}
+          isEmpty={!cell.content}
+          onCellClick={handleCellClick}
+        />
+      )}
+    </div>
   );
 });

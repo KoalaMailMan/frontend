@@ -78,23 +78,27 @@ export default React.memo(function ModalCell({
     };
   }, []);
 
-  return isEditing && cell.status !== "DONE" ? (
-    <MandalaEditableCell
-      ref={textareaRef}
-      goalId={goalId}
-      isCenter={isCenter}
-      disabled={disabled}
-      onContentChange={handleContentChange}
-    />
-  ) : (
-    <MandalaReadOnlyCell
-      className={className}
-      goalId={goalId}
-      isCenter={isCenter}
-      disabled={disabled}
-      isEmpty={!cell.content}
-      onCellClick={handleCellClick}
-      onGoalClick={onGoalClick}
-    />
+  return (
+    <div data-testid={`modal-cell-${goalId}`}>
+      {isEditing && cell.status !== "DONE" ? (
+        <MandalaEditableCell
+          ref={textareaRef}
+          goalId={goalId}
+          isCenter={isCenter}
+          disabled={disabled}
+          onContentChange={handleContentChange}
+        />
+      ) : (
+        <MandalaReadOnlyCell
+          className={className}
+          goalId={goalId}
+          isCenter={isCenter}
+          disabled={disabled}
+          isEmpty={!cell.content}
+          onCellClick={handleCellClick}
+          onGoalClick={onGoalClick}
+        />
+      )}
+    </div>
   );
 });

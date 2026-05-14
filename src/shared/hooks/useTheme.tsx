@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import type { ThemeColor } from "@/data/themes";
 
 import { findInTheFourSeasons } from "../utils/weather";
@@ -15,16 +15,23 @@ export default function useTheme() {
   const [currentTheme, setCurrentTheme] = useState<ThemeColor>(
     findInTheFourSeasons()
   );
-  useEffect(() => {
-    // Hydration 완료 후 localStorage 값으로 교체
+  // useEffect(() => {
+  //   // Hydration 완료 후 localStorage 값으로 교체
+  //   const saved = window.localStorage.getItem(THEME_STORAGE_KEY) as ThemeColor;
+  //   if (saved && themeColors[saved]) {
+  //     setCurrentTheme(saved);
+  //     updateCSSVar(saved);
+  //   } else {
+  //     updateCSSVar(currentTheme);
+  //   }
+  // }, []);
+  useLayoutEffect(() => {
     const saved = window.localStorage.getItem(THEME_STORAGE_KEY) as ThemeColor;
-    if (saved && themeColors[saved]) {
-      setCurrentTheme(saved);
-      updateCSSVar(saved);
-    } else {
-      updateCSSVar(currentTheme);
-    }
+    const theme = saved && themeColors[saved] ? saved : currentTheme;
+    setCurrentTheme(theme);
+    updateCSSVar(theme);
   }, []);
+
   useEffect(() => {
     updateCSSVar(currentTheme);
   }, [currentTheme]);

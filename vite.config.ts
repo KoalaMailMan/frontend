@@ -59,6 +59,11 @@ export default ({ mode }: { mode: string }) => {
     test: {
       globals: true,
       environment: "jsdom",
+      exclude: [
+        "**/node_modules/**",
+        "**/tests/e2e/**", // Playwright 테스트 폴더 제외
+        "**/*.spec.ts",
+      ],
     },
     resolve: {
       alias: {

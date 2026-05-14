@@ -101,6 +101,7 @@ export default React.memo(function MandalaReadOnlyCell({
           data-tutorial={
             tutorialArrowCells.has(goalId) ? "tutorial-arrow-button" : undefined
           }
+          data-testid={`cell-${goalId}-arrow`}
           aria-label="세부 목표 설정창 열기"
         >
           <ChevronRight className="h-3 w-3" />
