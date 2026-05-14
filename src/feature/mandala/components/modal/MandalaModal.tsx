@@ -43,9 +43,9 @@ export default function MandalaModal({ isModalVisible }: Props) {
   const subs = useMandalaStore(
     (state) => state.flatData?.layout.subs[modalCellId as string] ?? []
   );
-  const mains = useMandalaStore(
-    useShallow((state) => state.flatData.layout.mains)
-  );
+  // const mains = useMandalaStore(
+  //   useShallow((state) => state.flatData.layout.mains)
+  // );
   const cells = useMandalaStore(useShallow((state) => state.flatData.cells));
   const subItems = useMemo(() => {
     return subs.map((sub) => cells[sub]);
