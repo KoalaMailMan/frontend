@@ -1,6 +1,5 @@
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
-import { forwardRef } from "react";
 import { useShallow } from "zustand/react/shallow";
 
 type MandalaEditableCellProps = {
@@ -9,17 +8,16 @@ type MandalaEditableCellProps = {
   compact?: boolean;
   disabled: boolean;
   onContentChange: (value: string) => void;
+  ref: React.RefObject<HTMLTextAreaElement>;
 };
-function MandalaEditableCell(
-  {
-    goalId,
-    compact,
-    isCenter,
-    disabled,
-    onContentChange,
-  }: MandalaEditableCellProps,
-  ref: React.Ref<HTMLTextAreaElement>
-) {
+function MandalaEditableCell({
+  goalId,
+  compact,
+  isCenter,
+  disabled,
+  onContentChange,
+  ref,
+}: MandalaEditableCellProps) {
   const isModalOpen = useMandalaStore((state) => state.isModalOpen);
   const cell = useMandalaStore(
     useShallow((state) => state.flatData.cells[goalId])
@@ -72,4 +70,4 @@ function MandalaEditableCell(
     </div>
   );
 }
-export default forwardRef(MandalaEditableCell);
+export default MandalaEditableCell;
