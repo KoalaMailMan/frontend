@@ -8,7 +8,7 @@ type MandalaEditableCellProps = {
   compact?: boolean;
   disabled: boolean;
   onContentChange: (value: string) => void;
-  ref: React.RefObject<HTMLTextAreaElement>;
+  ref: React.RefObject<HTMLTextAreaElement | null>;
 };
 function MandalaEditableCell({
   goalId,
