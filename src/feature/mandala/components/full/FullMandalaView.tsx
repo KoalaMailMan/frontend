@@ -86,16 +86,18 @@ export default function FullMandalaView() {
                   {subIds.map((goalId, subIdx) => {
                     const type = getCellType(blockIdx, subIdx);
                     return (
-                      <FullCell
+                      <div
+                        data-testid={`full-cell-${goalId}`}
+                        className={`${getGridClasses(subIdx)}`}
                         key={goalId}
-                        goalId={goalId}
-                        isCenter={blockIdx === 0 && subIdx === 0}
-                        className={cn(
-                          "",
-                          findbyCSS((type as Type) || "sub"),
-                          getGridClasses(subIdx)
-                        )}
-                      />
+                      >
+                        <FullCell
+                          key={goalId}
+                          goalId={goalId}
+                          isCenter={blockIdx === 0 && subIdx === 0}
+                          className={cn("", findbyCSS((type as Type) || "sub"))}
+                        />
+                      </div>
                     );
                   })}
                 </div>

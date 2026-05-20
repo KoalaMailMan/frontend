@@ -28,17 +28,21 @@ export default function MandalaGrid() {
           ?.slice(1)
           .some((subId) => flatData.cells[subId]?.content);
         return (
-          <GridCell
+          <div
+            data-testid={`cell-${goalId}`}
+            className={`${getGridClasses(index)}`}
             key={goalId}
-            goalId={goalId}
-            isCenter={isCenter}
-            disabled={false}
-            className={`w-full h-full
-              ${isCenter && "border-primary text-primary font-semibold"}
-              ${hasSubGoals ? "ring-2 ring-primary/50 bg-primary/5" : ""}
-              ${getGridClasses(index)}
-            `}
-          />
+          >
+            <GridCell
+              goalId={goalId}
+              isCenter={isCenter}
+              disabled={false}
+              className={`w-full h-full
+                ${isCenter && "border-primary text-primary font-semibold"}
+                ${hasSubGoals ? "ring-2 ring-primary/50 bg-primary/5" : ""}
+              `}
+            />
+          </div>
         );
       })}
 

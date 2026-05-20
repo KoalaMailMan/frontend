@@ -79,7 +79,7 @@ export default React.memo(function ModalCell({
   }, []);
 
   return (
-    <div data-testid={`modal-cell-${goalId}`}>
+    <>
       {isEditing && cell.status !== "DONE" ? (
         <MandalaEditableCell
           ref={textareaRef}
@@ -99,6 +99,6 @@ export default React.memo(function ModalCell({
           onGoalClick={onGoalClick}
         />
       )}
-    </div>
+    </>
   );
 });

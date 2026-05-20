@@ -78,7 +78,7 @@ export default React.memo(function GridCell({
   }, []);
 
   return (
-    <div data-testid={`cell-${goalId}`}>
+    <>
       {isEditing ? (
         <MandalaEditableCell
           ref={textareaRef}
@@ -98,6 +98,6 @@ export default React.memo(function GridCell({
           onDetailClick={handleDetailClick}
         />
       )}
-    </div>
+    </>
   );
 });
