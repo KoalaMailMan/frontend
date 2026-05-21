@@ -3,9 +3,12 @@ import NaverLoginButton from "./NaverLoginButton";
 import GoogleLoginButton from "./GoogleLoginButton";
 import { useAuthStore, type AuthModalText } from "@/lib/stores/authStore";
 import { ENV } from "@/const";
+import { generateOAuthState } from "../service";
 
 export const handleGoogleLogin = () => {
-  window.location.href = ENV.BACKEND_URL + "/api/auth/login/google";
+  const state = generateOAuthState();
+  window.location.href =
+    ENV.NEW_BACKEND_URL + "/api/auth/login/google?state=" + state;
   useAuthStore.getState().setLastProvider("google");
 };
 
