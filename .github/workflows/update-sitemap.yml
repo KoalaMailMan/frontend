@@ -1,0 +1,41 @@
+name: update-sitemap
+
+on:
+  push:
+    branches: ["main"]
+    paths-ignore:
+      - "**.md"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: sitemap
+  cancel-in-progress: true
+
+jobs:
+  update-sitemap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm ci
+      - run: npm run update-sitemap
+        env:
+          CI: true
+      - run: |
+          if git diff --quiet public/sitemap.xml; then
+            echo "변경 없음"
+          else
+            git config --local user.email "github-actions[bot]@users.noreply.github.com"
+            git config --local user.name "github-actions[bot]"
+            git add public/sitemap.xml
+            git commit -m "chore: update sitemap [skip ci]"
+            git pull --rebase origin main
+            git push
+          fi
