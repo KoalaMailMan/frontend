@@ -73,15 +73,11 @@ export default ({ mode }: { mode: string }) => {
     server: {
       proxy: {
         "/api": {
-          target: env.VITE_BACKEND_URL,
+          target: env.VITE_NEW_BACKEND_URL,
           changeOrigin: true,
           secure: false,
         },
       },
-      // https: {
-      //   key: fs.readFileSync("./localhost-key.pem"),
-      //   cert: fs.readFileSync("./localhost.pem"),
-      // },
       host: true,
       port: 3000,
       allowedHosts: [".ngrok-free.app"],

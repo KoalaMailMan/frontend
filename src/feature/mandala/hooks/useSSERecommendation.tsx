@@ -33,7 +33,7 @@ const encodingURI = (options: Record<string, string>) => {
   return params.toString();
 };
 
-const baseURL = import.meta.env.VITE_BACKEND_URL;
+const baseURL = import.meta.env.NEW_BACKEND_URL;
 
 export default function useSSERecommendation({
   goal,
