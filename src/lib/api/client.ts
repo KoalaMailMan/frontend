@@ -236,4 +236,4 @@ export class ApiClient {
   }
 }
 
-export const apiClient = new ApiClient(ENV.BACKEND_URL);
+export const apiClient = new ApiClient(ENV.NEW_BACKEND_URL);

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { EventSourcePolyfill } from "event-source-polyfill";
 import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
 import type { CellData } from "../service/type";
+import { ENV } from "@/const";
 
 type UseSSERecommendationOptions = {
   goal: string;
@@ -33,7 +34,7 @@ const encodingURI = (options: Record<string, string>) => {
   return params.toString();
 };
 
-const baseURL = import.meta.env.VITE_BACKEND_URL;
+const baseURL = ENV.NEW_BACKEND_URL;
 
 export default function useSSERecommendation({
   goal,

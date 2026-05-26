@@ -57,6 +57,19 @@ import { performLogout } from "./hooks/useLogout";
 //   useAuthStore.getState().setUserInfo({ nickname: "", email: "" });
 // };
 
+const OAUTH_STATE = "oauth_state";
+export const generateOAuthState = () => {
+  const state = crypto.randomUUID();
+  sessionStorage.setItem(OAUTH_STATE, state);
+  return state;
+};
+
+export const validateOAuthState = (state: string) => {
+  const oauthState = sessionStorage.getItem(OAUTH_STATE);
+  if (oauthState === state) return true;
+  return false;
+};
+
 let refreshInProgress: Promise<string | null> | null = null;
 export const reissueWithRefreshToken = async () => {
   if (refreshInProgress) {

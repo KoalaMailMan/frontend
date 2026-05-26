@@ -205,19 +205,25 @@ export default function MandalaModal({ isModalVisible }: Props) {
                     {subs?.map((goalId, index) => {
                       const isCenter = index === 0;
                       return (
-                        <ModalCell
+                        <div
+                          data-testid={`modal-cell-${goalId}`}
+                          className={`${getGridClasses(index)}`}
                           key={goalId}
-                          goalId={goalId}
-                          isCenter={isCenter}
-                          disabled={false}
-                          className={cn(
-                            "md:min-w-[125px] w-full h-full",
-                            getGridClasses(index),
-                            isCenter
-                              ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
-                              : ""
-                          )}
-                        />
+                        >
+                          <ModalCell
+                            key={goalId}
+                            goalId={goalId}
+                            isCenter={isCenter}
+                            disabled={false}
+                            className={cn(
+                              "md:min-w-[125px] w-full h-full",
+                              getGridClasses(index),
+                              isCenter
+                                ? " bg-primary-modal/20 border-primary-modal font-medium text-primary"
+                                : ""
+                            )}
+                          />
+                        </div>
                       );
                     })}
                   </div>
