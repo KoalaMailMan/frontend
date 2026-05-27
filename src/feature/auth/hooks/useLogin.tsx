@@ -13,7 +13,6 @@ export default function useOAuthCallback() {
   useEffect(() => {
     (async () => {
       const errorFromUrl = getURLQuery("error");
-      console.log(errorFromUrl);
       if (errorFromUrl) {
         toast.error("로그인에 실패했습니다. 다시 시도해주세요.");
         clearURLQuery();
@@ -21,18 +20,13 @@ export default function useOAuthCallback() {
       }
 
       const state = getURLQuery("state");
-      console.log(state);
       if (state) {
-        // const isValidState = validateOAuthState(state);
-        // console.log(isValidState);
-        // if (isValidState) {
         const accessToken = await refreshTokenAPI();
         if (!accessToken) return;
 
         setAccessToken(accessToken);
         setWasLoggedIn(true);
         setLastLoginTime(new Date().toISOString());
-        // }
       }
 
       clearURLQuery();
