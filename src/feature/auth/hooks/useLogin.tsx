@@ -19,24 +19,23 @@ export default function useOAuthCallback() {
         clearURLQuery();
         return;
       }
-      // const token = getURLQuery("access_token");
 
       const state = getURLQuery("state");
       console.log(state);
       if (state) {
-        const isValidState = validateOAuthState(state);
-        console.log(isValidState);
-        if (isValidState) {
-          const accessToken = await refreshTokenAPI();
-          if (!accessToken) return;
+        // const isValidState = validateOAuthState(state);
+        // console.log(isValidState);
+        // if (isValidState) {
+        const accessToken = await refreshTokenAPI();
+        if (!accessToken) return;
 
-          setAccessToken(accessToken);
-          setWasLoggedIn(true);
-          setLastLoginTime(new Date().toISOString());
-        }
+        setAccessToken(accessToken);
+        setWasLoggedIn(true);
+        setLastLoginTime(new Date().toISOString());
+        // }
       }
 
-      // clearURLQuery();
+      clearURLQuery();
     })();
   }, []);
 }
