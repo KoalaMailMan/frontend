@@ -22,6 +22,7 @@ export default function useOAuthCallback() {
       // const token = getURLQuery("access_token");
 
       const state = getURLQuery("state");
+      console.log(state);
       if (state) {
         const isValidState = validateOAuthState(state);
         console.log(isValidState);
@@ -35,7 +36,7 @@ export default function useOAuthCallback() {
         }
       }
 
-      clearURLQuery();
+      // clearURLQuery();
     })();
   }, []);
 }
