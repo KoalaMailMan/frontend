@@ -22,9 +22,9 @@ export default ({ mode }: { mode: string }) => {
       //   },
       // },
     },
-    esbuild: {
-      drop: mode === "production" ? ["console", "debugger"] : [], // 프로덕션에서 console, debugger 제거
-    },
+    // esbuild: {
+    //   drop: mode === "production" ? ["console", "debugger"] : [], // 프로덕션에서 console, debugger 제거
+    // },
     plugins: [
       visualizer({
         open: false,
