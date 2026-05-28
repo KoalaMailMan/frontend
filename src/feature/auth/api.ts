@@ -22,13 +22,10 @@ export const refreshTokenAPI = async () => {
   const REFRESH_URL = "/api/auth/refresh";
 
   try {
-    const res = await apiClient.post<RefreshType>(
-      REFRESH_URL,
-      { requiresAuth: false },
-      {
-        credentials: "include",
-      }
-    );
+    const res = await apiClient.post<RefreshType>(REFRESH_URL, {
+      requiresAuth: false,
+      credentials: "include",
+    });
 
     const accessToken = res.data.accessToken;
     return accessToken;
