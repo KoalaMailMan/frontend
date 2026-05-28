@@ -2,7 +2,6 @@ import { useAuthStore } from "@/lib/stores/authStore";
 import { useEffect } from "react";
 import { clearURLQuery, getURLQuery } from "../\butils";
 import { refreshTokenAPI } from "../api";
-import { validateOAuthState } from "../service";
 import { toast } from "sonner";
 
 export default function useOAuthCallback() {
