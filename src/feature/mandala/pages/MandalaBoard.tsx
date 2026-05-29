@@ -54,7 +54,6 @@ MandaraChartProps) {
 
   useEffect(() => {
     if (!isSuccess || !mandalartData) return;
-    console.log(accessToken);
 
     // 서버 → UI 변환
     setData(mandalartData);
@@ -65,8 +64,6 @@ MandaraChartProps) {
   }, [mandalartData, isSuccess]);
 
   useEffect(() => {
-    console.log(accessToken);
-
     if (!isError) return;
     toast.warning(
       "만다라트 대시보드를 가져오는 것에 실패했습니다. 재로그인 해주세요."
