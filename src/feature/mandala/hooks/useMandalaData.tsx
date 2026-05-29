@@ -10,6 +10,7 @@ export default function useMandalaData() {
   return useQuery({
     queryKey: ["mandalart"],
     queryFn: () => {
+      console.log(accessToken);
       if (!accessToken) {
         throw new Error("Mandala Data: accessToken이 없습니다.");
       }

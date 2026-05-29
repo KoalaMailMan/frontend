@@ -13,6 +13,10 @@ import { useMandalaStore } from "./lib/stores/mandalaStore";
 import ServiceIntroCompoenent from "./feature/home/components/ServiceIntroComponent";
 import AuthProvider from "./feature/auth/components/AuthProvider";
 import MandalaBoard from "./feature/mandala/pages/MandalaBoard";
+import { apiClient } from "./lib/api/client";
+import { reissueWithRefreshToken } from "./feature/auth/service";
+
+apiClient.setTokenRefresher(reissueWithRefreshToken);
 
 function App() {
   useResize();
