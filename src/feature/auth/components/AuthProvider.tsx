@@ -4,8 +4,6 @@ import { useEffect, type ReactNode } from "react";
 import { toast } from "sonner";
 import useUserInfo from "../hooks/useUserInfo";
 import useOAuthCallback from "../hooks/useLogin";
-import { apiClient } from "@/lib/api/client";
-import { reissueWithRefreshToken } from "../service";
 import { performLogout } from "../hooks/useLogout";
 
 export default function AuthProvider({ children }: { children: ReactNode }) {
@@ -13,10 +11,6 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
   const setWasLoggedIn = useAuthStore((state) => state.setWasLoggedIn);
   const setLastLoginTime = useAuthStore((state) => state.setLastLoginTime);
   const setUserInfo = useAuthStore((state) => state.setUserInfo);
-
-  useEffect(() => {
-    apiClient.setTokenRefresher(reissueWithRefreshToken);
-  }, []);
 
   useOAuthCallback();
 
