@@ -9,13 +9,13 @@ export default function useMandalaData() {
 
   return useQuery({
     queryKey: ["mandalart"],
-    queryFn: () => {
-      console.log(accessToken);
+    queryFn: async () => {
+      console.log("만다라트 대시보드 쿼리", accessToken);
       if (!accessToken) {
         throw new Error("Mandala Data: accessToken이 없습니다.");
       }
 
-      const res = getMandalaAPI();
+      const res = await getMandalaAPI();
       if (res === null) {
         return emptyDummyData;
       }
