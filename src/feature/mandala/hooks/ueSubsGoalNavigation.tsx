@@ -1,10 +1,11 @@
 import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { useEffect } from "react";
 
-const SWIPE_THRESHOLD = 3;
+const SWIPE_THRESHOLD = 50;
 
 export default function UseSubsGoalNavigation() {
   const mandalart = useMandalaStore((state) => state.data.core.mains);
+  const mainIds = useMandalaStore((state) => state.flatData.layout.mains);
   const setModalCellId = useMandalaStore((state) => state.setModalCellId);
 
   useEffect(() => {
@@ -12,122 +13,99 @@ export default function UseSubsGoalNavigation() {
     let timer: NodeJS.Timeout;
     let touchStartX = 0;
     let touchStartY = 0;
-    let lastSwipeTime = 0;
 
     const DEBOUNCE_TIME = 300;
 
-    const onTouchStart = (event: TouchEvent) => {
-      if (event.touches.length > 0) {
-        const touch = event.touches[0];
-        touchStartX = touch.clientX;
-        touchStartY = touch.clientY;
-      }
+    const navigate = (direction: "next" | "prev") => {
+      const currentModalId = useMandalaStore.getState().modalCellId;
+      const currentIndex = mainIds.findIndex((id) => id === currentModalId);
+      const nextIndex =
+        direction === "next"
+          ? Math.min(currentIndex + 1, mainIds.length - 1)
+          : Math.max(currentIndex - 1, 1);
+      if (nextIndex === 0) return;
+      setModalCellId(mainIds[nextIndex]);
     };
 
-    const onTouchEnd = (event: TouchEvent) => {
-      const touchEndX = event.changedTouches[0].clientX;
-      const touchEndY = event.changedTouches[0].clientY;
-
-      const deltaX = touchEndX - touchStartX;
-      const deltaY = touchEndY - touchStartY;
-
-      const isHorizontalSwipe = Math.abs(deltaX) > Math.abs(deltaY);
-
-      if (isHorizontalSwipe) {
-        const now = Date.now();
-        if (now - lastSwipeTime < DEBOUNCE_TIME) return;
-        lastSwipeTime = now;
-        const currentModalId = useMandalaStore.getState().modalCellId;
-        const currentIndex = mandalart.findIndex(
-          (el) => el.goalId === currentModalId
-        );
-        const nextIndex = Math.min(currentIndex + 1, mandalart.length - 1);
-        const prevIndex = Math.max(currentIndex - 1, 1);
-
-        if (nextIndex === 0) return;
-        if (deltaX > 0) {
-          const id = mandalart[prevIndex].goalId;
-          setModalCellId(id);
-        } else {
-          const id = mandalart[nextIndex].goalId;
-          setModalCellId(id);
-        }
-      }
+    const handleTouchStart = (event: TouchEvent) => {
+      touchStartX = event.touches[0].clientX;
+      touchStartY = event.touches[0].clientY;
     };
 
-    const handleNavigation = (event: KeyboardEvent | WheelEvent) => {
-      if (event instanceof WheelEvent) {
-        const deltaX = event.deltaX;
-        const deltaY = event.deltaY;
-        if (Math.abs(deltaX) > 0) {
-          event.preventDefault();
-          // event.stopPropagation();
-        }
+    const handleTouchEnd = (event: TouchEvent) => {
+      if (isProcessing) return;
+      const deltaX = event.changedTouches[0].clientX - touchStartX;
+      const deltaY = event.changedTouches[0].clientY - touchStartY;
+      if (Math.abs(deltaX) <= Math.abs(deltaY)) return;
+      if (Math.abs(deltaX) < SWIPE_THRESHOLD) return;
 
-        const isHorizontalSwipe =
-          Math.abs(deltaX) > Math.abs(deltaY) &&
-          Math.abs(deltaX) > SWIPE_THRESHOLD;
+      isProcessing = true;
+      navigate(deltaX < 0 ? "next" : "prev");
 
-        if (isHorizontalSwipe) {
-          if (!isProcessing) {
-            isProcessing = true;
-
-            const currentModalId = useMandalaStore.getState().modalCellId;
-            const currentIndex = mandalart.findIndex(
-              (el) => el.goalId === currentModalId
-            );
-            const nextIndex =
-              deltaX > 0
-                ? Math.min(currentIndex + 1, mandalart.length - 1)
-                : Math.max(currentIndex - 1, 1);
-            if (nextIndex === 0) return;
-            const id = mandalart[nextIndex].goalId;
-            setModalCellId(id);
-          }
-        }
-      } else if (event instanceof KeyboardEvent) {
-        if (!isProcessing) {
-          isProcessing = true;
-
-          const currentModalId = useMandalaStore.getState().modalCellId;
-          const currentIndex = mandalart.findIndex(
-            (el) => el.goalId === currentModalId
-          );
-          const nextIndex = Math.min(currentIndex + 1, mandalart.length - 1);
-          const prevIndex = Math.max(currentIndex - 1, 1);
-
-          if (nextIndex === 0) return;
-          if (event.key === "ArrowRight") {
-            const id = mandalart[nextIndex].goalId;
-            setModalCellId(id);
-          }
-          if (event.key === "ArrowLeft") {
-            const id = mandalart[prevIndex].goalId;
-            setModalCellId(id);
-          }
-        }
-      }
       timer = setTimeout(() => {
         isProcessing = false;
-      }, 300);
+      }, DEBOUNCE_TIME);
+    };
+    let locked = false;
+    let unlockTimer: NodeJS.Timeout;
+    let lastDeltaX = 0; // 이전 deltaX 저장용 변수
+
+    const handleWheel = (event: WheelEvent) => {
+      const { deltaX, deltaY } = event;
+      if (Math.abs(deltaX) <= Math.abs(deltaY)) return;
+      if (locked) return;
+
+      const absDeltaX = Math.abs(deltaX);
+
+      // 1. 최소 강도 체크 (현재 30 유지)
+      // 2. 가속도 체크: 이전 입력보다 현재 입력이 커야 "새로운 입력"으로 간주
+      if (absDeltaX < 30 || absDeltaX <= lastDeltaX) {
+        lastDeltaX = absDeltaX; // 관성 에너지가 줄어드는 중에도 업데이트는 계속
+        return;
+      }
+
+      event.preventDefault();
+
+      locked = true;
+      lastDeltaX = absDeltaX; // 정점 값 저장
+
+      navigate(deltaX > 0 ? "next" : "prev");
+
+      clearTimeout(unlockTimer);
+      unlockTimer = setTimeout(() => {
+        locked = false;
+        lastDeltaX = 0; // 잠금 해제 시 초기화
+      }, 500); // 관성이 어느 정도 끝날 때까지 넉넉히 잠금 (300~700ms)
     };
 
-    window.addEventListener("touchstart", onTouchStart, { passive: false });
-    window.addEventListener("touchend", onTouchEnd, { passive: false });
-    window.addEventListener("keydown", handleNavigation as EventListener);
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (isProcessing) return;
+      if (event.key !== "ArrowRight" && event.key !== "ArrowLeft") return;
 
-    window.addEventListener("wheel", handleNavigation as EventListener, {
+      isProcessing = true;
+      navigate(event.key === "ArrowRight" ? "next" : "prev");
+
+      timer = setTimeout(() => {
+        isProcessing = false;
+      }, DEBOUNCE_TIME);
+    };
+
+    window.addEventListener("touchstart", handleTouchStart, { passive: false });
+    window.addEventListener("touchend", handleTouchEnd, { passive: false });
+    window.addEventListener("keydown", handleKeyDown as EventListener);
+
+    window.addEventListener("wheel", handleWheel as EventListener, {
       passive: false,
       capture: true,
     });
 
     return () => {
-      window.removeEventListener("wheel", handleNavigation, {
+      window.removeEventListener("wheel", handleWheel, {
         capture: true,
       });
-      window.removeEventListener("keydown", handleNavigation as EventListener);
-      window.removeEventListener("touchstart", onTouchStart);
-      window.removeEventListener("touchend", onTouchEnd);
+      window.removeEventListener("keydown", handleKeyDown as EventListener);
+      window.removeEventListener("touchstart", handleTouchStart);
+      window.removeEventListener("touchend", handleTouchEnd);
 
       clearTimeout(timer);
     };

@@ -49,7 +49,7 @@ export default function MandalaModal({ isModalVisible }: Props) {
   const cells = useMandalaStore(useShallow((state) => state.flatData.cells));
   const subItems = useMemo(() => {
     return subs.map((sub) => cells[sub]);
-  }, []);
+  }, [subs, cells]);
 
   const [width, setWidth] = useState(0);
   const [isQuestion, setIsQuestion] = useState(false);
@@ -84,6 +84,11 @@ export default function MandalaModal({ isModalVisible }: Props) {
     },
   });
 
+  useEffect(() => {
+    console.log(`modalCellId: ${modalCellId}, content: ${subItems[0].content}`);
+    console.log(subItems);
+  }, []);
+
   // 상태 관리 함수들
 
   const handleSubCancelEdit = () => {
@@ -98,6 +103,9 @@ export default function MandalaModal({ isModalVisible }: Props) {
   };
 
   const handleRecommend = () => {
+    console.log("test");
+    console.log("현재 goal:", subItems[0].content);
+    console.log("현재:", subItems);
     if (!wasLoggedIn && !accessToken) {
       setAuthText({
         title: "맞춤 목표 추천을 위해 로그인해주세요",
