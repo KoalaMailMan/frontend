@@ -12,7 +12,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: lts/*
+          node-version: 22
           cache: "npm" # node_modules도 캐싱
 
       - name: Install dependencies
@@ -31,8 +31,8 @@ jobs:
 
       - name: Install Playwright Browsers
         if: steps.cache-playwright.outputs.cache-hit != 'true'
-        run: npx playwright install chromium
-        timeout-minutes: 10
+        run: DEBUG=pw:install npx playwright install chromium
+        timeout-minutes: 20
 
       - name: Run Playwright tests
         run: npx playwright test
