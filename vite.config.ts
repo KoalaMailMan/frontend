@@ -76,10 +76,11 @@ export default ({ mode }: { mode: string }) => {
           target: env.VITE_NEW_BACKEND_URL,
           changeOrigin: true,
           secure: false,
+          cookieDomainRewrite: "localhost",
         },
       },
       host: true,
-      port: 3000,
+      port: Number(process.env.PORT) || 3000,
       allowedHosts: [".ngrok-free.app"],
     },
   });
