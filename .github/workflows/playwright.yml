@@ -20,7 +20,7 @@ jobs:
 
       - name: Check dev server
         run: |
-          npm run dev &
+          PORT=4173 npm run dev &
           sleep 15
           curl -I http://localhost:4173
 
