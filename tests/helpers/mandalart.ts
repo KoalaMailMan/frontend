@@ -2,10 +2,14 @@ import { Page, expect } from "@playwright/test";
 
 export const editCell = async (page: Page, testId: string, text: string) => {
   // await page.waitForSelector(`[data-testid="${testId}"]`);
-  await page.click(`[data-testid="${testId}"]`);
-  const textarea = page.locator("textarea");
+  const cell = page.locator(`[data-testid="${testId}"]`);
+  await cell.waitFor({ state: "visible" });
+  await cell.click();
+  // await page.click(`[data-testid="${testId}"]`);
 
-  await expect(textarea).toBeVisible();
+  const textarea = page.locator("textarea");
+  await textarea.waitFor({ state: "visible" });
+  // await expect(textarea).toBeVisible();
   await expect(textarea).toBeEditable();
   // await page.waitForSelector("textarea");
   await textarea.fill(text);
