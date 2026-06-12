@@ -23,12 +23,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Check dev server
-        run: |
-          PORT=4173 npm run dev &
-          sleep 15
-          curl -I http://localhost:4173
-
       - name: Get Playwright version
         id: playwright-version
         run: echo "version=$(npm ls @playwright/test --json | jq -r '.dependencies["@playwright/test"].version')" >> $GITHUB_OUTPUT
