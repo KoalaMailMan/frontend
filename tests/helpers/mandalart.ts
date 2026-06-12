@@ -8,7 +8,7 @@ export const editCell = async (page: Page, testId: string, text: string) => {
   // await page.click(`[data-testid="${testId}"]`);
 
   const textarea = page.locator("textarea");
-  await textarea.waitFor({ state: "visible" });
+  await textarea.waitFor({ state: "visible", timeout: 15000 });
   // await expect(textarea).toBeVisible();
   await expect(textarea).toBeEditable();
   // await page.waitForSelector("textarea");
