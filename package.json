@@ -7,7 +7,7 @@
     "dev": "vike dev",
     "build": "tsc -b && vike build",
     "lint": "eslint .",
-    "preview": "vike preview",
+    "preview": "vike preview --port 4173",
     "update-sitemap": "node scripts/update-sitemap.js",
     "images": "node scripts/convert-images.js",
     "test:unit": "vitest",
