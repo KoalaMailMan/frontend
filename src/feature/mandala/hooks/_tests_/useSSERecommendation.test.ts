@@ -1,17 +1,28 @@
 import { renderHook, act } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 import useSSERecommendation from "../useSSERecommendation";
 
 // EventSource Mock
-const mockEventSource = {
-  close: vi.fn(),
+const mocks = vi.hoisted(() => {
+  const mockEventSource = {
+    close: vi.fn(),
+    addEventListener: vi.fn(),
 
-  addEventListener: vi.fn(),
-};
+    onopen: null,
+    onmessage: null,
+    onerror: null,
+  };
 
-const MockEventSourcePolyfill = vi.fn(() => mockEventSource);
+  return {
+    mockEventSource,
+    MockEventSourcePolyfill: vi.fn(function () {
+      return mockEventSource;
+    }),
+  };
+});
 
 vi.mock("event-source-polyfill", () => ({
-  EventSourcePolyfill: MockEventSourcePolyfill,
+  EventSourcePolyfill: mocks.MockEventSourcePolyfill,
 }));
 
 describe("useSSERecommendation", () => {
@@ -34,9 +45,9 @@ describe("useSSERecommendation", () => {
       await result.current.startStream(3);
     });
 
-    expect(MockEventSourcePolyfill).toHaveBeenCalledTimes(1);
+    expect(mocks.MockEventSourcePolyfill).toHaveBeenCalledTimes(1);
 
-    expect(MockEventSourcePolyfill).toHaveBeenLastCalledWith(
+    expect(mocks.MockEventSourcePolyfill).toHaveBeenLastCalledWith(
       expect.stringContaining("/api/recommend/streaming"),
       expect.objectContaining({
         headers: {
