@@ -56,4 +56,41 @@ describe("useSSERecommendation", () => {
       })
     );
   });
+  it("토큰이 없으면 EventSource를 생성하지 않는다", async () => {
+    const getAccessToken = vi.fn().mockResolvedValue(null);
+
+    const { result } = renderHook(() =>
+      useSSERecommendation({
+        goal: "운동하기",
+        subs: [{ goalId: "1", content: "", status: "UNDONE" }],
+        getAccessToken,
+      })
+    );
+
+    await act(async () => {
+      await result.current.startStream(3);
+    });
+
+    expect(mocks.MockEventSourcePolyfill).not.toHaveBeenCalled();
+    expect(result.current.error).toBe("로그인 후 이용해주세요.");
+  });
+
+  it("goal이 없으면 스트림을 생성하지 않는다", async () => {
+    const getAccessToken = vi.fn().mockResolvedValue("mock-token");
+    const goal = "";
+    const { result } = renderHook(() =>
+      useSSERecommendation({
+        goal,
+        subs: [{ goalId: "1", content: "", status: "UNDONE" }],
+        getAccessToken,
+      })
+    );
+
+    await act(async () => {
+      await result.current.startStream(3);
+    });
+
+    expect(mocks.MockEventSourcePolyfill).not.toHaveBeenCalled();
+    expect(result.current.error).toBe("주요 목표를 작성해주세요.");
+  });
 });
