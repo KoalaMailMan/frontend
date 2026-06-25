@@ -93,4 +93,22 @@ describe("useSSERecommendation", () => {
     expect(mocks.MockEventSourcePolyfill).not.toHaveBeenCalled();
     expect(result.current.error).toBe("주요 목표를 작성해주세요.");
   });
+  it("count가 0이면 스트림을 생성하지 않는다", async () => {
+    const getAccessToken = vi.fn().mockResolvedValue("mock-token");
+    const count = 0;
+    const { result } = renderHook(() =>
+      useSSERecommendation({
+        goal: "운동하기",
+        subs: [{ goalId: "1", content: "", status: "UNDONE" }],
+        getAccessToken,
+      })
+    );
+
+    await act(async () => {
+      await result.current.startStream(count);
+    });
+
+    expect(mocks.MockEventSourcePolyfill).not.toHaveBeenCalled();
+    expect(result.current.error).toBe("추천을 위한 항목이 비어있지 않습니다.");
+  });
 });
