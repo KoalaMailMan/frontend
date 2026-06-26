@@ -3,14 +3,16 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import useSSERecommendation from "../useSSERecommendation";
 
 // EventSource Mock
+const listener: Record<string, Function> = {};
 const mocks = vi.hoisted(() => {
   const mockEventSource = {
     close: vi.fn(),
-    addEventListener: vi.fn(),
-
-    onopen: null,
-    onmessage: null,
-    onerror: null,
+    addEventListener: vi.fn((event, callback) => {
+      listener[event] = callback;
+    }),
+    onerror: null as ((event?: unknown) => void) | null,
+    onopen: null as ((event?: unknown) => void) | null,
+    onmessage: null as ((event: { data: string }) => void) | null,
   };
 
   return {
@@ -110,5 +112,51 @@ describe("useSSERecommendation", () => {
 
     expect(mocks.MockEventSourcePolyfill).not.toHaveBeenCalled();
     expect(result.current.error).toBe("추천을 위한 항목이 비어있지 않습니다.");
+  });
+
+  it("complete 이벤트 수신 시 스트림을 종료한다.", async () => {
+    const onComplete = vi.fn();
+    const { result } = renderHook(() =>
+      useSSERecommendation({
+        goal: "운동하기",
+        subs: [{ goalId: "1", content: "", status: "UNDONE" }],
+        getAccessToken: vi.fn().mockResolvedValue("mock-token"),
+        onComplete,
+      })
+    );
+
+    await act(async () => {
+      await result.current.startStream(3);
+    });
+
+    act(() => {
+      listener.complete();
+    });
+    expect(onComplete).toHaveBeenCalledWith(3);
+    expect(mocks.mockEventSource.close).toHaveBeenCalled();
+  });
+
+  it("error 이벤트 수신 시 스트림을 종료한다.", async () => {
+    const onError = vi.fn();
+    const { result } = renderHook(() =>
+      useSSERecommendation({
+        goal: "운동하기",
+        subs: [{ goalId: "1", content: "", status: "UNDONE" }],
+        getAccessToken: vi.fn().mockResolvedValue("mock-token"),
+        onError,
+      })
+    );
+
+    await act(async () => {
+      await result.current.startStream(3);
+    });
+
+    act(() => {
+      mocks.mockEventSource.onerror?.({
+        type: "error",
+      });
+    });
+    expect(onError).toHaveBeenCalledWith("스트림 연결 오류");
+    expect(mocks.mockEventSource.close).toHaveBeenCalled();
   });
 });
