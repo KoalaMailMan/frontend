@@ -1,6 +1,6 @@
 import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import useSSERecommendation from "../useSSERecommendation";
+import useSSERecommendation, { splitSSEChunk } from "../useSSERecommendation";
 
 // EventSource Mock
 const listener: Record<string, Function> = {};
@@ -158,5 +158,43 @@ describe("useSSERecommendation", () => {
     });
     expect(onError).toHaveBeenCalledWith("스트림 연결 오류");
     expect(mocks.mockEventSource.close).toHaveBeenCalled();
+  });
+});
+
+describe("splitSSEChunk", () => {
+  it("문자 단위로 분리한다.", () => {
+    expect(
+      splitSSEChunk("50분 가량의 근력 운동을 하고 30분 유산소 하기")
+    ).toEqual([
+      "5",
+      "0",
+      "분",
+      " ",
+      "가",
+      "량",
+      "의",
+      " ",
+      "근",
+      "력",
+      " ",
+      "운",
+      "동",
+      "을",
+      " ",
+      "하",
+      "고",
+      " ",
+      "3",
+      "0",
+      "분",
+      " ",
+      "유",
+      "산",
+      "소",
+      " ",
+      "하",
+      "기",
+      ",",
+    ]);
   });
 });

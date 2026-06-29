@@ -14,7 +14,7 @@ type UseSSERecommendationOptions = {
 
 const EventSource = EventSourcePolyfill;
 
-const splitSSEChunk = (chunk: string) => {
+export const splitSSEChunk = (chunk: string) => {
   const Queue: string[] = [];
 
   const chars = chunk.split("");
