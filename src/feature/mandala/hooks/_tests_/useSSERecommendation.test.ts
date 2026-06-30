@@ -2,6 +2,26 @@ import { renderHook, act } from "@testing-library/react";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import useSSERecommendation, { splitSSEChunk } from "../useSSERecommendation";
 
+beforeEach(() => {
+  vi.useFakeTimers();
+});
+
+afterEach(() => {
+  vi.useRealTimers();
+});
+
+// Mandalart Store Mock
+const applyRecommendationChunk = vi.fn();
+
+vi.mock("@/lib/stores/mandalaStore", () => ({
+  useMandalaStore: (selector: any) =>
+    selector({
+      initRecommendationTargets: vi.fn(),
+      applyRecommendationChunk,
+      resetRecommendationText: vi.fn(),
+    }),
+}));
+
 // EventSource Mock
 const listener: Record<string, Function> = {};
 const mocks = vi.hoisted(() => {
@@ -158,6 +178,36 @@ describe("useSSERecommendation", () => {
     });
     expect(onError).toHaveBeenCalledWith("스트림 연결 오류");
     expect(mocks.mockEventSource.close).toHaveBeenCalled();
+  });
+  it("onmessage 이벤트 수신 시  applyRecommendationChunk 함수를 호출한다", async () => {
+    const { result } = renderHook(() =>
+      useSSERecommendation({
+        goal: "운동하기",
+        subs: [{ goalId: "1", content: "", status: "UNDONE" }],
+        getAccessToken: vi.fn().mockResolvedValue("mock-token"),
+      })
+    );
+
+    await act(async () => {
+      await result.current.startStream(3);
+    });
+
+    act(() => {
+      mocks.mockEventSource.onmessage?.({
+        data: "운동하기",
+      });
+    });
+    act(() => {
+      vi.runAllTimers();
+    });
+
+    expect(applyRecommendationChunk.mock.calls).toEqual([
+      ["1", "운"],
+      ["1", "동"],
+      ["1", "하"],
+      ["1", "기"],
+      ["1", ","],
+    ]);
   });
 });
 
