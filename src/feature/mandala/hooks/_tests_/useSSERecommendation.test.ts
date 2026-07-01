@@ -209,6 +209,26 @@ describe("useSSERecommendation", () => {
       ["1", ","],
     ]);
   });
+
+  it("언마운트 시 EventSource 연결을 종료한다", async () => {
+    const { result, unmount } = renderHook(() =>
+      useSSERecommendation({
+        goal: "운동하기",
+        subs: [{ goalId: "1", content: "", status: "DONE" }],
+        getAccessToken: vi.fn().mockReturnValue("mock-token"),
+      })
+    );
+
+    await act(async () => {
+      await result.current.startStream(3);
+    });
+
+    act(() => {
+      unmount();
+    });
+
+    expect(mocks.mockEventSource.close).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("splitSSEChunk", () => {
