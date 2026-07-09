@@ -14,7 +14,7 @@ type UseSSERecommendationOptions = {
 
 const EventSource = EventSourcePolyfill;
 
-const splitSSEChunk = (chunk: string) => {
+export const splitSSEChunk = (chunk: string) => {
   const Queue: string[] = [];
 
   const chars = chunk.split("");
@@ -101,7 +101,6 @@ export default function useSSERecommendation({
   const startStream = useCallback(
     async (count: number) => {
       if (!goal || goal.trim() === "") {
-        console.log(goal, subs);
         console.warn("유효하지 않은 매개변수: 주요 목표 설정 안됨.");
         setError("주요 목표를 작성해주세요.");
         return;
@@ -115,7 +114,7 @@ export default function useSSERecommendation({
       const accessToken = await getAccessToken();
       if (!accessToken) {
         console.warn("인증 토큰이 없습니다.");
-        setError("세션 종료로 인해 로그인 화면으로 돌아갑니다.");
+        setError("로그인 후 이용해주세요.");
         return;
       }
 

@@ -64,7 +64,7 @@ export default function MandalaModal({ isModalVisible }: Props) {
   });
   UseSubsGoalNavigation();
 
-  const { startStream, isStreaming } = useSSERecommendation({
+  const { startStream, isStreaming, error } = useSSERecommendation({
     goal: subItems[0].content,
     subs: subItems,
     getAccessToken,
@@ -85,9 +85,10 @@ export default function MandalaModal({ isModalVisible }: Props) {
   });
 
   useEffect(() => {
-    console.log(`modalCellId: ${modalCellId}, content: ${subItems[0].content}`);
-    console.log(subItems);
-  }, []);
+    if (error) {
+      toast.info(error);
+    }
+  }, [error]);
 
   // 상태 관리 함수들
 
@@ -103,9 +104,6 @@ export default function MandalaModal({ isModalVisible }: Props) {
   };
 
   const handleRecommend = () => {
-    console.log("test");
-    console.log("현재 goal:", subItems[0].content);
-    console.log("현재:", subItems);
     if (!wasLoggedIn && !accessToken) {
       setAuthText({
         title: "맞춤 목표 추천을 위해 로그인해주세요",

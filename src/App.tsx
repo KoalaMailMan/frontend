@@ -15,11 +15,13 @@ import AuthProvider from "./feature/auth/components/AuthProvider";
 import MandalaBoard from "./feature/mandala/pages/MandalaBoard";
 import { apiClient } from "./lib/api/client";
 import { reissueWithRefreshToken } from "./feature/auth/service";
+import useNetworkStatus from "./shared/hooks/useNetworkStatus";
 
 apiClient.setTokenRefresher(reissueWithRefreshToken);
 
 function App() {
   useResize();
+  useNetworkStatus();
   const { currentTheme, updateCurrentTheme, getCurrentBackground } = useTheme();
   const wasLoggedIn = useAuthStore((state) => state.wasLoggedIn);
   const isAuthOpen = useAuthStore((state) => state.isAuthOpen);

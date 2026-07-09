@@ -297,6 +297,7 @@ export const useMandalaStore = create<States & Actions>()(
       handleCellChange: (cellId, value, queryData) =>
         set((state) => {
           console.log("Store handleCellChange:", cellId, value, queryData);
+
           if (cellId == null) return state;
           if (!state.data) return state;
           if (!state.data.core.mains) return state;
@@ -319,6 +320,7 @@ export const useMandalaStore = create<States & Actions>()(
               state.data.core.mains[target.mainIndex].content = value;
             }
           });
+
           // flatData cells 업데이트 추가
 
           targets.forEach((target) => {
@@ -329,7 +331,7 @@ export const useMandalaStore = create<States & Actions>()(
                 content: value,
               };
             }
-            if (subIndex) {
+            if (subIndex != null) {
               const cellId = "sub-" + mainIndex + "-" + subIndex;
               state.flatData.cells[cellId] = {
                 ...state.flatData.cells[cellId],

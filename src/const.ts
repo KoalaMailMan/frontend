@@ -1,5 +1,4 @@
 const requiredEnvVars = {
-  BACKEND_URL: import.meta.env.VITE_BACKEND_URL,
   NEW_BACKEND_URL: import.meta.env.VITE_NEW_BACKEND_URL,
 } as const;
 
