@@ -1,4 +1,4 @@
-import type { DataOption, Status } from "@/lib/stores/mandalaStore";
+import type { DataOption, Status } from "@/lib/stores/types/mandalart";
 
 // 서버 데이터용 타입
 export type ServerMandalaType = {
