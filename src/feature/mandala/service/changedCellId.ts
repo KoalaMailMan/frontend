@@ -1,7 +1,8 @@
-import type { MainGoal, MandalaType } from "@/lib/stores/mandalaStore";
-import { getDataById, isEqual, toFlatStructure } from ".";
+import type { MainGoal, MandalaType } from "@/lib/stores/types/mandalart";
 import { parseCellId } from "./parseCellId";
 import type { MandalaMap, ServerMandalaType } from "./type";
+import { getDataById, isEqual } from ".";
+import { toFlatStructure } from "./transform";
 
 type GetChangedCellId = {
   cellId: string;
