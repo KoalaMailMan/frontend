@@ -1,5 +1,5 @@
+import { createMandalaIdManager } from "./idManager";
 import type { MandalaLayout, MandalaMap, ServerMandalaType } from "./type";
-import { createMandalaIdManager } from "./index";
 import type {
   Status,
   MandalaType,
@@ -42,13 +42,7 @@ export const toLegacyStructure = (
 ): MandalaType => {
   console.log("1");
   const uiMains: MainGoal[] = [];
-  console.log("2");
-  //   const idManager = createMandalaIdManager(serverData);
-  const idManager = {
-    generateMainId: () => "main-temp",
-    generateSubId: () => "sub-temp",
-  };
-  console.log("3");
+  const idManager = createMandalaIdManager(serverData);
 
   // originalId를 설정할 조건을 확인하는 함수
   // goalId가 있다면, 기존 데이터가 있다고 판단.

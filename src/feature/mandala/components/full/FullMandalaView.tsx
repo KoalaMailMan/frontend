@@ -11,8 +11,8 @@ import {
   type Type,
 } from "../../utills/css";
 import useGridTabNavigation from "../../hooks/useGridTabNavigation";
-import { getNextFullCellId } from "../../service";
 import FullCell from "../full/FullCell";
+import { getNextFullCellId } from "../../service/navigation";
 
 export default function FullMandalaView() {
   const editingFullCellId = useMandalaStore((state) => state.editingFullCellId);

@@ -17,15 +17,15 @@ import {
   toFlatStructure,
   toLegacyStructure,
 } from "@/feature/mandala/service/transform";
-import { toggleStatus } from "@/feature/mandala/service/status";
 import type {
+  CancelReason,
   DataOption,
   EditingContext,
   MainGoal,
   MandalaType,
   SubGoal,
 } from "./types/mandalart";
-import type { CancelReason } from "vitest";
+import { toggleStatus } from "@/feature/mandala/service/status";
 
 /**
  * @deprecated UI 렌더링은 flatData 사용
@@ -393,10 +393,10 @@ export const useMandalaStore = create<States & Actions>()(
     })),
     {
       name: "mandalart",
-      partialize: (state): PersistedState => ({
-        data: state.data,
-      }),
-      version: 2,
+      // partialize: (state): PersistedState => ({
+      //   data: state.data,
+      // }),
+      version: 3,
       // version 1 → 2 마이그레이션: UI 상태 persist 제거
       migrate: (persistedState: any, version: number) => {
         if (version === 1) {
@@ -409,7 +409,10 @@ export const useMandalaStore = create<States & Actions>()(
           } = persistedState;
           return rest;
         }
-
+        if (version === 2) {
+          const { data, ...rest } = persistedState;
+          return rest;
+        }
         return persistedState;
       },
     }

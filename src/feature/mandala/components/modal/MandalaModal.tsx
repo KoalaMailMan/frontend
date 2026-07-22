@@ -1,4 +1,4 @@
-import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
+import { useMandalaStore } from "@/lib/stores/mandalaStore";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -14,11 +14,12 @@ import { useShallow } from "zustand/react/shallow";
 import useGridTabNavigation from "../../hooks/useGridTabNavigation";
 import UseSubsGoalNavigation from "../../hooks/ueSubsGoalNavigation";
 import useSSERecommendation from "../../hooks/useSSERecommendation";
-import { getNextSubCellId } from "../../service";
 import type { CellData } from "../../service/type";
 import ModalCell from "./ModalCell";
 import { getGridClasses } from "../../utills/css";
 import QuestionIcon from "../icon/QuestionIcon";
+import { getNextSubCellId } from "../../service/navigation";
+import type { SubGoal } from "@/lib/stores/types/mandalart";
 
 type Props = {
   isModalVisible: boolean;

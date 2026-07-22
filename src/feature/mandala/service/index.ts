@@ -1,13 +1,11 @@
-// import { useMandalaStore } from "@/lib/stores/mandalaStore";
-
-import { parseCellId } from "./parseCellId";
-import type { CellData, ServerMandalaType } from "./type";
-import { toFlatStructure } from "./transform";
 import type {
   MainGoal,
   MandalaType,
   SubGoal,
 } from "@/lib/stores/types/mandalart";
+import { toFlatStructure } from "./transform";
+import type { CellData, ServerMandalaType } from "./type";
+import { parseCellId } from "./parseCellId";
 
 export const serverToUI = (serverData: ServerMandalaType["data"]) => {
   return toFlatStructure(serverData.core); // 신버전

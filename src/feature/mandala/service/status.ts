@@ -1,4 +1,4 @@
-import type { MainGoal, Status } from "@/lib/stores/mandalaStore";
+import type { MainGoal, Status } from "@/lib/stores/types/mandalart";
 
 export const toggleStatus = (
   status: Status,
