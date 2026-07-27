@@ -43,4 +43,16 @@ describe("toLegacyStructure", () => {
       });
     });
   });
+  describe("예외 케이스", () => {
+    it("빈 position은 기본값으로 채워진다.", () => {
+      expect(result.core.mains[4].content).toBe("");
+      expect(result.core.mains[4].status).toBe("UNDONE");
+      expect(result.core.mains[4].originalId).toBeUndefined();
+    });
+
+    it("서버의 goalId를 originalId로 처리한다.", () => {
+      expect(result.core.mains[1].originalId).toBe(2);
+      expect(result.core.mains[2].originalId).toBeUndefined();
+    });
+  });
 });
