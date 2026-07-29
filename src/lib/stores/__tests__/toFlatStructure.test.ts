@@ -66,4 +66,22 @@ describe("toFlatStructure", () => {
       expect(result.layout.grid[3][3]).toBe("sub-3-3");
     });
   });
+  describe("예외 케이스", () => {
+    it("빈 main", () => {
+      expect(result.cells["main-4"]).toMatchObject({
+        originalId: undefined,
+        content: "",
+        status: "UNDONE",
+        position: 4,
+      });
+    });
+    it("빈 Sub", () => {
+      expect(result.cells["sub-4-4"]).toMatchObject({
+        originalId: undefined,
+        content: "",
+        status: "UNDONE",
+        position: 4,
+      });
+    });
+  });
 });
