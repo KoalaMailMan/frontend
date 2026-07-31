@@ -63,4 +63,71 @@ describe("applyChangesToServer", () => {
       expect(sub?.content).toBe("헬스");
     });
   });
+  describe("예외 케이스", () => {
+    it("기존 main이 없는데 UI에서 입력한 경우 push 된다.", () => {
+      currentData.core.mains[5].content = "수영";
+      const changedCells = new Set(["main-5"]);
+      const result = applyChangesToServer(
+        1,
+        currentData,
+        changedCells,
+        server.data
+      );
+      const main = result.core.mains!.find((main) => main.position === 5);
+      expect(main).toBeDefined();
+      expect(main?.content).toBe("수영");
+    });
+    it("기존 sub이 없는데 UI에서 입력한 경우 push 된다.", () => {
+      currentData.core.mains[3].subs[6].content = "배영하기";
+      const changedCells = new Set(["sub-3-6"]);
+      const result = applyChangesToServer(
+        1,
+        currentData,
+        changedCells,
+        server.data
+      );
+      const main = result.core.mains!.find((main) => main.position === 3);
+      console.log(main);
+      const sub = main?.subs.find((sub) => sub.position === 6);
+      expect(sub).toBeDefined();
+      expect(sub?.content).toBe("배영하기");
+    });
+    it("기존 main도, sub도 없는데 UI에서 입력한 경우 push 된다.", () => {
+      currentData.core.mains[8].content = "놀기";
+      currentData.core.mains[8].subs[4].content = "게임하기";
+      const changedCells = new Set(["main-8", "sub-8-4"]);
+      const result = applyChangesToServer(
+        1,
+        currentData,
+        changedCells,
+        server.data
+      );
+      const main = result.core.mains!.find((main) => main.position === 8);
+      expect(main).toBeDefined();
+      expect(main?.content).toBe("놀기");
+      const sub = main?.subs.find((sub) => sub.position === 4);
+      expect(sub).toBeDefined();
+      expect(sub?.content).toBe("게임하기");
+    });
+    it("main이 없어도 sub 입력 시 main을 생성한다.", () => {
+      currentData.core.mains[7].subs[4].content = "숙면";
+      const changedCells = new Set(["sub-7-4"]);
+      const result = applyChangesToServer(
+        1,
+        currentData,
+        changedCells,
+        server.data
+      );
+
+      const main = result.core.mains!.find((main) => main.position === 7);
+      expect(main).toBeDefined();
+      expect(main).toMatchObject({
+        position: 7,
+      });
+
+      const sub = main?.subs.find((sub) => sub.position === 4);
+      expect(sub).toBeDefined();
+      expect(sub?.content).toBe("숙면");
+    });
+  });
 });
