@@ -160,7 +160,6 @@ export const applyChangesToServer = (
         (main) => main.position === mainIndex
       );
       const currentTarget = currentData.core.mains[mainIndex].subs[subIndex];
-
       if (serverMain) {
         const serverSub = serverMain.subs.find(
           (sub) => sub.position === subIndex
@@ -187,12 +186,11 @@ export const applyChangesToServer = (
       } else {
         // → main 없음 → main + sub 둘 다 생성
         serverMains.push({
-          position: currentTarget.position,
-          ...(currentTarget.originalId && { goalId: currentTarget.originalId }),
+          position: cellId.mainIndex,
           subs: [
             {
               content: currentTarget.content,
-              position: currentTarget.position,
+              position: cellId.subIndex,
               status: currentTarget.status,
               ...(currentTarget.originalId && {
                 goalId: currentTarget.originalId,
