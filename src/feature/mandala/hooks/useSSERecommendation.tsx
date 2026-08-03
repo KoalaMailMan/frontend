@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { EventSourcePolyfill } from "event-source-polyfill";
-import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
+import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import type { CellData } from "../service/type";
 import { ENV } from "@/const";
+import type { SubGoal } from "@/lib/stores/types/mandalart";
 
 type UseSSERecommendationOptions = {
   goal: string;

@@ -1,5 +1,6 @@
-import { type MainGoal } from "@/lib/stores/mandalaStore";
+import {} from "@/lib/stores/mandalaStore";
 import { IntervalType } from "../const";
+import type { MainGoal } from "@/lib/stores/types/mandalart";
 
 export const findKeyByValue = (type: string) => {
   for (const [key, value] of Object.entries(IntervalType)) {

@@ -6,7 +6,6 @@ import Button from "@/feature/ui/Button";
 
 import { useEffect } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
-import { uiToServer } from "../service";
 import { toast } from "sonner";
 import MailIcon from "../components/icon/MailIcon";
 import ActivationBellIcon from "../components/icon/ActivationBellIcon";
@@ -19,6 +18,7 @@ import { performLogout } from "@/feature/auth/hooks/useLogout";
 import MandalaGrid from "../components/grid/MandalaGrid";
 import FullMandalaView from "../components/full/FullMandalaView";
 import ReminderSetting from "../components/reminder/ReminderSetting";
+import { uiToServer } from "../service/server";
 
 type MandaraChartProps = {
   getCurrentBackground: () => Record<string, string>;

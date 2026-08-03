@@ -1,5 +1,5 @@
 import Button from "@/feature/ui/Button";
-import { useMandalaStore, type SubGoal } from "@/lib/stores/mandalaStore";
+import { useMandalaStore } from "@/lib/stores/mandalaStore";
 import { cn } from "@/lib/utils";
 import { ChevronRight } from "lucide-react";
 import React, { useState } from "react";
@@ -10,6 +10,7 @@ import {
   tutorialArrowCells,
   tutorialCellMap,
 } from "@/feature/tutorial/service";
+import type { SubGoal } from "@/lib/stores/types/mandalart";
 
 type MandalaReadOnlyCellProps = {
   goalId: string;

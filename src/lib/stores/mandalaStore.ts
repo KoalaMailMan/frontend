@@ -1,11 +1,5 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import {
-  emptyDummyData,
-  toFlatStructure,
-  toggleStatus,
-  toLegacyStructure,
-} from "@/feature/mandala/service";
 import { findIdIndex, findKeyByValue } from "@/feature/mandala/utills/\bindex";
 import { persist } from "zustand/middleware";
 import { parseCellId } from "@/feature/mandala/service/parseCellId";
@@ -18,42 +12,20 @@ import type {
   MandalaFlatType,
   ServerMandalaType,
 } from "@/feature/mandala/service/type";
-
-export type Status = "DONE" | "UNDONE";
-export type EditingContext = "main" | "full" | "sub" | null;
-export type CancelReason = "blur" | "escape" | "enter";
-
-export type MandalaType<T = string> = {
-  core: {
-    goalId: T;
-    content: string;
-    originalId?: number | undefined;
-    status: Status;
-    mains: MainGoal<T>[];
-  };
-};
-export type MainGoal<T = string> = {
-  goalId: T;
-  originalId?: number | undefined; // 서버 원본 ID
-  position: number;
-  content: string;
-  status: Status;
-  subs: SubGoal<T>[];
-};
-
-export type SubGoal<T = string> = {
-  goalId: T;
-  originalId?: number | undefined; // 서버 원본 ID
-  position: number;
-  content: string;
-  status: Status;
-};
-
-export type DataOption = {
-  reminderEnabled: boolean;
-  remindInterval: string;
-  remindScheduledAt: string | null;
-};
+import {
+  emptyDummyData,
+  toFlatStructure,
+  toLegacyStructure,
+} from "@/feature/mandala/service/transform";
+import type {
+  CancelReason,
+  DataOption,
+  EditingContext,
+  MainGoal,
+  MandalaType,
+  SubGoal,
+} from "./types/mandalart";
+import { toggleStatus } from "@/feature/mandala/service/status";
 
 /**
  * @deprecated UI 렌더링은 flatData 사용
@@ -82,7 +54,7 @@ type States = {
 } & PersistedState;
 
 type PersistedState = {
-  data: MandalaType;
+  // data: MandalaType;
 };
 
 type Actions = {
@@ -421,10 +393,10 @@ export const useMandalaStore = create<States & Actions>()(
     })),
     {
       name: "mandalart",
-      partialize: (state): PersistedState => ({
-        data: state.data,
-      }),
-      version: 2,
+      // partialize: (state): PersistedState => ({
+      //   data: state.data,
+      // }),
+      version: 3,
       // version 1 → 2 마이그레이션: UI 상태 persist 제거
       migrate: (persistedState: any, version: number) => {
         if (version === 1) {
@@ -435,6 +407,10 @@ export const useMandalaStore = create<States & Actions>()(
             isFullOpen,
             ...rest
           } = persistedState;
+          return rest;
+        }
+        if (version === 2) {
+          const { data, ...rest } = persistedState;
           return rest;
         }
         return persistedState;
