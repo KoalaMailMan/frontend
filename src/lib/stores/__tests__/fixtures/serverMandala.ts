@@ -46,6 +46,16 @@ export const createServerMandalaFixture = () => ({
           status: "UNDONE" as "DONE" | "UNDONE",
           subs: [],
         },
+        {
+          position: 7,
+          subs: [
+            {
+              position: 4,
+              content: "유산소",
+              status: "UNDONE" as "DONE" | "UNDONE",
+            },
+          ],
+        },
       ],
     },
   },
