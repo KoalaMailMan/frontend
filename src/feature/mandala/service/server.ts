@@ -1,10 +1,11 @@
 import type { MandalaType } from "@/lib/stores/types/mandalart";
 import type {
+  MandalaLayout,
+  MandalaMap,
   ServerMandalaType,
   ServerMandalaTypeWithoutReminder,
 } from "./type";
 import { parseCellId } from "./parseCellId";
-import { useMandalaStore } from "@/lib/stores/mandalaStore";
 
 type UIToServerType = {
   currentData: MandalaType<string>;
@@ -67,31 +68,26 @@ export const buildFromScratch = (currentData: MandalaType<string>) => {
   };
 };
 
-export const flatToServer = () => {
-  const { cells, layout } = useMandalaStore.getState().flatData;
-
+export const flatToServer = (cells: MandalaMap, layout: MandalaLayout) => {
   return {
     core: {
-      goalId: "core-0",
-      originalId: cells["core-0"].originalId,
+      goalId: cells["core-0"].originalId,
       content: cells["core-0"].content,
       status: cells["core-0"].status,
-      mains: layout.mains.map((mainId) => {
+      mains: layout.mains.slice(1).map((mainId) => {
         const main = cells[mainId];
         const subs = layout.subs[mainId];
 
         return {
-          goalId: mainId,
-          originalId: main.originalId,
-          content: main.content,
-          status: main.status,
-          position: main.position,
-          subs: subs.map((subId) => ({
-            goalId: subId,
-            content: cells[subId].content,
-            status: cells[subId].status,
-            originalId: cells[subId].originalId,
-            position: cells[subId].position,
+          ...(main.position && { position: main.position }),
+          ...(main.originalId && { goalId: main.originalId }),
+          ...(main.content && { content: main.content }),
+          ...(main.content && { status: main.status }),
+          subs: subs.slice(1).map((subId) => ({
+            ...(cells[subId].position && { position: cells[subId].position }),
+            ...(cells[subId].originalId && { goalId: cells[subId].originalId }),
+            ...(cells[subId].content && { content: cells[subId].content }),
+            ...(cells[subId].status && { status: cells[subId].status }),
           })),
         };
       }),
