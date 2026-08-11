@@ -1,5 +1,6 @@
 import type { MandalaType } from "@/lib/stores/types/mandalart";
 import type {
+  CellData,
   MandalaLayout,
   MandalaMap,
   ServerMandalaType,
@@ -68,32 +69,52 @@ export const buildFromScratch = (currentData: MandalaType<string>) => {
   };
 };
 
+const hasMeaningfullData = (cell: CellData) => {
+  return (
+    cell.originalId != null || cell.content === "" || cell.status !== "UNDONE"
+  );
+};
 export const flatToServer = (cells: MandalaMap, layout: MandalaLayout) => {
   return {
     core: {
       goalId: cells["core-0"].originalId,
       content: cells["core-0"].content,
       status: cells["core-0"].status,
-      mains: layout.mains.slice(1).map((mainId) => {
-        const main = cells[mainId];
-        const subs = layout.subs[mainId];
+      mains: layout.mains
+        .slice(1)
+        .map((mainId) => {
+          const main = cells[mainId];
+          const subs = layout.subs[mainId]
+            .slice(1)
+            .filter((subId) => hasMeaningfullData(cells[subId]))
+            .map((subId) => {
+              const sub = cells[subId];
 
-        return {
-          ...(main.position && { position: main.position }),
-          ...(main.originalId && { goalId: main.originalId }),
-          ...(main.content && { content: main.content }),
-          ...(main.content && { status: main.status }),
-          subs: subs.slice(1).map((subId) => ({
-            ...(cells[subId].position && { position: cells[subId].position }),
-            ...(cells[subId].originalId && { goalId: cells[subId].originalId }),
-            ...(cells[subId].content && { content: cells[subId].content }),
-            ...(cells[subId].status && { status: cells[subId].status }),
-          })),
-        };
-      }),
+              return {
+                ...(sub.originalId != null && { goalId: sub.originalId }),
+                ...(sub.content !== "" && { content: sub.content }),
+                ...(sub.status !== "UNDONE" && { status: sub.status }),
+                position: sub.position,
+              };
+            });
+
+          if (!hasMeaningfullData(main) && subs.length === 0) {
+            return null;
+          }
+
+          return {
+            position: main.position,
+            ...(main.originalId != null && { goalId: main.originalId }),
+            ...(main.content !== "" && { content: main.content }),
+            ...(main.status !== "UNDONE" && { status: main.status }),
+            ...(subs.length > 0 && { subs }),
+          };
+        })
+        .filter((main): main is NonNullable<typeof main> => main !== null),
     },
   };
 };
+
 export const applyChangesToServer = (
   id: number,
   currentData: MandalaType<string>,
