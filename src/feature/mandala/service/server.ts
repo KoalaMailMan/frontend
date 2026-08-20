@@ -121,7 +121,7 @@ export const applyChangesToServer = (
   changedCells: Set<string>,
   serverData: ServerMandalaType["data"]
 ) => {
-  const { reminderOption, ...restData } = serverData;
+  const { ...restData } = serverData;
   const result = structuredClone(restData);
 
   result.mandalartId = id;
