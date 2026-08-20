@@ -1,5 +1,5 @@
 import { createServerMandalaFixture } from "@/lib/stores/__tests__/fixtures/serverMandala";
-import { toFlatStructure, toLegacyStructure } from "../service/transform";
+import { toFlatStructure } from "../service/transform";
 import { flatToServer } from "../service/server";
 
 let server: ReturnType<typeof createServerMandalaFixture>;
