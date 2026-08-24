@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
-import { findIdIndex, findKeyByValue } from "@/feature/mandala/utills/\bindex";
+import { findIdIndex } from "@/feature/mandala/utills/\bindex";
 import { persist } from "zustand/middleware";
 import { parseCellId } from "@/feature/mandala/service/parseCellId";
 import { getSyncTargets } from "@/feature/mandala/service/getSyncTargets";
@@ -19,7 +19,6 @@ import {
 } from "@/feature/mandala/service/transform";
 import type {
   CancelReason,
-  DataOption,
   EditingContext,
   MainGoal,
   MandalaType,
@@ -36,7 +35,7 @@ type States = {
   data: MandalaType;
   flatData: MandalaFlatType;
   mandalartId: number | null;
-  reminderOption: DataOption;
+  // reminderOption: DataOption;
   editingCellId: string | null;
   editingSubCellId: string | null;
   editingFullCellId: string | null;
@@ -74,9 +73,9 @@ type Actions = {
   initRecommendationTargets: (mainId: string) => void;
   resetRecommendationText: () => void;
   applyRecommendationChunk: (mainId: string, value: string) => void;
-  setReminderOption: (options: DataOption) => void;
-  setReminderEnabled: (enabled: boolean) => void;
-  setRemindInterval: (interval: string) => void;
+  // setReminderOption: (options: DataOption) => void;
+  // setReminderEnabled: (enabled: boolean) => void;
+  // setRemindInterval: (interval: string) => void;
   setEditingCell: (cellId: string | null) => void;
   setEditingSubCell: (cellId: string | null) => void;
   setEditingFullCell: (cellId: string | null) => void;
@@ -113,11 +112,11 @@ const initialState = {
   recommendationCursor: 0,
   currentRecommendationText: "",
   isServiceIntroOpen: false,
-  reminderOption: {
-    reminderEnabled: true,
-    remindInterval: "3month",
-    remindScheduledAt: null,
-  },
+  // reminderOption: {
+  //   reminderEnabled: true,
+  //   remindInterval: "3month",
+  //   remindScheduledAt: null,
+  // },
   editingContext: "grid",
 };
 
@@ -139,27 +138,27 @@ export const useMandalaStore = create<States & Actions>()(
           flatData: toFlatStructure(newData.core),
         })),
       setMandalartId: (id) => set(() => ({ mandalartId: id })),
-      setReminderOption: (options) =>
-        set(() => ({
-          reminderOption: {
-            ...options,
-            remindInterval: findKeyByValue(options.remindInterval) ?? "1week",
-          },
-        })),
-      setReminderEnabled: (enabled) =>
-        set((state) => ({
-          reminderOption: {
-            ...state.reminderOption,
-            reminderEnabled: enabled,
-          },
-        })),
-      setRemindInterval: (interval) =>
-        set((state) => ({
-          reminderOption: {
-            ...state.reminderOption,
-            remindInterval: interval,
-          },
-        })),
+      // setReminderOption: (options) =>
+      //   set(() => ({
+      //     reminderOption: {
+      //       ...options,
+      //       remindInterval: findKeyByValue(options.remindInterval) ?? "1week",
+      //     },
+      //   })),
+      // setReminderEnabled: (enabled) =>
+      //   set((state) => ({
+      //     reminderOption: {
+      //       ...state.reminderOption,
+      //       reminderEnabled: enabled,
+      //     },
+      //   })),
+      // setRemindInterval: (interval) =>
+      //   set((state) => ({
+      //     reminderOption: {
+      //       ...state.reminderOption,
+      //       remindInterval: interval,
+      //     },
+      //   })),
       allGoalComplete: (id: string) =>
         set((state) => {
           const mains = state.data.core.mains;

@@ -1,10 +1,12 @@
 import type { MandalaType } from "@/lib/stores/types/mandalart";
 import type {
+  CellData,
+  MandalaLayout,
+  MandalaMap,
   ServerMandalaType,
   ServerMandalaTypeWithoutReminder,
 } from "./type";
 import { parseCellId } from "./parseCellId";
-import { useMandalaStore } from "@/lib/stores/mandalaStore";
 
 type UIToServerType = {
   currentData: MandalaType<string>;
@@ -67,44 +69,59 @@ export const buildFromScratch = (currentData: MandalaType<string>) => {
   };
 };
 
-export const flatToServer = () => {
-  const { cells, layout } = useMandalaStore.getState().flatData;
-
+const hasMeaningfullData = (cell: CellData) => {
+  return (
+    cell.originalId != null || cell.content === "" || cell.status !== "UNDONE"
+  );
+};
+export const flatToServer = (cells: MandalaMap, layout: MandalaLayout) => {
   return {
     core: {
-      goalId: "core-0",
-      originalId: cells["core-0"].originalId,
+      goalId: cells["core-0"].originalId,
       content: cells["core-0"].content,
       status: cells["core-0"].status,
-      mains: layout.mains.map((mainId) => {
-        const main = cells[mainId];
-        const subs = layout.subs[mainId];
+      mains: layout.mains
+        .slice(1)
+        .map((mainId) => {
+          const main = cells[mainId];
+          const subs = layout.subs[mainId]
+            .slice(1)
+            .filter((subId) => hasMeaningfullData(cells[subId]))
+            .map((subId) => {
+              const sub = cells[subId];
 
-        return {
-          goalId: mainId,
-          originalId: main.originalId,
-          content: main.content,
-          status: main.status,
-          position: main.position,
-          subs: subs.map((subId) => ({
-            goalId: subId,
-            content: cells[subId].content,
-            status: cells[subId].status,
-            originalId: cells[subId].originalId,
-            position: cells[subId].position,
-          })),
-        };
-      }),
+              return {
+                ...(sub.originalId != null && { goalId: sub.originalId }),
+                ...(sub.content !== "" && { content: sub.content }),
+                ...(sub.status !== "UNDONE" && { status: sub.status }),
+                position: sub.position,
+              };
+            });
+
+          if (!hasMeaningfullData(main) && subs.length === 0) {
+            return null;
+          }
+
+          return {
+            position: main.position,
+            ...(main.originalId != null && { goalId: main.originalId }),
+            ...(main.content !== "" && { content: main.content }),
+            ...(main.status !== "UNDONE" && { status: main.status }),
+            ...(subs.length > 0 && { subs }),
+          };
+        })
+        .filter((main): main is NonNullable<typeof main> => main !== null),
     },
   };
 };
+
 export const applyChangesToServer = (
   id: number,
   currentData: MandalaType<string>,
   changedCells: Set<string>,
   serverData: ServerMandalaType["data"]
 ) => {
-  const { reminderOption, ...restData } = serverData;
+  const { ...restData } = serverData;
   const result = structuredClone(restData);
 
   result.mandalartId = id;

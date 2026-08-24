@@ -1,11 +1,11 @@
 export const dummyData = {
   data: {
     mandalartId: 7,
-    reminderOption: {
-      reminderEnabled: true,
-      remindInterval: "weekly", // 매주 알림
-      remindScheduledAt: "2025-10-01T09:00:00Z",
-    },
+    // reminderOption: {
+    //   reminderEnabled: true,
+    //   remindInterval: "weekly", // 매주 알림
+    //   remindScheduledAt: "2025-10-01T09:00:00Z",
+    // },
     core: {
       goalId: 100,
       content: "개인 성장",

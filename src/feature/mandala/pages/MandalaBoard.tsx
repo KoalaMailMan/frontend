@@ -8,8 +8,6 @@ import { useEffect } from "react";
 import { useAuthStore } from "@/lib/stores/authStore";
 import { toast } from "sonner";
 import MailIcon from "../components/icon/MailIcon";
-import ActivationBellIcon from "../components/icon/ActivationBellIcon";
-import DisableBellIcon from "../components/icon/DisableBellIcon";
 import FullIcon from "../components/icon/FullIcon";
 import { KoalaTextLogo, KoalaTextLogoSrcSet } from "../const/url";
 import useMandalaData from "../hooks/useMandalaData";
@@ -17,7 +15,6 @@ import useSaveMandala from "../hooks/useSaveMandala";
 import { performLogout } from "@/feature/auth/hooks/useLogout";
 import MandalaGrid from "../components/grid/MandalaGrid";
 import FullMandalaView from "../components/full/FullMandalaView";
-import ReminderSetting from "../components/reminder/ReminderSetting";
 import { uiToServer } from "../service/server";
 
 type MandaraChartProps = {
@@ -40,15 +37,8 @@ MandaraChartProps) {
 
   const isReminder = useMandalaStore((state) => state.isReminderOpen);
   const isFullOpen = useMandalaStore((state) => state.isFullOpen);
-  const setReminderVisible = useMandalaStore(
-    (state) => state.setReminderVisible
-  );
   const setFullVisible = useMandalaStore((state) => state.setFullVisible);
-  const setReminderOption = useMandalaStore((state) => state.setReminderOption);
 
-  const reminderEnabled = useMandalaStore(
-    (state) => state.reminderOption.reminderEnabled
-  );
   const { data: mandalartData, isSuccess, isError } = useMandalaData();
   const saveMadalart = useSaveMandala();
 
@@ -57,9 +47,8 @@ MandaraChartProps) {
 
     // 서버 → UI 변환
     setData(mandalartData);
-    if (mandalartData.mandalartId && mandalartData.reminderOption) {
+    if (mandalartData.mandalartId) {
       setMandalartId(mandalartData.mandalartId);
-      setReminderOption(mandalartData.reminderOption);
     }
   }, [mandalartData, isSuccess]);
 
@@ -85,9 +74,6 @@ MandaraChartProps) {
       toast("변경된 목표가 없습니다!");
       return;
     }
-    if (!mandalartId) {
-      setReminderVisible(true);
-    }
     if (mandalartData) {
       const formattData = uiToServer({
         id: mandalartId,
@@ -97,21 +83,6 @@ MandaraChartProps) {
       });
       saveMadalart.mutateAsync({ mandalartData: formattData });
     }
-  };
-
-  const handleReminderOpen = () => {
-    if (!mandalartId && changedCells.size > 0) {
-      const mandalartData = uiToServer({
-        currentData: data,
-        changedCells,
-      });
-      saveMadalart.mutateAsync({ mandalartData });
-    }
-    if (!mandalartId && changedCells.size <= 0) {
-      toast("만다라트를 먼저 작성해주세요!");
-      return;
-    }
-    setReminderVisible(true);
   };
 
   return (
@@ -173,7 +144,7 @@ MandaraChartProps) {
               </Button>
               {/* 리마인드 설정 & 전체보기 버튼들 */}
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-                <Button
+                {/* <Button
                   variant="outline"
                   onClick={handleReminderOpen}
                   className={`w-[136px] h-[32px] flex items-center gap-2 pixel-button text-sm px-4 py-2 bg-white border-[#CCCCCC] border-1 text-[#373737] active:bg-[#CCCCCC] active:border-[#B3B3B3] font-medium shadow-[4px_4px_0_0_rgba(102,102,102,0.6)] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)] backdrop-blur-sm`}
@@ -187,7 +158,7 @@ MandaraChartProps) {
                   {reminderEnabled && wasLoggedIn
                     ? "리마인드 ON"
                     : "리마인드 OFF"}
-                </Button>
+                </Button> */}
                 <Button
                   variant="outline"
                   onClick={() => setFullVisible(true)}
@@ -203,7 +174,7 @@ MandaraChartProps) {
           </CardContent>
         </NoticeContainer>
       </div>
-      {isReminder && <ReminderSetting />}
+      {/* {isReminder && <ReminderSetting />} */}
       {isFullOpen && <FullMandalaView />}
     </div>
   );

@@ -1,4 +1,4 @@
-import type { DataOption, Status } from "@/lib/stores/types/mandalart";
+import type { Status } from "@/lib/stores/types/mandalart";
 
 // 서버 데이터용 타입
 export type ServerMandalaType = {
@@ -10,7 +10,7 @@ export type ServerMandalaType = {
       mains?: ServerMainGoal[];
     };
     mandalartId?: number | undefined;
-    reminderOption?: DataOption;
+    // reminderOption?: DataOption;
   };
 };
 
@@ -29,7 +29,7 @@ export type ServerSubGoal = {
   status: "DONE" | "UNDONE";
 };
 
-type ServerMandalaData = Omit<ServerMandalaType["data"], "reminderOption">;
+type ServerMandalaData = ServerMandalaType["data"];
 
 export type ServerMandalaTypeWithoutReminder = {
   data: ServerMandalaData;
