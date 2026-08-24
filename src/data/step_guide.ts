@@ -1,11 +1,9 @@
 import {
   service_info_ai,
-  service_info_mail,
   service_info_make_goals,
   service_info_regret,
   service_info_success,
   service_info_ai_srcSet,
-  service_info_mail_srcSet,
   service_info_make_goals_srcSet,
   service_info_regret_srcSet,
   service_info_success_srcSet,
