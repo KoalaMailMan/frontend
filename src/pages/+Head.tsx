@@ -1,7 +1,7 @@
 export default function Head() {
   return (
     <>
-      <title>만다라트 목표 작성 & 리마인드 | 코알라 우체부</title>
+      <title>만다라트 목표 작성 | 코알라 우체부</title>
       <link rel="canonical" href="https://mandalart.koreankoala.com" />
       <link rel="icon" href="/favicon.ico" sizes="any" />
       <link rel="icon" type="image/svg+xml" href="/koala.svg" />
@@ -11,10 +11,10 @@ export default function Head() {
       />
 
       {/* <!-- 기본 SEO --> */}
-      <title>만다라트 목표 작성 & 리마인드 | 코알라 우체부</title>
+      <title>만다라트 목표 작성 | 코알라 우체부</title>
       <meta
         name="description"
-        content="코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다. 만다라트는 목표를 세부적으로 나눠 계획할 수 있는 도구로, 코알라 우체부에서 사용해보세요. 코알라 우체부로 목표를 작성하고 AI 추천을 받아 나만의 만다라트를 완성할 수 있습니다. 작성 완료 후, 코알라 우체부가 목표를 잊지 않게 리마인드 메일을 보내드립니다. 지금 바로 시작해서 나만의 만다라트를 완성하고 목표를 달성해보세요."
+        content="코알라 우체부는 만다라트 기반으로 목표를 설정하는 서비스입니다. 만다라트는 목표를 세부적으로 나눠 계획할 수 있는 도구로, 코알라 우체부에서 사용해보세요. 코알라 우체부로 목표를 작성하고 AI 추천을 받아 나만의 만다라트를 완성할 수 있습니다. 지금 바로 시작해서 나만의 만다라트를 완성하고 목표를 달성해보세요."
       />
       <meta
         name="keywords"
@@ -24,13 +24,10 @@ export default function Head() {
       {/* <!-- Open Graph SEO --> */}
       <meta property="og:type" content="website" />
       <meta property="og:site_name" content="만다라트" />
-      <meta
-        property="og:title"
-        content="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
-      />
+      <meta property="og:title" content="만다라트 목표 작성 | 코알라 우체부" />
       <meta
         property="og:description"
-        content="코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다. 만다라트는 목표를 세부적으로 나눠 계획할 수 있는 도구로, 코알라 우체부에서 사용해보세요. 코알라 우체부로 목표를 작성하고 AI 추천을 받아 나만의 만다라트를 완성할 수 있습니다. 작성 완료 후, 코알라 우체부가 목표를 잊지 않게 리마인드 메일을 보내드립니다. 지금 바로 시작해서 나만의 만다라트를 완성하고 목표를 달성해보세요."
+        content="코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다. 만다라트는 목표를 세부적으로 나눠 계획할 수 있는 도구로, 코알라 우체부에서 사용해보세요. 코알라 우체부로 목표를 작성하고 AI 추천을 받아 나만의 만다라트를 완성할 수 있습니다. 지금 바로 시작해서 나만의 만다라트를 완성하고 목표를 달성해보세요."
       />
       <meta property="og:url" content="https://mandalart.koreankoala.com" />
 
@@ -73,7 +70,7 @@ export default function Head() {
           "@type": "WebApplication",
           "name": "만다라트",
           "applicationCategory": "ProductivityApplication",
-          "description": "코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다. 만다라트는 목표를 세부적으로 나눠 계획할 수 있는 도구로, 코알라 우체부에서 사용해보세요. 코알라 우체부로 목표를 작성하고 AI 추천을 받아 나만의 만다라트를 완성할 수 있습니다. 작성 완료 후, 코알라 우체부가 목표를 잊지 않게 리마인드 메일을 보내드립니다. 지금 바로 시작해서 나만의 만다라트를 완성하고 목표를 달성해보세요.",
+          "description": "코알라 우체부는 만다라트 기반으로 목표를 설정하고, 리마인드하는 서비스입니다. 만다라트는 목표를 세부적으로 나눠 계획할 수 있는 도구로, 코알라 우체부에서 사용해보세요. 코알라 우체부로 목표를 작성하고 AI 추천을 받아 나만의 만다라트를 완성할 수 있습니다. 지금 바로 시작해서 나만의 만다라트를 완성하고 목표를 달성해보세요.",
           "url": "https://mandalart.koreankoala.com",
           "offers": {
             "@type": "Offer",
@@ -85,7 +82,6 @@ export default function Head() {
           "featureList": [
             "9x9 만다라트 차트",
             "목표 설정 및 관리",
-            "목표 리마인드"
           ],
           "inLanguage": "ko"
         }`,

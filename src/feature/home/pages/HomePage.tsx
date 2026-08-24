@@ -29,7 +29,7 @@ export default function HomePage({ getCurrentBackground }: MandaraChartProps) {
             <img
               className="fixed inset-0 w-full h-full object-cover -z-10"
               src={backgroundImage[0]}
-              alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
+              alt="만다라트 목표 작성 | 코알라 우체부"
             />
           </picture>
         </div>
