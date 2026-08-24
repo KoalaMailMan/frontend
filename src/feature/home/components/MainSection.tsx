@@ -12,7 +12,7 @@ export default function MainSection({}: Props) {
             src={koalaTextLogoCol}
             srcSet={koalaTextLogoColSrcSet}
             sizes="(max-width: 600px) 90vw, 940px"
-            alt="만다라트 목표 작성 & 리마인드 | 코알라 우체부"
+            alt="만다라트 목표 작성 | 코알라 우체부"
             className="w-full max-w-xl mx-auto"
             width={576}
             height={444}
@@ -25,9 +25,7 @@ export default function MainSection({}: Props) {
               imageRendering: "pixelated",
             }}
           />
-          <span className="sr-only">
-            만다라트 목표 작성 & 리마인드 | 코알라 우체부
-          </span>
+          <span className="sr-only">만다라트 목표 작성 | 코알라 우체부</span>
         </h1>
       </div>
       <div className="space-y-4 max-w-sm mx-auto">

@@ -68,14 +68,14 @@ export const tutorialSteps: TutorialStep[] = [
     position: "top",
     mobilePosition: "top",
   },
-  {
-    id: "reminder",
-    title: "6단계: 우체부 서비스 신청해요",
-    description:
-      "목표를 잊지 않도록 정기적으로 응원 메일을 보내드릴게요. 함께 성장해요!",
-    targetSelector: '[data-tutorial="reminder-button"]',
-    className: "reminder-button",
-    position: "top",
-    mobilePosition: "top",
-  },
+  // {
+  //   id: "reminder",
+  //   title: "6단계: 우체부 서비스 신청해요",
+  //   description:
+  //     "목표를 잊지 않도록 정기적으로 응원 메일을 보내드릴게요. 함께 성장해요!",
+  //   targetSelector: '[data-tutorial="reminder-button"]',
+  //   className: "reminder-button",
+  //   position: "top",
+  //   mobilePosition: "top",
+  // },
 ];

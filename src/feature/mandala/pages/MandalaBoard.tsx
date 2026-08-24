@@ -65,7 +65,7 @@ MandaraChartProps) {
       setAuthText({
         title: "저장하려면 로그인이 필요해요",
         description:
-          "로그인 시 만다라트 저장은 물론, AI가 방향을 제안해주고 \n리마인드 메일로 꾸준함까지 도와드려요.",
+          "로그인 시 만다라트 저장은 물론, AI가 방향을 제안해주고 \n도와드려요.",
       });
       setAuthOpen(true);
       return;
@@ -107,9 +107,7 @@ MandaraChartProps) {
           )}
         >
           <h1 className="relative">
-            <span className="sr-only">
-              만다라트 목표 작성 & 리마인드 | 코알라 우체부
-            </span>
+            <span className="sr-only">만다라트 목표 작성 | 코알라 우체부</span>
 
             <img
               src={KoalaTextLogo[0]}
@@ -163,7 +161,7 @@ MandaraChartProps) {
                   variant="outline"
                   onClick={() => setFullVisible(true)}
                   className={`w-[136px] h-[32px] flex items-center gap-2 pixel-button text-sm px-4 py-2 bg-white border-[#CCCCCC] border-1 text-[#373737] font-medium active:bg-[#CCCCCC] active:border-[#B3B3B3] shadow-[4px_4px_0_0_rgba(102,102,102,0.6)] active:shadow-[inset_0_2px_4px_0_rgba(0,0,0,0.25)] backdrop-blur-sm`}
-                  data-tutorial="reminder-button"
+                  // data-tutorial="reminder-button"
                   data-testid="full-open-button"
                 >
                   <FullIcon />
