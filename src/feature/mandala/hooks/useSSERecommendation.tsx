@@ -138,7 +138,9 @@ export default function useSSERecommendation({
       const params = encodingURI({
         parentGoal: goal,
         recommendationCount: count.toString(),
-        excludeGoals: existingGoals.join(","),
+        ...(existingGoals.length > 0 && {
+          existingGoals: existingGoals.join(","),
+        }),
       });
       const RECOMMEND_URL = `${baseURL}/api/recommend/streaming?${params}`;
 
