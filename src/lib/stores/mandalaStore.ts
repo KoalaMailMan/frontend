@@ -53,7 +53,7 @@ type States = {
 } & PersistedState;
 
 type PersistedState = {
-  // data: MandalaType;
+  data: MandalaType;
 };
 
 type Actions = {
@@ -392,27 +392,19 @@ export const useMandalaStore = create<States & Actions>()(
     })),
     {
       name: "mandalart",
-      // partialize: (state): PersistedState => ({
-      //   data: state.data,
-      // }),
-      version: 3,
+      partialize: (state): PersistedState => ({
+        data: state.data,
+      }),
+      version: 4,
       // version 1 → 2 마이그레이션: UI 상태 persist 제거
-      migrate: (persistedState: any, version: number) => {
-        if (version === 1) {
-          const {
-            modalCellId,
-            isModalOpen,
-            isReminderOpen,
-            isFullOpen,
-            ...rest
-          } = persistedState;
-          return rest;
-        }
-        if (version === 2) {
-          const { data, ...rest } = persistedState;
-          return rest;
-        }
-        return persistedState;
+      // version 3 마이그레이션: 전체 state persist 제거
+      // version 4 마이그레이션: 만다라트 목표 data만 저장
+      migrate: (persistedState) => {
+        const state = persistedState as PersistedState;
+
+        return {
+          data: state.data,
+        };
       },
     }
   )
