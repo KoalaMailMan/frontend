@@ -203,7 +203,7 @@ export default function MandalaModal({ isModalVisible }: Props) {
           {centerIndex !== undefined && (
             <div>
               <div>
-                <div className="h-[430px] flex justify-center py-[25px] px-[54px]">
+                <div className="h-[430px] flex justify-center px-[54px]">
                   <div className="grid grid-cols-3 gap-2 w-full aspect-square relative">
                     {/* 로딩스피너 오버레이(화이트) */}
                     {isStreaming && (
